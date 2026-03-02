@@ -1,0 +1,49 @@
+version: "3.8"
+
+services:
+  billing-service:
+    build:
+      context: .
+    container_name: billing-service
+    image: ghcr.io/${REPO_NAME}:latest
+    ports:
+      - "8081:8081"   # change if your billing service runs on another port
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+
+      # Spring Datasource (PostgreSQL)
+      SPRING_DATASOURCE_URL: jdbc:postgresql://billing-db:5432/billing_db
+      SPRING_DATASOURCE_USERNAME: billing_user
+      SPRING_DATASOURCE_PASSWORD: billing_password
+
+      # Flyway (optional but recommended)
+      SPRING_FLYWAY_ENABLED: "true"
+      SPRING_FLYWAY_BASELINE_ON_MIGRATE: "true"
+
+      # JPA (recommended with Flyway)
+      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+    depends_on:
+      - billing-db
+    restart: unless-stopped
+    networks:
+      - ms-net
+
+  billing-db:
+    image: postgres:18
+    container_name: billing-db
+    environment:
+      POSTGRES_DB: billing_db
+      POSTGRES_USER: billing_user
+      POSTGRES_PASSWORD: billing_password
+    ports:
+      - "5432:5432"   # optional; remove if you don't need DB access from host
+    restart: unless-stopped
+    networks:
+      - ms-net
+
+volumes:
+  billing_db_data:
+
+networks:
+  ms-net:
+    external: true
