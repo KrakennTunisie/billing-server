@@ -1,0 +1,16 @@
+name: Billing server CI/CD Pipeline
+
+on:
+ push:
+   branches: [main]
+ pull_request:
+   branches: [main]
+jobs:
+  deploy:
+     uses: KrakennTunisie/Devops_workflow/.github/workflows/worflow_orchestrator.yml@main
+     with:
+       java-version: "17"
+     secrets: 
+      SERVER_HOST: ${{ secrets.SERVER_HOST }}
+      SERVER_USER: ${{ secrets.SERVER_USER }}
+      SERVER_PASSWORD: ${{ secrets.SERVER_PASSWORD }}
