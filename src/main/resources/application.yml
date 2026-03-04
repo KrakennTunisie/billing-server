@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: billing-server
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://eureka-server:8761/eureka
