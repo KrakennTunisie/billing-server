@@ -1,5 +1,5 @@
 # 1. Build Stage
-FROM eclipse-temurin:17-jre-jammy
+FROM eclipse-temurin:17-jre-jammy as build
 WORKDIR /app
 
 
