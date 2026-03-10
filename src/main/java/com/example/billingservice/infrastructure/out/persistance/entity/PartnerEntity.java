@@ -2,12 +2,16 @@ package com.example.billingservice.infrastructure.out.persistance.entity;
 
 import com.example.billingservice.domain.enums.PartnerType;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 import java.util.UUID;
 
 @Entity
 @Table(name = "partners")
+@Setter
+@Getter
 public class PartnerEntity {
 
     @Id
@@ -24,7 +28,7 @@ public class PartnerEntity {
 
     private String country;
 
-    private String adress;
+    private String address;
 
     private String iban;
 
