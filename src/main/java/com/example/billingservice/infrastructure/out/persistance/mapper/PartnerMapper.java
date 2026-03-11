@@ -65,20 +65,6 @@ public class PartnerMapper {
         entity.setPatente(patente);
         return  entity;
     }
-    public Partner toDomain(PartnerSummaryDTO entity)
-    {
-        return Partner.builder()
-                .idPartner(entity.idPartner())
-                .name(entity.name())
-                .email(entity.email())
-                .phoneNumber(entity.phoneNumber())
-                .taxRegistrationNumber(entity.taxRegistrationNumber())
-                .country(entity.country())
-                .address(entity.address())
-                .iban(entity.iban())
-                .partnerType(entity.partnerType())
-                .build();
-    }
     public Partner toDomain(PartnerEntity entity)
     {
         // Déduire PartnerType
