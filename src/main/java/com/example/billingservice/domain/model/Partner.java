@@ -1,6 +1,7 @@
 package com.example.billingservice.domain.model;
 
 import com.example.billingservice.domain.enums.PartnerType;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,6 +12,7 @@ import java.util.UUID;
 
 @Getter
 @Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Modèle partenaire")
 public class Partner {
     @Schema(description = "Identifiant unique", example = "550e8400-e29b-41d4-a716-446655440000")

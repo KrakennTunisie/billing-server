@@ -1,4 +1,4 @@
-package com.example.billingservice.application.ports.in;
+package com.example.billingservice.infrastructure.out.persistance.dto;
 
 
 import com.example.billingservice.domain.enums.PartnerType;

@@ -1,95 +1,136 @@
 package com.example.billingservice.application.service;
 
-import com.example.billingservice.application.ports.in.PartnerDTO;
+import com.example.billingservice.application.ports.out.CustomerRepositoryPort;
+import com.example.billingservice.application.ports.out.SupplierRepositoryPort;
+import com.example.billingservice.domain.exceptions.BillingException;
+import com.example.billingservice.infrastructure.out.persistance.dto.PartnerDTO;
 import com.example.billingservice.application.ports.in.PartnerUseCase;
-import com.example.billingservice.application.ports.out.PartnerRepositoryPort;
-import com.example.billingservice.domain.enums.PartnerType;
 import com.example.billingservice.domain.model.Partner;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class PartnerService implements PartnerUseCase {
+public class PartnerService implements PartnerUseCase  {
 
-    private  final PartnerRepositoryPort partnerRepositoryPort;
+    private final CustomerRepositoryPort customerRepositoryPort;
+    private final SupplierRepositoryPort supplierRepositoryPort;
+
+
+
+    /********* SUPPLIER ********/
 
     @Override
-    public Partner createPartner(PartnerDTO partner) {
+    public Partner createSupplier(PartnerDTO partner) {
 
-        Partner partnerEntity = Partner.builder().name(partner.getName()).email(partner.getEmail()).phoneNumber(partner.getPhoneNumber())
+        Partner  partnerModel = Partner.builder().name(partner.getName()).email(partner.getEmail()).phoneNumber(partner.getPhoneNumber())
                 .taxRegistrationNumber(partner.getTaxRegistrationNumber()).country(partner.getCountry())
                 .address(partner.getAddress()).iban(partner.getIban()).partnerType(partner.getPartnerType())
                  .rne(partner.getRne()).contract(partner.getContrat())
                 .patente(partner.getPatente()).build();
-        return partnerRepositoryPort.save(partnerEntity);
+        return supplierRepositoryPort.saveSupplier(partnerModel);
     }
 
     @Override
-    public Optional<Partner> getById(String id) {
-        return partnerRepositoryPort.findById(id);
+    public Optional<Partner> getSupplierById(String id) {
+        return supplierRepositoryPort.findSupplierById(id);
     }
 
     @Override
-    public List<Partner> getAll() {
-        return  partnerRepositoryPort.findAll();
+    public Page<Partner> getAllSuppliers(String keyword , String Country ,int page) {
+        return  supplierRepositoryPort.findAllSuppliers(keyword, Country, page);
     }
 
     @Override
-    public void deletePartner(String id) {
-      partnerRepositoryPort.deleteById(id);
+    public void deleteSupplier(String id) {
+      supplierRepositoryPort.deleteSupplierById(id);
+    }
+
+
+    @Override
+    public Partner updateSupplier(String id, PartnerDTO partnerDTO) {
+
+        Optional <Partner> existing = supplierRepositoryPort.findSupplierById(id);
+
+        if (existing.isPresent()) {
+            Partner updated = Partner.builder()
+                    .idPartner(existing.get().getIdPartner())
+                    .name(partnerDTO.getName())
+                    .email(partnerDTO.getEmail())
+                    .phoneNumber(partnerDTO.getPhoneNumber())
+                    .country(partnerDTO.getCountry())
+                    .address(partnerDTO.getAddress())
+                    .iban(partnerDTO.getIban())
+                    .partnerType(existing.get().getPartnerType())
+                    .taxRegistrationNumber(existing.get().getTaxRegistrationNumber())
+                    .rne(existing.get().getRne())
+                    .patente(existing.get().getPatente())
+                    .contract(existing.get().getContract())
+                    .build();
+            return supplierRepositoryPort.updateSupplier(updated);
+        }
+        else {
+            throw BillingException.notFound("Supplier not found ",id);
+        }
+    }
+
+    /************ CUSTOMER **********/
+
+    @Override
+    public Partner createCustomer(PartnerDTO partner) {
+        Partner partnerModel = Partner.builder().name(partner.getName()).email(partner.getEmail()).phoneNumber(partner.getPhoneNumber())
+                .taxRegistrationNumber(partner.getTaxRegistrationNumber()).country(partner.getCountry())
+                .address(partner.getAddress()).iban(partner.getIban()).partnerType(partner.getPartnerType())
+                .rne(partner.getRne()).contract(partner.getContrat())
+                .patente(partner.getPatente()).build();
+        return customerRepositoryPort.saveCustomer(partnerModel);
     }
 
     @Override
-    public Partner getByName(String name) {
-        return partnerRepositoryPort.findByName(name);
+    public Page<Partner> getAllCustomers(String keyword , String Country ,int page) {
+        return customerRepositoryPort.findAllCustomers(keyword, Country, page);
     }
 
     @Override
-    public Partner getByEmail(String email) {
-        return partnerRepositoryPort.findByEmail(email);
+    public Optional<Partner> findCustomerById(String id) {
+        return customerRepositoryPort.findCustomerById(id);
     }
 
     @Override
-    public Partner getByTaxRegistrationNumber(String TaxRegistrationNumber) {
-        return partnerRepositoryPort.findByTaxRegistrationNumber(TaxRegistrationNumber);
+    public void deleteCustomerById(String id) {
+        customerRepositoryPort.deleteCustomerById(id);
     }
 
     @Override
-    public List <Partner> getByPartnerType(PartnerType partnerType) {
-        return partnerRepositoryPort.findByPartnerType(partnerType);
+    public Partner updateCustomer(String id, PartnerDTO partner) {
+        Optional <Partner> existing = customerRepositoryPort.findCustomerById(id);
+
+        if (existing.isPresent()) {
+            Partner updated = Partner.builder()
+                    .idPartner(existing.get().getIdPartner())
+                    .name(partner.getName())
+                    .email(partner.getEmail())
+                    .phoneNumber(partner.getPhoneNumber())
+                    .country(partner.getCountry())
+                    .address(partner.getAddress())
+                    .iban(partner.getIban())
+                    .partnerType(existing.get().getPartnerType())
+                    .taxRegistrationNumber(existing.get().getTaxRegistrationNumber())
+                    .rne(existing.get().getRne())
+                    .patente(existing.get().getPatente())
+                    .contract(existing.get().getContract())
+                    .build();
+            return customerRepositoryPort.updateCustomer(updated);
+        }
+        else {
+            throw BillingException.notFound("Customer not found ",id);
+        }
     }
 
-    @Override
-    public Partner updatePartner(String id, PartnerDTO partnerDTO) {
 
-       Optional <Partner> existing = partnerRepositoryPort.findById(id);
 
-       if (existing.isPresent()) {
-           Partner updated = Partner.builder()
-                   .idPartner(existing.get().getIdPartner())
-                   .name(partnerDTO.getName())
-                   .email(partnerDTO.getEmail())
-                   .phoneNumber(partnerDTO.getPhoneNumber())
-                   .country(partnerDTO.getCountry())
-                   .address(partnerDTO.getAddress())
-                   .iban(partnerDTO.getIban())
-                   .partnerType(existing.get().getPartnerType())
-                   .taxRegistrationNumber(existing.get().getTaxRegistrationNumber())
-                   .rne(existing.get().getRne())
-                   .patente(existing.get().getPatente())
-                   .contract(existing.get().getContract())
-
-                   .build();
-           return partnerRepositoryPort.save(updated);
-       }
-       else {
-           throw new EntityNotFoundException("Partner with id " + id + " not found");
-       }
-    }
 
 }

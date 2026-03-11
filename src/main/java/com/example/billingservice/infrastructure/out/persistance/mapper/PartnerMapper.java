@@ -1,10 +1,13 @@
 package com.example.billingservice.infrastructure.out.persistance.mapper;
 
 import com.example.billingservice.domain.enums.DocumentType;
+import com.example.billingservice.domain.enums.PartnerType;
 import com.example.billingservice.domain.model.Document;
 import com.example.billingservice.domain.model.Partner;
+import com.example.billingservice.infrastructure.out.persistance.entity.CustomerEntity;
 import com.example.billingservice.infrastructure.out.persistance.entity.DocumentEntity;
 import com.example.billingservice.infrastructure.out.persistance.entity.PartnerEntity;
+import com.example.billingservice.infrastructure.out.persistance.entity.SupplierEntity;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -14,7 +17,11 @@ public class PartnerMapper {
 
     public PartnerEntity toEntity (Partner partner)
     {
-        PartnerEntity entity = new PartnerEntity();
+        // Instancier la bonne classe selon le type
+        PartnerEntity entity = switch (partner.getPartnerType()) {
+            case CUSTOMER -> new CustomerEntity();
+            case SUPPLIER -> new SupplierEntity();
+        };
 
         //RNE
         DocumentEntity rne = new DocumentEntity();
@@ -53,16 +60,37 @@ public class PartnerMapper {
         entity.setCountry(partner.getCountry());
         entity.setAddress((partner.getAddress()));
         entity.setIban(partner.getIban());
-        entity.setPartnerType(partner.getPartnerType());
         entity.setRne(rne);
         entity.setContract(contract);
         entity.setPatente(patente);
         return  entity;
     }
+    public Partner toDomain(PartnerSummaryDTO entity)
+    {
+        return Partner.builder()
+                .idPartner(entity.idPartner())
+                .name(entity.name())
+                .email(entity.email())
+                .phoneNumber(entity.phoneNumber())
+                .taxRegistrationNumber(entity.taxRegistrationNumber())
+                .country(entity.country())
+                .address(entity.address())
+                .iban(entity.iban())
+                .partnerType(entity.partnerType())
+                .build();
+    }
     public Partner toDomain(PartnerEntity entity)
     {
+        // Déduire PartnerType
+        PartnerType partnerType;
+        if (entity instanceof CustomerEntity) {
+            partnerType = PartnerType.CUSTOMER;
+        } else if (entity instanceof SupplierEntity) {
+            partnerType = PartnerType.SUPPLIER;
+        } else {
+            throw new IllegalStateException("Unknown partner type: " + entity.getClass());
+        }
         //RNE
-
         Document rne =Document.builder().idDocument(entity.getRne().getIdDocument()).fileName(entity.getRne().getFileName())
             .mimeType(entity.getRne().getMimeType()).storageURL(entity.getRne().getStorageURL()).hash(entity.getRne().getStorageURL())
                 .uploadedAt(entity.getRne().getUploadedAt()).documentType(entity.getRne().getDocumentType()).build();
@@ -86,7 +114,7 @@ public class PartnerMapper {
                 .country(entity.getCountry())
                 .address(entity.getAddress())
                 .iban(entity.getIban())
-                .partnerType(entity.getPartnerType())
+                .partnerType(partnerType)
                 .rne(rne).contract(contrat).patente(patente)
                 .build();
 

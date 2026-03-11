@@ -10,9 +10,11 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "partners")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "partner_type",discriminatorType = DiscriminatorType.STRING)
 @Setter
 @Getter
-public class PartnerEntity {
+public abstract class PartnerEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -31,9 +33,6 @@ public class PartnerEntity {
     private String address;
 
     private String iban;
-
-    @Enumerated(EnumType.STRING)
-    private PartnerType partnerType;
 
 
     // RNE document

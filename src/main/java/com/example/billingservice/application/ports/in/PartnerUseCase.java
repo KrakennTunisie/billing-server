@@ -2,20 +2,31 @@ package com.example.billingservice.application.ports.in;
 
 import com.example.billingservice.domain.enums.PartnerType;
 import com.example.billingservice.domain.model.Partner;
+import com.example.billingservice.infrastructure.out.persistance.dto.PartnerDTO;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface PartnerUseCase {
 
-    Partner createPartner(PartnerDTO partner);
-    Optional<Partner> getById(String id);
-    List<Partner> getAll();
-    Partner updatePartner (String id , PartnerDTO command);
-    void deletePartner(String id);
-    Partner getByName(String name);
-    Partner getByEmail(String email);
-    Partner getByTaxRegistrationNumber(String TaxRegistrationNumber);
-    List <Partner> getByPartnerType(PartnerType partnerType);
+
+    /****** Supplier *****/
+
+    Partner createSupplier(PartnerDTO partner);
+    Optional<Partner> getSupplierById(String id);
+    Page<Partner> getAllSuppliers(String keyword , String Country ,int page);
+    Partner updateSupplier (String id , PartnerDTO command);
+    void deleteSupplier(String id);
+
+
+    /**** CUSTOMER ****/
+
+    Partner createCustomer(PartnerDTO partner);
+    Page<Partner> getAllCustomers(String keyword , String Country ,int page);
+    Optional<Partner> findCustomerById(String id);
+    void deleteCustomerById(String id);
+    Partner updateCustomer(String id,PartnerDTO partner);
+
 
 }

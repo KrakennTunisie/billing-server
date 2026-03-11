@@ -1,23 +1,22 @@
 package com.example.billingservice.infrastructure.in.web;
 
 
-import com.example.billingservice.application.ports.in.PartnerDTO;
+import com.example.billingservice.infrastructure.out.persistance.dto.PartnerDTO;
 import com.example.billingservice.application.ports.in.PartnerUseCase;
-import com.example.billingservice.domain.enums.PartnerType;
 import com.example.billingservice.domain.model.Partner;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 import java.util.Optional;
+
+
+
+
+
 
 @Tag(name= "Partner API", description = "Gestion des paramétres")
 @RestController
@@ -26,74 +25,75 @@ import java.util.Optional;
 public class PartnerController {
 
     private final PartnerUseCase partnerUseCase;
-    @Operation(summary = "Créer un partenaire", description = "Ajoute un nouveau partenaire")
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "201",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = Partner.class)
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "500",
-                    description = "Erreur serveur",
-                    content = @Content
-            )
-    })
-    @PostMapping
-    public ResponseEntity <Partner> create (@RequestBody PartnerDTO request)
+
+    /*********** SUPPLIER ************/
+
+
+    @Operation(summary = "Créer un fournisseur", description = "Ajoute un nouveau partenaire")
+    @PostMapping("/supplier")
+    public ResponseEntity <Partner> createSupplier (@RequestBody PartnerDTO request)
     {
-        return ResponseEntity.status(201).body(partnerUseCase.createPartner(request));
+        return ResponseEntity.status(201).body(partnerUseCase.createSupplier(request));
     }
-    @GetMapping("/{id}")
-    @Operation(summary = "Récupérer un partenaire")
-    public ResponseEntity<Optional<Partner>> getById(@Parameter(description = "ID du partenaire")@PathVariable String id)
+    @GetMapping("/supplier/{id}")
+    @Operation(summary = "Récupérer un fournisseur")
+    public ResponseEntity<Optional<Partner>> getSupplierById(@Parameter(description = "ID du partenaire")@PathVariable String id)
     {
-        return ResponseEntity.ok(partnerUseCase.getById(id));
+        return ResponseEntity.ok(partnerUseCase.getSupplierById(id));
     }
-    @Operation(summary = "Liste des partenaires")
-    @GetMapping
-    public ResponseEntity <List<Partner>> getAll()
+    @Operation(summary = "Liste des fournisseurs")
+    @GetMapping("/allSuppliers")
+    public ResponseEntity <Page<Partner>> getAllSuppliers(@RequestParam(defaultValue = " ")String Keyword,@RequestParam(defaultValue = "Tunisie")String Country,@RequestParam(defaultValue = "5") int page )
     {
-        return ResponseEntity.ok(partnerUseCase.getAll());
+        return ResponseEntity.ok(partnerUseCase.getAllSuppliers(Keyword, Country, page));
     }
-    @DeleteMapping("/{id}")
-    @Operation(summary = "Suppression d'un partenaire")
-    public ResponseEntity<Void> deletePartner(@Parameter(description = "ID du partenaire") @PathVariable String id)
+    @DeleteMapping("/supplier/{id}")
+    @Operation(summary = "Suppression d'un fournisseur")
+    public ResponseEntity<Void> deleteSupplier(@Parameter(description = "ID du fournisseur") @PathVariable String id)
     {
-        partnerUseCase.deletePartner(id);
+        partnerUseCase.deleteSupplier(id);
         return ResponseEntity.noContent().build();
     }
-    @PutMapping("/{id}")
-    @Operation(summary = "Modification d'un partenaire")
-    public ResponseEntity <Partner> update (@Parameter(description = "ID du partenaire") @PathVariable String id ,@RequestBody PartnerDTO request)
+    @PutMapping("/supplier/{id}")
+    @Operation(summary = "Modification d'un fournisseur")
+    public ResponseEntity <Partner> updateSupplier (@Parameter(description = "ID du fournisseur") @PathVariable String id ,@RequestBody PartnerDTO request)
     {
-       return ResponseEntity.status(201).body(partnerUseCase.updatePartner(id, request)) ;
-    }
-    @GetMapping("/name/{name}")
-    @Operation(summary = "Rechercher par nom")
-    public ResponseEntity <Partner> getPartnerByName (@Parameter(description = "Nom du partenaire", example = "Oumaima chelly") @PathVariable String name)
-    {
-        return ResponseEntity.ok(partnerUseCase.getByName(name));
-    }
-    @GetMapping("/email/{email}")
-    @Operation(summary = "Rechercher par email")
-    public ResponseEntity <Partner> getPartnerByEmail( @Parameter(description = "Email", example = "Oumaima@example.com") @PathVariable String email)
-    {
-        return ResponseEntity.ok(partnerUseCase.getByEmail(email));
-    }
-    @GetMapping("/taxRegistrationNumber/{number}")
-    @Operation(summary = "Rechercher par numéro du tax")
-    public ResponseEntity <Partner> getPartnerByTaxNumber(@Parameter(description = "Numéro du tax", example = "TAX12554") @PathVariable String number)
-    {
-        return ResponseEntity.ok(partnerUseCase.getByTaxRegistrationNumber(number));
-    }
-    @GetMapping("/partnerType/{type}")
-    @Operation(summary = "Rechercher par le type de partenaire")
-    public ResponseEntity <List<Partner>> getPartnerByPartnerType(@Parameter(description = "Type de partenaire", example = "Client") @PathVariable String type)
-    {
-        return ResponseEntity.ok(partnerUseCase.getByPartnerType(PartnerType.valueOf(type)));
+       return ResponseEntity.status(201).body(partnerUseCase.updateSupplier(id,request)) ;
     }
 
+
+
+
+    /********** CUSTOMER *************/
+
+    @PostMapping("/customer")
+    public ResponseEntity <Partner> createCustomer (@RequestBody PartnerDTO request)
+    {
+        return ResponseEntity.status(201).body(partnerUseCase.createCustomer(request));
+    }
+
+    @GetMapping("/allCustomers")
+    public ResponseEntity <Page<Partner>> getAllCustomers(@RequestParam(defaultValue = " ")String Keyword,@RequestParam(defaultValue = "Tunisie")String Country,@RequestParam(defaultValue = "5") int page )
+    {
+        return ResponseEntity.ok(partnerUseCase.getAllCustomers(Keyword, Country, page));
+    }
+    @GetMapping("/customer/{id}")
+    @Operation(summary = "Récupérer un client")
+    public ResponseEntity<Optional<Partner>> getCustomerById(@Parameter(description = "ID du client")@PathVariable String id)
+    {
+        return ResponseEntity.ok(partnerUseCase.findCustomerById(id));
+    }
+    @DeleteMapping("/customer/{id}")
+    @Operation(summary = "Suppression d'un client")
+    public ResponseEntity<Void> deleteCustomer(@Parameter(description = "ID du client") @PathVariable String id)
+    {
+        partnerUseCase.deleteCustomerById(id);
+        return ResponseEntity.noContent().build();
+    }
+    @PutMapping("/customer/{id}")
+    @Operation(summary = "Modification client")
+    public ResponseEntity <Partner> updateCustomer (@Parameter(description = "ID du client") @PathVariable String id ,@RequestBody PartnerDTO request)
+    {
+        return ResponseEntity.status(201).body(partnerUseCase.updateCustomer(id,request)) ;
+    }
 }
