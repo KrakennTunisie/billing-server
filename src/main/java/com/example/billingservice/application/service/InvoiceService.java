@@ -1,14 +1,15 @@
 package com.example.billingservice.application.service;
 
-import com.example.billingservice.application.ports.in.CreateInvoiceUseCase;
+import com.example.billingservice.application.ports.in.InvoiceUseCase;
 import com.example.billingservice.application.ports.out.InvoiceRepositoryPort;
 import com.example.billingservice.domain.model.Invoice;
 
-public class CreateInvoiceService implements CreateInvoiceUseCase {
+
+public class InvoiceService implements InvoiceUseCase {
 
     private final InvoiceRepositoryPort invoiceRepositoryPort;
 
-    public CreateInvoiceService(InvoiceRepositoryPort invoiceRepositoryPort) {
+    public InvoiceService(InvoiceRepositoryPort invoiceRepositoryPort) {
         this.invoiceRepositoryPort = invoiceRepositoryPort;
     }
 

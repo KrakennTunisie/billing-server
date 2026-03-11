@@ -2,13 +2,19 @@ package com.example.billingservice.infrastructure.out.persistance.entity;
 
 import com.example.billingservice.domain.enums.PartnerType;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 import java.util.UUID;
 
 @Entity
 @Table(name = "partners")
-public class PartnerEntity {
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "partner_type",discriminatorType = DiscriminatorType.STRING)
+@Setter
+@Getter
+public abstract class PartnerEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -24,12 +30,9 @@ public class PartnerEntity {
 
     private String country;
 
-    private String adress;
+    private String address;
 
     private String iban;
-
-    @Enumerated(EnumType.STRING)
-    private PartnerType partnerType;
 
 
     // RNE document

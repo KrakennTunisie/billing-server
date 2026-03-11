@@ -2,12 +2,16 @@ package com.example.billingservice.infrastructure.out.persistance.entity;
 
 import com.example.billingservice.domain.enums.DocumentType;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
 @Table(name = "documents")
+@Setter
+@Getter
 public class DocumentEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

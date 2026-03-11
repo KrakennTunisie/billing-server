@@ -1,88 +1,34 @@
 package com.example.billingservice.domain.model;
 
 import com.example.billingservice.domain.enums.DocumentType;
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Objects;
 import java.util.UUID;
 
+@Getter
+@Builder
+@Schema(description = "Modèle Document")
 public class Document {
-
+    @Schema(description = "Identifiant unique", example = "550e8400-e29b-41d4-a716-446655440000")
     private UUID idDocument;
+    @Schema(description = "Nom document", example ="Contrat client v22")
     private String fileName;
+    @Schema(description = "Type MIME du fichier", example = "application/pdf")
     private String mimeType;
+    @Schema(description = "URL de stockage du fichier", example = "http://example.com/storage/contrat.pdf")
     private String storageURL;
+    @Schema(description = "Empreinte du fichier (SHA-256)", example = "a1b2c3d4e5f6...")
     private String hash;
-    private Date uploadedAt;
+    @Schema(description = "Date et heure d'upload", example = "2026-03-09T09:55:22")
+    private LocalDateTime uploadedAt;
 
     private DocumentType documentType;
-
-    public Document(UUID idDocument, String fileName, String mimeType, String storageURL,
-                    String hash, Date uploadedAt, DocumentType documentType) {
-        this.idDocument = idDocument;
-        this.fileName = fileName;
-        this.mimeType = mimeType;
-        this.storageURL = storageURL;
-        this.hash = hash;
-        this.uploadedAt = uploadedAt;
-        this.documentType = documentType;
-    }
-
-    public UUID getIdInvoiceDocument() {
-        return idDocument;
-    }
-
-    public void setIdInvoiceDocument(UUID idDocument) {
-        this.idDocument = idDocument;
-    }
-
-    public String getFileName() {
-        return fileName;
-    }
-
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
-    }
-
-    public String getMimeType() {
-        return mimeType;
-    }
-
-    public void setMimeType(String mimeType) {
-        this.mimeType = mimeType;
-    }
-
-    public String getStorageURL() {
-        return storageURL;
-    }
-
-    public void setStorageURL(String storageURL) {
-        this.storageURL = storageURL;
-    }
-
-    public String getHash() {
-        return hash;
-    }
-
-    public void setHash(String hash) {
-        this.hash = hash;
-    }
-
-    public Date getUploadedAt() {
-        return uploadedAt;
-    }
-
-    public void setUploadedAt(Date uploadedAt) {
-        this.uploadedAt = uploadedAt;
-    }
-
-    public DocumentType getDocumentType() {
-        return documentType;
-    }
-
-    public void setDocumentType(DocumentType documentType) {
-        this.documentType = documentType;
-    }
 
     @Override
     public boolean equals(Object o) {
