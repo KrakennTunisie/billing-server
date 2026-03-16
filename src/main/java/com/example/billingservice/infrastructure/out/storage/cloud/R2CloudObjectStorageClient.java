@@ -10,7 +10,7 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 @Component
 @ConditionalOnProperty(
-        name = "app.storage.cloud.provider",
+        name = "spring.storage.cloud.provider",
         havingValue = "r2",
         matchIfMissing = true
 )

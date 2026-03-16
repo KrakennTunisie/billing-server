@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 import java.util.UUID;
 
 @Component
-@ConditionalOnProperty(name = "app.storage.type", havingValue = "cloud")
+@ConditionalOnProperty(name = "spring.storage.type", havingValue = "cloud")
 public class CloudDocumentStorageAdapter implements DocumentStoragePort {
     private final CloudObjectStorageClient cloudObjectStorageClient;
 

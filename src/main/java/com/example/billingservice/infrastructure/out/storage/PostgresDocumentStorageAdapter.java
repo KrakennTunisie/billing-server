@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 import java.util.UUID;
 
 @Component
-@ConditionalOnProperty(name = "app.storage.type", havingValue = "postgres")
+@ConditionalOnProperty(name = "spring.storage.type", havingValue = "postgres")
 public class PostgresDocumentStorageAdapter implements DocumentStoragePort {
 
     private final DocumentContentJpaRepository documentContentJpaRepository;
@@ -24,7 +24,7 @@ public class PostgresDocumentStorageAdapter implements DocumentStoragePort {
 
     public PostgresDocumentStorageAdapter(
             DocumentContentJpaRepository documentContentJpaRepository,
-            @Value("${app.base-url}") String apiBaseUrl
+            @Value("${spring.storage.local.public-base-url}") String apiBaseUrl
     ) {
         this.documentContentJpaRepository = documentContentJpaRepository;
         this.apiBaseUrl = apiBaseUrl;
