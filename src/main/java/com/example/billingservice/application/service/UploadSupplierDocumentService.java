@@ -26,7 +26,7 @@ public class UploadSupplierDocumentService implements UploadPartnerDocumentUseCa
 
     @Override
     public Document upload(UUID customerId, DocumentType documentType, UploadedFile file) {
-        DocumentUploadHelper.validateCustomerDocumentType(documentType);
+        documentUploadHelper.validateCustomerDocumentType(documentType);
 
         Partner supplier = supplierRepositoryPort.findSupplierById(customerId.toString())
                 .orElseThrow(() -> new SupplierNotFoundException(customerId));
@@ -34,7 +34,7 @@ public class UploadSupplierDocumentService implements UploadPartnerDocumentUseCa
         Document uploadedDocument = documentUploadHelper
                 .uploadAndAttachDocument( customerId, file, documentType);
 
-        Partner updatedSupplier = DocumentUploadHelper.attachDocument(supplier, uploadedDocument);
+        Partner updatedSupplier = documentUploadHelper.attachDocument(supplier, uploadedDocument);
 
         supplierRepositoryPort.updateSupplier(updatedSupplier);
 

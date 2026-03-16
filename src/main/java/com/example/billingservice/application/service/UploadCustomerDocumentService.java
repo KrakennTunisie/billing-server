@@ -27,7 +27,7 @@ public class UploadCustomerDocumentService implements UploadPartnerDocumentUseCa
 
     @Override
     public Document upload(UUID customerId, DocumentType documentType, UploadedFile file) {
-        DocumentUploadHelper.validateCustomerDocumentType(documentType);
+        documentUploadHelper.validateCustomerDocumentType(documentType);
 
         Partner customer = customerRepositoryPort.findCustomerById(customerId.toString())
                 .orElseThrow(() -> new CustomerNotFoundException(customerId));
@@ -35,7 +35,7 @@ public class UploadCustomerDocumentService implements UploadPartnerDocumentUseCa
         Document uploadedDocument = documentUploadHelper
                 .uploadAndAttachDocument( customerId, file, documentType);
 
-        Partner updatedCustomer = DocumentUploadHelper.attachDocument(customer, uploadedDocument);
+        Partner updatedCustomer = documentUploadHelper.attachDocument(customer, uploadedDocument);
 
         customerRepositoryPort.updateCustomer(updatedCustomer);
 

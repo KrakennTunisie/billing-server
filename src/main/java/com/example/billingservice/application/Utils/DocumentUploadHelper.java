@@ -43,7 +43,7 @@ public class DocumentUploadHelper {
                 .documentType(documentType)
                 .build();
     }
-    public static void validateCustomerDocumentType(DocumentType documentType) {
+    public void validateCustomerDocumentType(DocumentType documentType) {
         if (documentType != DocumentType.RNE
                 && documentType != DocumentType.CONTRACT
                 && documentType != DocumentType.PATENT) {
@@ -53,7 +53,7 @@ public class DocumentUploadHelper {
         }
     }
 
-    public static Partner attachDocument(Partner customer, Document document) {
+    public Partner attachDocument(Partner customer, Document document) {
         return Partner.builder()
                 .idPartner(customer.getIdPartner())
                 .name(customer.getName())
