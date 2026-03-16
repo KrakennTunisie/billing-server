@@ -1,4 +1,4 @@
-package com.example.billingservice.application.dto;
+package com.example.billingservice.infrastructure.out.persistance.dto;
 
 
 public record StoredDocument(

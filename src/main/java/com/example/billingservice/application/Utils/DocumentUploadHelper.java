@@ -7,21 +7,33 @@ import com.example.billingservice.domain.model.Document;
 import com.example.billingservice.domain.model.Partner;
 import com.example.billingservice.infrastructure.out.persistance.dto.StoredDocument;
 import com.example.billingservice.infrastructure.out.persistance.dto.UploadedFile;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-public class  UploadDocumentPartner {
+@Component
+public class DocumentUploadHelper {
     private final DocumentStoragePort documentStoragePort;
 
-    public UploadDocumentPartner(DocumentStoragePort documentStoragePort) {
+
+    public DocumentUploadHelper(DocumentStoragePort documentStoragePort) {
         this.documentStoragePort = documentStoragePort;
     }
 
-    public Document uploadDocument(UUID customerId, UploadedFile file, DocumentType documentType){
-        StoredDocument storedDocument = documentStoragePort.store(customerId, file, documentType);
+    public Document uploadAndAttachDocument(
+            UUID ownerId,
+            UploadedFile file,
+            DocumentType documentType
+    ) {
 
-        Document document = Document.builder()
+        StoredDocument storedDocument = documentStoragePort.store(ownerId, file, documentType);
+
+        return buildDocument(storedDocument, documentType);
+    }
+
+    private Document buildDocument(StoredDocument storedDocument, DocumentType documentType) {
+        return Document.builder()
                 .idDocument(UUID.randomUUID())
                 .fileName(storedDocument.fileName())
                 .mimeType(storedDocument.mimeType())
@@ -30,9 +42,7 @@ public class  UploadDocumentPartner {
                 .uploadedAt(LocalDateTime.now())
                 .documentType(documentType)
                 .build();
-        return document;
     }
-
     public static void validateCustomerDocumentType(DocumentType documentType) {
         if (documentType != DocumentType.RNE
                 && documentType != DocumentType.CONTRACT

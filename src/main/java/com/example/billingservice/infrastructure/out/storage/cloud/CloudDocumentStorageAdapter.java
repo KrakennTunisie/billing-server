@@ -1,10 +1,12 @@
-package com.example.billingservice.infrastructure.out.storage;
+package com.example.billingservice.infrastructure.out.storage.cloud;
 
+import com.example.billingservice.infrastructure.out.persistance.dto.CloudStoredObject;
 import com.example.billingservice.infrastructure.out.persistance.dto.StoredDocument;
 import com.example.billingservice.infrastructure.out.persistance.dto.UploadedFile;
 import com.example.billingservice.application.ports.out.DocumentStoragePort;
 import com.example.billingservice.domain.enums.DocumentType;
 import com.example.billingservice.domain.exceptions.DocumentStorageException;
+import com.example.billingservice.shared.DocumentUtils;
 import com.example.billingservice.shared.HashUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
@@ -14,32 +16,29 @@ import java.util.UUID;
 @Component
 @ConditionalOnProperty(name = "app.storage.type", havingValue = "cloud")
 public class CloudDocumentStorageAdapter implements DocumentStoragePort {
+    private final CloudObjectStorageClient cloudObjectStorageClient;
+
+    public CloudDocumentStorageAdapter(CloudObjectStorageClient cloudObjectStorageClient) {
+        this.cloudObjectStorageClient = cloudObjectStorageClient;
+    }
 
     @Override
     public StoredDocument store(UUID ownerId, UploadedFile file, DocumentType documentType) {
-        validateFile(file);
+        DocumentUtils.validateFile(file);
 
         try {
-            String ownerFolder = resolveOwnerFolder(documentType);
+            String objectKey = buildObjectKey(ownerId, documentType, file.originalFileName());
 
-            String objectKey = ownerFolder + "/"
-                    + ownerId + "/"
-                    + documentType.name().toLowerCase() + "/"
-                    + UUID.randomUUID() + "_"
-                    + sanitizeFileName(file.originalFileName());
-
-            /*
-             * Example for S3 / MinIO / Azure / GCS:
-             *
-             * cloudClient.upload(objectKey, file.content(), file.mimeType());
-             */
-
-            String publicUrl = buildPublicUrl(objectKey);
+            CloudStoredObject storedObject = cloudObjectStorageClient.upload(
+                    objectKey,
+                    file.content(),
+                    file.mimeType()
+            );
 
             return new StoredDocument(
                     file.originalFileName(),
                     file.mimeType(),
-                    publicUrl,
+                    storedObject.publicUrl(),
                     HashUtils.sha256(file.content())
             );
 
@@ -48,27 +47,19 @@ public class CloudDocumentStorageAdapter implements DocumentStoragePort {
         }
     }
 
-    private void validateFile(UploadedFile file) {
-        if (file == null) {
-            throw new IllegalArgumentException("Uploaded file must not be null");
-        }
-        if (file.content() == null || file.content().length == 0) {
-            throw new IllegalArgumentException("Uploaded file content must not be empty");
-        }
-        if (file.originalFileName() == null || file.originalFileName().isBlank()) {
-            throw new IllegalArgumentException("Uploaded file name must not be blank");
-        }
+
+    private String buildObjectKey(UUID ownerId, DocumentType documentType, String originalFileName) {
+        String rootFolder = DocumentUtils.resolveOwnerFolder(documentType);
+        String safeFileName = DocumentUtils.sanitizeFileName(originalFileName);
+
+        return rootFolder + "/"
+                + ownerId + "/"
+                + documentType.name().toLowerCase() + "/"
+                + UUID.randomUUID() + "_"
+                + safeFileName;
     }
 
-    private String resolveOwnerFolder(DocumentType documentType) {
-        return documentType == DocumentType.INVOICE ? "invoices" : "partners";
-    }
 
-    private String sanitizeFileName(String fileName) {
-        return fileName.replaceAll("[^a-zA-Z0-9._-]", "_");
-    }
 
-    private String buildPublicUrl(String objectKey) {
-        return "https://your-cloud-storage.example.com/" + objectKey;
-    }
+
 }

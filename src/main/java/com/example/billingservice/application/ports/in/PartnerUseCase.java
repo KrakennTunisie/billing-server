@@ -5,6 +5,7 @@ import com.example.billingservice.domain.model.Partner;
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerDTO;
 import org.springframework.data.domain.Page;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -13,7 +14,7 @@ public interface PartnerUseCase {
 
     /****** Supplier *****/
 
-    Partner createSupplier(PartnerDTO partner);
+    Optional<Partner> createSupplier(PartnerDTO partner) throws IOException;
     Optional<Partner> getSupplierById(String id);
     Page<Partner> getAllSuppliers(String keyword , String Country ,int page);
     Partner updateSupplier (String id , PartnerDTO command);
@@ -22,7 +23,7 @@ public interface PartnerUseCase {
 
     /**** CUSTOMER ****/
 
-    Partner createCustomer(PartnerDTO partner);
+    Optional<Partner> createCustomer(PartnerDTO partner) throws IOException;
     Page<Partner> getAllCustomers(String keyword , String Country ,int page);
     Optional<Partner> findCustomerById(String id);
     void deleteCustomerById(String id);

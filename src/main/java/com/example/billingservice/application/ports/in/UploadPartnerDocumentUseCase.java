@@ -6,7 +6,7 @@ import com.example.billingservice.infrastructure.out.persistance.dto.UploadedFil
 
 import java.util.UUID;
 
-public interface UploadPartnerDocumentService {
+public interface UploadPartnerDocumentUseCase {
     Document upload(UUID customerId, DocumentType documentType, UploadedFile file);
 
 }

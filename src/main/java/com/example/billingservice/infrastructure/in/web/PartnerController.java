@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 import java.util.Optional;
 
 
@@ -31,8 +33,7 @@ public class PartnerController {
 
     @Operation(summary = "Créer un fournisseur", description = "Ajoute un nouveau partenaire")
     @PostMapping("/supplier")
-    public ResponseEntity <Partner> createSupplier (@RequestBody PartnerDTO request)
-    {
+    public ResponseEntity <Optional<Partner>> createSupplier (@RequestBody PartnerDTO request) throws IOException {
         return ResponseEntity.status(201).body(partnerUseCase.createSupplier(request));
     }
     @GetMapping("/supplier/{id}")
@@ -67,8 +68,7 @@ public class PartnerController {
     /********** CUSTOMER *************/
 
     @PostMapping("/customer")
-    public ResponseEntity <Partner> createCustomer (@RequestBody PartnerDTO request)
-    {
+    public ResponseEntity <Optional<Partner>> createCustomer (@RequestBody PartnerDTO request) throws IOException {
         return ResponseEntity.status(201).body(partnerUseCase.createCustomer(request));
     }
 

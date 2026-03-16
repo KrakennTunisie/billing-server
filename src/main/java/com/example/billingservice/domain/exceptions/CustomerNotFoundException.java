@@ -1,7 +1,18 @@
 package com.example.billingservice.domain.exceptions;
 
+
+import java.util.UUID;
+
 public class CustomerNotFoundException extends RuntimeException {
-  public CustomerNotFoundException(String message) {
-    super(message);
-  }
+
+    private final UUID customerId;
+
+    public CustomerNotFoundException(UUID customerId) {
+        super("Customer not found with id: " + customerId);
+        this.customerId = customerId;
+    }
+
+    public UUID getCustomerId() {
+        return customerId;
+    }
 }

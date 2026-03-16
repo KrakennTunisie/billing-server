@@ -1,7 +1,15 @@
 package com.example.billingservice.domain.exceptions;
 
+import java.util.UUID;
+
 public class SupplierNotFoundException extends RuntimeException {
-  public SupplierNotFoundException(String message) {
-    super(message);
-  }
-}
+    private final UUID customerId;
+
+    public SupplierNotFoundException(UUID customerId) {
+        super("Customer not found with id: " + customerId);
+        this.customerId = customerId;
+    }
+
+    public UUID getCustomerId() {
+        return customerId;
+    }}
