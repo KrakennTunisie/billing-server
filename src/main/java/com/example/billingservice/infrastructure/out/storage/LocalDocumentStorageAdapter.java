@@ -20,7 +20,6 @@ import java.util.UUID;
 
 
 @Component
-@ConditionalOnProperty(name = "spring.storage.type", havingValue = "local")
 public class LocalDocumentStorageAdapter implements DocumentStoragePort {
 
     private final Path rootPath;
