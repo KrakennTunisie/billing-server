@@ -1,12 +1,10 @@
 package com.example.billingservice.application.ports.in;
 
-import com.example.billingservice.domain.enums.PartnerType;
 import com.example.billingservice.domain.model.Partner;
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerDTO;
 import org.springframework.data.domain.Page;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Optional;
 
 public interface PartnerUseCase {

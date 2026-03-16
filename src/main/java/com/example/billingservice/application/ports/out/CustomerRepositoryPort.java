@@ -1,10 +1,8 @@
 package com.example.billingservice.application.ports.out;
 
-import com.example.billingservice.domain.enums.PartnerType;
 import com.example.billingservice.domain.model.Partner;
 import org.springframework.data.domain.Page;
 
-import java.util.List;
 import java.util.Optional;
 
 public interface CustomerRepositoryPort {

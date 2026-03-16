@@ -2,7 +2,6 @@ package com.example.billingservice.infrastructure.out.persistance.dto;
 
 
 import com.example.billingservice.domain.enums.PartnerType;
-import com.example.billingservice.domain.model.Document;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

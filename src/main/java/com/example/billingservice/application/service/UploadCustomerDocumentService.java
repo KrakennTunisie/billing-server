@@ -2,7 +2,6 @@ package com.example.billingservice.application.service;
 
 import com.example.billingservice.application.Utils.DocumentUploadHelper;
 import com.example.billingservice.application.ports.in.UploadPartnerDocumentUseCase;
-import com.example.billingservice.infrastructure.out.persistance.dto.StoredDocument;
 import com.example.billingservice.infrastructure.out.persistance.dto.UploadedFile;
 import com.example.billingservice.application.ports.out.CustomerRepositoryPort;
 import com.example.billingservice.domain.enums.DocumentType;
@@ -11,7 +10,6 @@ import com.example.billingservice.domain.model.Document;
 import com.example.billingservice.domain.model.Partner;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service

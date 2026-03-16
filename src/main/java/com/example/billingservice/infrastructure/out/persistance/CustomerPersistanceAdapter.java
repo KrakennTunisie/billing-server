@@ -1,12 +1,9 @@
 package com.example.billingservice.infrastructure.out.persistance;
 
 import com.example.billingservice.application.ports.out.CustomerRepositoryPort;
-import com.example.billingservice.domain.enums.PartnerType;
 import com.example.billingservice.domain.exceptions.BillingException;
 import com.example.billingservice.domain.model.Partner;
 import com.example.billingservice.infrastructure.out.persistance.entity.CustomerEntity;
-import com.example.billingservice.infrastructure.out.persistance.entity.PartnerEntity;
-import com.example.billingservice.infrastructure.out.persistance.entity.SupplierEntity;
 import com.example.billingservice.infrastructure.out.persistance.mapper.PartnerMapper;
 import com.example.billingservice.infrastructure.out.persistance.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +14,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
-import java.awt.print.Pageable;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
