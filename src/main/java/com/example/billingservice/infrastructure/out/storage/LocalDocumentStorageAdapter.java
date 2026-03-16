@@ -27,8 +27,8 @@ public class LocalDocumentStorageAdapter implements DocumentStoragePort {
     private final String publicBaseUrl;
 
     public LocalDocumentStorageAdapter(
-            @Value("${app.storage.local.root-path}") String rootPath,
-            @Value("${app.storage.local.public-base-url}") String publicBaseUrl
+            @Value("${spring.storage.local.root-path}") String rootPath,
+            @Value("${spring.storage.local.public-base-url}") String publicBaseUrl
     ) {
         this.rootPath = Paths.get(rootPath);
         this.publicBaseUrl = publicBaseUrl;
