@@ -7,8 +7,6 @@ import com.example.billingservice.domain.enums.DocumentType;
 import com.example.billingservice.domain.exceptions.DocumentStorageException;
 import com.example.billingservice.shared.DocumentUtils;
 import com.example.billingservice.shared.HashUtils;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;

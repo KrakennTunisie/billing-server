@@ -2,7 +2,7 @@ package com.example.billingservice.infrastructure.config;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 
-@ConfigurationProperties(prefix = "app.r2")
+@ConfigurationProperties(prefix = "spring.r2")
 public class R2Properties {
     private String accountId;
     private String accessKeyId;
