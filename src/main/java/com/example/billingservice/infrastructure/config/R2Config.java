@@ -1,5 +1,6 @@
 package com.example.billingservice.infrastructure.config;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
@@ -11,6 +12,8 @@ import software.amazon.awssdk.services.s3.S3Configuration;
 import java.net.URI;
 
 @Configuration
+@ConditionalOnProperty(name = "spring.storage.type", havingValue = "cloud")
+@ConditionalOnProperty(name = "spring.storage.cloud.provider", havingValue = "r2")
 public class R2Config {
 
     @Bean

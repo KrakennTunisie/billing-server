@@ -9,11 +9,8 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 @Component
-@ConditionalOnProperty(
-        name = "spring.storage.cloud.provider",
-        havingValue = "r2",
-        matchIfMissing = true
-)
+@ConditionalOnProperty(name = "spring.storage.type", havingValue = "cloud")
+@ConditionalOnProperty(name = "spring.storage.cloud.provider", havingValue = "r2")
 public class R2CloudObjectStorageClient implements CloudObjectStorageClient {
     private final S3Client s3Client;
     private final R2Properties r2Properties;
