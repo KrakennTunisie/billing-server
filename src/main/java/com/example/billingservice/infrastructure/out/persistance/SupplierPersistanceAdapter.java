@@ -5,7 +5,6 @@ import com.example.billingservice.application.ports.out.SupplierRepositoryPort;
 import com.example.billingservice.domain.exceptions.BillingException;
 import com.example.billingservice.domain.model.Partner;
 
-import com.example.billingservice.infrastructure.out.persistance.entity.CustomerEntity;
 import com.example.billingservice.infrastructure.out.persistance.entity.SupplierEntity;
 import com.example.billingservice.infrastructure.out.persistance.mapper.PartnerMapper;
 import com.example.billingservice.infrastructure.out.persistance.repository.SupplierRepository;

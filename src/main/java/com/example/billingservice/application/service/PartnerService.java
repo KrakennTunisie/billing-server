@@ -2,15 +2,19 @@ package com.example.billingservice.application.service;
 
 import com.example.billingservice.application.ports.out.CustomerRepositoryPort;
 import com.example.billingservice.application.ports.out.SupplierRepositoryPort;
+import com.example.billingservice.domain.enums.DocumentType;
 import com.example.billingservice.domain.exceptions.BillingException;
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerDTO;
 import com.example.billingservice.application.ports.in.PartnerUseCase;
 import com.example.billingservice.domain.model.Partner;
+import com.example.billingservice.infrastructure.out.persistance.dto.UploadedFile;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -18,20 +22,43 @@ public class PartnerService implements PartnerUseCase  {
 
     private final CustomerRepositoryPort customerRepositoryPort;
     private final SupplierRepositoryPort supplierRepositoryPort;
+    private final UploadCustomerDocumentService uploadCustomerDocumentService;
+    private final UploadSupplierDocumentService uploadSupplierDocumentService;
 
 
 
     /********* SUPPLIER ********/
 
     @Override
-    public Partner createSupplier(PartnerDTO partner) {
+    public Optional<Partner> createSupplier(PartnerDTO partner) throws IOException {
+
+        UploadedFile rne = new UploadedFile(
+                partner.getRne().getOriginalFilename(),
+                partner.getRne().getContentType(),
+                partner.getRne().getBytes()
+        );
+
+        UploadedFile contract = new UploadedFile(
+                partner.getContract().getOriginalFilename(),
+                partner.getContract().getContentType(),
+                partner.getContract().getBytes()
+        );
+
+        UploadedFile patente = new UploadedFile(
+                partner.getPatente().getOriginalFilename(),
+                partner.getPatente().getContentType(),
+                partner.getPatente().getBytes()
+        );
 
         Partner  partnerModel = Partner.builder().name(partner.getName()).email(partner.getEmail()).phoneNumber(partner.getPhoneNumber())
                 .taxRegistrationNumber(partner.getTaxRegistrationNumber()).country(partner.getCountry())
                 .address(partner.getAddress()).iban(partner.getIban()).partnerType(partner.getPartnerType())
-                 .rne(partner.getRne()).contract(partner.getContrat())
-                .patente(partner.getPatente()).build();
-        return supplierRepositoryPort.saveSupplier(partnerModel);
+                 .build();
+         UUID supplierID = supplierRepositoryPort.saveSupplier(partnerModel).getIdPartner();
+         uploadSupplierDocumentService.upload(supplierID, DocumentType.RNE, rne);
+         uploadSupplierDocumentService.upload(supplierID, DocumentType.CONTRACT, contract);
+         uploadSupplierDocumentService.upload(supplierID, DocumentType.PATENT, patente);
+         return supplierRepositoryPort.findSupplierById(supplierID.toString());
     }
 
     @Override
@@ -80,13 +107,34 @@ public class PartnerService implements PartnerUseCase  {
     /************ CUSTOMER **********/
 
     @Override
-    public Partner createCustomer(PartnerDTO partner) {
-        Partner partnerModel = Partner.builder().name(partner.getName()).email(partner.getEmail()).phoneNumber(partner.getPhoneNumber())
+    public Optional<Partner> createCustomer(PartnerDTO partner) throws IOException {
+        UploadedFile rne = new UploadedFile(
+                partner.getRne().getOriginalFilename(),
+                partner.getRne().getContentType(),
+                partner.getRne().getBytes()
+        );
+
+        UploadedFile contract = new UploadedFile(
+                partner.getContract().getOriginalFilename(),
+                partner.getContract().getContentType(),
+                partner.getContract().getBytes()
+        );
+
+        UploadedFile patente = new UploadedFile(
+                partner.getPatente().getOriginalFilename(),
+                partner.getPatente().getContentType(),
+                partner.getPatente().getBytes()
+        );
+
+        Partner  partnerModel = Partner.builder().name(partner.getName()).email(partner.getEmail()).phoneNumber(partner.getPhoneNumber())
                 .taxRegistrationNumber(partner.getTaxRegistrationNumber()).country(partner.getCountry())
                 .address(partner.getAddress()).iban(partner.getIban()).partnerType(partner.getPartnerType())
-                .rne(partner.getRne()).contract(partner.getContrat())
-                .patente(partner.getPatente()).build();
-        return customerRepositoryPort.saveCustomer(partnerModel);
+                .build();
+        UUID customerId = customerRepositoryPort.saveCustomer(partnerModel).getIdPartner();
+        uploadCustomerDocumentService.upload(customerId, DocumentType.RNE, rne);
+        uploadCustomerDocumentService.upload(customerId, DocumentType.CONTRACT, contract);
+        uploadCustomerDocumentService.upload(customerId, DocumentType.PATENT, patente);
+        return customerRepositoryPort.findCustomerById(customerId.toString());
     }
 
     @Override

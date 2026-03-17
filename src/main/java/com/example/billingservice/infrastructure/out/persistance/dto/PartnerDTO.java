@@ -2,10 +2,10 @@ package com.example.billingservice.infrastructure.out.persistance.dto;
 
 
 import com.example.billingservice.domain.enums.PartnerType;
-import com.example.billingservice.domain.model.Document;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 @AllArgsConstructor
@@ -27,10 +27,13 @@ public class PartnerDTO {
     private String iban;
     @Schema(description = "Type de partenaire", example = "SUPPLIER")
     private PartnerType partnerType;
+
     @Schema(description = "Document RNE")
-    private Document rne;
-    @Schema(description = "Document du patente")
-    private Document patente;
-    @Schema(description = "Document du contart")
-    private Document contrat;
+    private MultipartFile rne;
+
+    @Schema(description = "Document Patente")
+    private MultipartFile patente;
+
+    @Schema(description = "Document Contrat")
+    private MultipartFile contract;
 }
