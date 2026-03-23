@@ -15,29 +15,18 @@ import java.util.UUID;
 @Service
 public class UploadCustomerDocumentService implements UploadPartnerDocumentUseCase {
 
-    private final CustomerRepositoryPort customerRepositoryPort;
     private final DocumentUploadHelper documentUploadHelper;
 
-    public UploadCustomerDocumentService(
-            CustomerRepositoryPort customerRepositoryPort, DocumentUploadHelper documentUploadHelper
-    ) {
-        this.customerRepositoryPort = customerRepositoryPort;
+    public UploadCustomerDocumentService( DocumentUploadHelper documentUploadHelper) {
         this.documentUploadHelper = documentUploadHelper;
     }
 
     @Override
-    public Document upload(UUID customerId, DocumentType documentType, UploadedFile file) {
+    public Document upload(String ownerReference, DocumentType documentType, UploadedFile file) {
         documentUploadHelper.validateCustomerDocumentType(documentType);
 
-        Partner customer = customerRepositoryPort.findCustomerById(customerId.toString())
-                .orElseThrow(() -> new CustomerNotFoundException(customerId));
-
         Document uploadedDocument = documentUploadHelper
-                .uploadAndAttachDocument( customerId, file, documentType);
-
-        Partner updatedCustomer = documentUploadHelper.attachDocument(customer, uploadedDocument);
-
-        customerRepositoryPort.updateCustomer(updatedCustomer);
+                .uploadAndAttachDocument( ownerReference, file, documentType);
 
         return uploadedDocument;
     }

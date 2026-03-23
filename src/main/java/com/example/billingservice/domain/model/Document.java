@@ -1,5 +1,6 @@
 package com.example.billingservice.domain.model;
 
+import com.example.billingservice.domain.enums.DocumentStorageMode;
 import com.example.billingservice.domain.enums.DocumentType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
@@ -12,6 +13,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Getter
+@Setter
 @Builder
 @Schema(description = "Modèle Document")
 public class Document {
@@ -25,6 +27,8 @@ public class Document {
     private String storageURL;
     @Schema(description = "Empreinte du fichier (SHA-256)", example = "a1b2c3d4e5f6...")
     private String hash;
+    @Schema(description = "Mode de stockage du document", example = "FILESYSTEM")
+    private DocumentStorageMode storageMode;
     @Schema(description = "Date et heure d'upload", example = "2026-03-09T09:55:22")
     private LocalDateTime uploadedAt;
 

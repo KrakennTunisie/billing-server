@@ -22,27 +22,17 @@ public class DocumentUploadHelper {
     }
 
     public Document uploadAndAttachDocument(
-            UUID ownerId,
+            String ownerReference,
             UploadedFile file,
             DocumentType documentType
     ) {
 
-        StoredDocument storedDocument = documentStoragePort.store(ownerId, file, documentType);
+        Document storedDocument = documentStoragePort.store(ownerReference, file, documentType);
 
-        return buildDocument(storedDocument, documentType);
+        return storedDocument;
     }
 
-    private Document buildDocument(StoredDocument storedDocument, DocumentType documentType) {
-        return Document.builder()
-                .idDocument(UUID.randomUUID())
-                .fileName(storedDocument.fileName())
-                .mimeType(storedDocument.mimeType())
-                .storageURL(storedDocument.storageUrl())
-                .hash(storedDocument.hash())
-                .uploadedAt(LocalDateTime.now())
-                .documentType(documentType)
-                .build();
-    }
+
     public void validateCustomerDocumentType(DocumentType documentType) {
         if (documentType != DocumentType.RNE
                 && documentType != DocumentType.CONTRACT
@@ -53,21 +43,4 @@ public class DocumentUploadHelper {
         }
     }
 
-    public Partner attachDocument(Partner customer, Document document) {
-        return Partner.builder()
-                .idPartner(customer.getIdPartner())
-                .name(customer.getName())
-                .email(customer.getEmail())
-                .phoneNumber(customer.getPhoneNumber())
-                .taxRegistrationNumber(customer.getTaxRegistrationNumber())
-                .country(customer.getCountry())
-                .address(customer.getAddress())
-                .iban(customer.getIban())
-                .partnerType(customer.getPartnerType())
-                .invoices(customer.getInvoices())
-                .rne(document.getDocumentType() == DocumentType.RNE ? document : customer.getRne())
-                .contract(document.getDocumentType() == DocumentType.CONTRACT ? document : customer.getContract())
-                .patente(document.getDocumentType() == DocumentType.PATENT ? document : customer.getPatente())
-                .build();
-    }
 }

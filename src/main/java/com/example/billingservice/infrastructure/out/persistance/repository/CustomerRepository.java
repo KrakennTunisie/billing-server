@@ -17,11 +17,21 @@ public interface CustomerRepository extends JpaRepository<CustomerEntity, UUID> 
 
     Optional<CustomerEntity> findByTaxRegistrationNumber(String taxRegistrationNumber);
 
-    @Query("SELECT p FROM CustomerEntity p WHERE " +
-            "(:keyword IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
-            "LOWER(p.email) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
-            "LOWER(p.taxRegistrationNumber) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
-            "AND (:country IS NULL OR LOWER(p.country) = LOWER(:country))")
+    @Query("""
+    SELECT p FROM CustomerEntity p
+    WHERE
+        (
+            :keyword IS NULL OR :keyword = '' OR
+            LOWER(p.name) LIKE LOWER(CONCAT('%', CAST(:keyword AS string), '%')) OR
+            LOWER(p.email) LIKE LOWER(CONCAT('%', CAST(:keyword AS string), '%')) OR
+            LOWER(p.taxRegistrationNumber) LIKE LOWER(CONCAT('%', CAST(:keyword AS string), '%'))
+        )
+    AND
+        (
+            :country IS NULL OR :country = '' OR
+            LOWER(p.country) = LOWER(CAST(:country AS string))
+        )
+""")
     Page<CustomerEntity> findCustomers(
             @Param("keyword") String keyword,
             @Param("country") String country,

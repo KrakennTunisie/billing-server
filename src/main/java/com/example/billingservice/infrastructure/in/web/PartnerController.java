@@ -4,11 +4,13 @@ package com.example.billingservice.infrastructure.in.web;
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerDTO;
 import com.example.billingservice.application.ports.in.PartnerUseCase;
 import com.example.billingservice.domain.model.Partner;
+import com.example.billingservice.infrastructure.out.persistance.dto.PartnerForm;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,31 +33,31 @@ public class PartnerController {
     /*********** SUPPLIER ************/
 
 
-    @Operation(summary = "Créer un fournisseur", description = "Ajoute un nouveau partenaire")
-    @PostMapping("/supplier")
-    public ResponseEntity <Optional<Partner>> createSupplier (@RequestBody PartnerDTO request) throws IOException {
-        return ResponseEntity.status(201).body(partnerUseCase.createSupplier(request));
+    @Operation(summary = "Créer un fournisseur", description = "Ajoute un nouveau fournisseur")
+    @PostMapping(path = "/suppliers", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity <Optional<Partner>> createSupplier (@ModelAttribute PartnerForm form) throws IOException {
+        return ResponseEntity.status(201).body(partnerUseCase.createSupplier(form));
     }
-    @GetMapping("/supplier/{id}")
+    @GetMapping("/suppliers/{id}")
     @Operation(summary = "Récupérer un fournisseur")
     public ResponseEntity<Optional<Partner>> getSupplierById(@Parameter(description = "ID du partenaire")@PathVariable String id)
     {
         return ResponseEntity.ok(partnerUseCase.getSupplierById(id));
     }
     @Operation(summary = "Liste des fournisseurs")
-    @GetMapping("/allSuppliers")
-    public ResponseEntity <Page<Partner>> getAllSuppliers(@RequestParam(defaultValue = " ")String Keyword,@RequestParam(defaultValue = "Tunisie")String Country,@RequestParam(defaultValue = "5") int page )
+    @GetMapping("/suppliers")
+    public ResponseEntity <Page<Partner>> getAllSuppliers(@RequestParam(required = false) String keyword,@RequestParam(required = false) String country,@RequestParam int page )
     {
-        return ResponseEntity.ok(partnerUseCase.getAllSuppliers(Keyword, Country, page));
+        return ResponseEntity.ok(partnerUseCase.getAllSuppliers(keyword, country, page));
     }
-    @DeleteMapping("/supplier/{id}")
+    @DeleteMapping("/suppliers/{id}")
     @Operation(summary = "Suppression d'un fournisseur")
     public ResponseEntity<Void> deleteSupplier(@Parameter(description = "ID du fournisseur") @PathVariable String id)
     {
         partnerUseCase.deleteSupplier(id);
         return ResponseEntity.noContent().build();
     }
-    @PutMapping("/supplier/{id}")
+    @PutMapping("/suppliers/{id}")
     @Operation(summary = "Modification d'un fournisseur")
     public ResponseEntity <Partner> updateSupplier (@Parameter(description = "ID du fournisseur") @PathVariable String id ,@RequestBody PartnerDTO request)
     {
@@ -66,31 +68,31 @@ public class PartnerController {
 
 
     /********** CUSTOMER *************/
-
-    @PostMapping("/customer")
-    public ResponseEntity <Optional<Partner>> createCustomer (@RequestBody PartnerDTO request) throws IOException {
-        return ResponseEntity.status(201).body(partnerUseCase.createCustomer(request));
+    @Operation(summary = "Créer un client", description = "Ajoute un nouveau client")
+    @PostMapping(path = "/clients", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity <Optional<Partner>> createCustomer (@ModelAttribute PartnerForm form) throws IOException {
+        return ResponseEntity.status(201).body(partnerUseCase.createCustomer(form));
     }
 
-    @GetMapping("/allCustomers")
-    public ResponseEntity <Page<Partner>> getAllCustomers(@RequestParam(defaultValue = " ")String Keyword,@RequestParam(defaultValue = "Tunisie")String Country,@RequestParam(defaultValue = "5") int page )
+    @GetMapping("/clients")
+    public ResponseEntity <Page<Partner>> getAllCustomers(@RequestParam(required = false) String keyword,@RequestParam(required = false) String country,@RequestParam int page )
     {
-        return ResponseEntity.ok(partnerUseCase.getAllCustomers(Keyword, Country, page));
+        return ResponseEntity.ok(partnerUseCase.getAllCustomers(keyword, country, page));
     }
-    @GetMapping("/customer/{id}")
+    @GetMapping("/clients/{id}")
     @Operation(summary = "Récupérer un client")
     public ResponseEntity<Optional<Partner>> getCustomerById(@Parameter(description = "ID du client")@PathVariable String id)
     {
         return ResponseEntity.ok(partnerUseCase.findCustomerById(id));
     }
-    @DeleteMapping("/customer/{id}")
+    @DeleteMapping("/clients/{id}")
     @Operation(summary = "Suppression d'un client")
     public ResponseEntity<Void> deleteCustomer(@Parameter(description = "ID du client") @PathVariable String id)
     {
         partnerUseCase.deleteCustomerById(id);
         return ResponseEntity.noContent().build();
     }
-    @PutMapping("/customer/{id}")
+    @PutMapping("/clients/{id}")
     @Operation(summary = "Modification client")
     public ResponseEntity <Partner> updateCustomer (@Parameter(description = "ID du client") @PathVariable String id ,@RequestBody PartnerDTO request)
     {

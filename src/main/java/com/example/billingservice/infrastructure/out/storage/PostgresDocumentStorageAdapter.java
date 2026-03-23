@@ -1,58 +1,46 @@
 package com.example.billingservice.infrastructure.out.storage;
 
-import com.example.billingservice.infrastructure.out.persistance.dto.StoredDocument;
+import com.example.billingservice.domain.model.Document;
 import com.example.billingservice.infrastructure.out.persistance.dto.UploadedFile;
 import com.example.billingservice.application.ports.out.DocumentStoragePort;
 import com.example.billingservice.domain.enums.DocumentType;
 import com.example.billingservice.domain.exceptions.DocumentStorageException;
-import com.example.billingservice.infrastructure.out.persistance.entity.DocumentContentEntity;
-import com.example.billingservice.infrastructure.out.persistance.repository.DocumentContentJpaRepository;
+import com.example.billingservice.infrastructure.out.persistance.entity.DocumentEntity;
+import com.example.billingservice.infrastructure.out.persistance.mapper.DocumentMapper;
+import com.example.billingservice.infrastructure.out.persistance.repository.JpaDocumentRepository;
 import com.example.billingservice.shared.DocumentUtils;
-import com.example.billingservice.shared.HashUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
-
-import java.util.UUID;
 
 @Component
 @ConditionalOnProperty(name = "spring.storage.type", havingValue = "postgres")
 public class PostgresDocumentStorageAdapter implements DocumentStoragePort {
 
-    private final DocumentContentJpaRepository documentContentJpaRepository;
+    private final JpaDocumentRepository documentContentJpaRepository;
     private final String apiBaseUrl;
+    private final DocumentMapper documentMapper;
 
     public PostgresDocumentStorageAdapter(
-            DocumentContentJpaRepository documentContentJpaRepository,
-            @Value("${spring.storage.local.public-base-url}") String apiBaseUrl
+            JpaDocumentRepository documentContentJpaRepository,
+            @Value("${spring.storage.local.public-base-url}") String apiBaseUrl, DocumentMapper documentMapper
     ) {
         this.documentContentJpaRepository = documentContentJpaRepository;
         this.apiBaseUrl = apiBaseUrl;
+        this.documentMapper = documentMapper;
     }
 
     @Override
-    public StoredDocument store(UUID ownerId, UploadedFile file, DocumentType documentType) {
+    public Document store(String ownerReference, UploadedFile file, DocumentType documentType) {
         DocumentUtils.validateFile(file);
 
         try {
-            UUID contentId = UUID.randomUUID();
 
-            DocumentContentEntity entity = new DocumentContentEntity();
-            entity.setId(contentId);
-            entity.setOriginalFileName(file.originalFileName());
-            entity.setMimeType(file.mimeType());
-            entity.setFileData(file.content());
+            DocumentEntity documentEntity = documentContentJpaRepository.save(new DocumentEntity());
 
-            documentContentJpaRepository.save(entity);
+            String downloadUrl = apiBaseUrl + "/api/documents/" + documentEntity.getIdDocument()+ "/download";
 
-            String downloadUrl = apiBaseUrl + "/api/documents/" + contentId + "/download";
-
-            return new StoredDocument(
-                    file.originalFileName(),
-                    file.mimeType(),
-                    downloadUrl,
-                    HashUtils.sha256(file.content())
-            );
+            return documentMapper.toDomain(documentEntity);
 
         } catch (Exception e) {
             throw new DocumentStorageException("Failed to store file in PostgreSQL",e);

@@ -5,12 +5,14 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
 @Getter
+@Setter
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Modèle partenaire")

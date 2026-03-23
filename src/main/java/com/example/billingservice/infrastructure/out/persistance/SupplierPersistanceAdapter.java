@@ -30,14 +30,20 @@ public class SupplierPersistanceAdapter implements SupplierRepositoryPort {
 
     @Override
     public Partner saveSupplier(Partner partner) {
+
         supplierRepository.findByTaxRegistrationNumber(partner.getTaxRegistrationNumber()).ifPresent(p-> {
             throw BillingException.alreadyExists("Supplier","taxRegistrationNumber",partner.getTaxRegistrationNumber());
         });
+
         try{
             SupplierEntity entity = (SupplierEntity) partnerMapper.toEntity(partner);
+
             return partnerMapper.toDomain(supplierRepository.save(entity)) ;
+
         } catch (DataAccessException ex) {
+
             throw  BillingException.internalError("Failed to save Supplier "+ex.getMessage());
+
         }
     }
 
@@ -55,6 +61,7 @@ public class SupplierPersistanceAdapter implements SupplierRepositoryPort {
     @Override
     public Page<Partner> findAllSuppliers(String keyword, String Country, int page) {
         try {
+
             PageRequest pageRequest = PageRequest.of(page, 10, Sort.by("name").ascending());
             Page<SupplierEntity> entities = supplierRepository.findSuppliers(keyword,Country,pageRequest);
 
@@ -73,8 +80,12 @@ public class SupplierPersistanceAdapter implements SupplierRepositoryPort {
     @Override
     public Partner updateSupplier(Partner partner) {
         try{
+
             SupplierEntity entity = (SupplierEntity) partnerMapper.toEntity(partner);
-            return partnerMapper.toDomain(supplierRepository.save(entity));
+
+            SupplierEntity savedSupplier = supplierRepository.save(entity);
+
+            return partnerMapper.toDomain(savedSupplier);
 
         } catch (Exception ex) {
             throw BillingException.internalError("Failed to save Supplier "+ex.getMessage());

@@ -4,9 +4,11 @@ import com.example.billingservice.application.ports.out.CustomerRepositoryPort;
 import com.example.billingservice.application.ports.out.SupplierRepositoryPort;
 import com.example.billingservice.domain.enums.DocumentType;
 import com.example.billingservice.domain.exceptions.BillingException;
+import com.example.billingservice.domain.model.Document;
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerDTO;
 import com.example.billingservice.application.ports.in.PartnerUseCase;
 import com.example.billingservice.domain.model.Partner;
+import com.example.billingservice.infrastructure.out.persistance.dto.PartnerForm;
 import com.example.billingservice.infrastructure.out.persistance.dto.UploadedFile;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -30,7 +32,7 @@ public class PartnerService implements PartnerUseCase  {
     /********* SUPPLIER ********/
 
     @Override
-    public Optional<Partner> createSupplier(PartnerDTO partner) throws IOException {
+    public Optional<Partner> createSupplier(PartnerForm partner) throws IOException {
 
         UploadedFile rne = new UploadedFile(
                 partner.getRne().getOriginalFilename(),
@@ -50,15 +52,19 @@ public class PartnerService implements PartnerUseCase  {
                 partner.getPatente().getBytes()
         );
 
-        Partner  partnerModel = Partner.builder().name(partner.getName()).email(partner.getEmail()).phoneNumber(partner.getPhoneNumber())
+
+         Document uploadedRne = uploadSupplierDocumentService.upload(partner.getTaxRegistrationNumber(), DocumentType.RNE, rne);
+         Document uploadedContract = uploadSupplierDocumentService.upload(partner.getTaxRegistrationNumber(), DocumentType.CONTRACT, contract);
+         Document uploadedPatente =uploadSupplierDocumentService.upload(partner.getTaxRegistrationNumber(), DocumentType.PATENT, patente);
+
+         Partner  partnerModel = Partner.builder().name(partner.getName()).email(partner.getEmail()).phoneNumber(partner.getPhoneNumber())
                 .taxRegistrationNumber(partner.getTaxRegistrationNumber()).country(partner.getCountry())
                 .address(partner.getAddress()).iban(partner.getIban()).partnerType(partner.getPartnerType())
-                 .build();
-         UUID supplierID = supplierRepositoryPort.saveSupplier(partnerModel).getIdPartner();
-         uploadSupplierDocumentService.upload(supplierID, DocumentType.RNE, rne);
-         uploadSupplierDocumentService.upload(supplierID, DocumentType.CONTRACT, contract);
-         uploadSupplierDocumentService.upload(supplierID, DocumentType.PATENT, patente);
-         return supplierRepositoryPort.findSupplierById(supplierID.toString());
+                .rne(uploadedRne).contract(uploadedContract).patente(uploadedPatente).build();
+
+         Partner savedPartner = supplierRepositoryPort.saveSupplier(partnerModel);
+
+         return supplierRepositoryPort.findSupplierById(String.valueOf(savedPartner.getIdPartner()));
     }
 
     @Override
@@ -107,7 +113,7 @@ public class PartnerService implements PartnerUseCase  {
     /************ CUSTOMER **********/
 
     @Override
-    public Optional<Partner> createCustomer(PartnerDTO partner) throws IOException {
+    public Optional<Partner> createCustomer(PartnerForm partner) throws IOException {
         UploadedFile rne = new UploadedFile(
                 partner.getRne().getOriginalFilename(),
                 partner.getRne().getContentType(),
@@ -126,15 +132,18 @@ public class PartnerService implements PartnerUseCase  {
                 partner.getPatente().getBytes()
         );
 
+        Document uploadedRne = uploadSupplierDocumentService.upload(partner.getTaxRegistrationNumber(), DocumentType.RNE, rne);
+        Document uploadedContract = uploadSupplierDocumentService.upload(partner.getTaxRegistrationNumber(), DocumentType.CONTRACT, contract);
+        Document uploadedPatente =uploadSupplierDocumentService.upload(partner.getTaxRegistrationNumber(), DocumentType.PATENT, patente);
+
         Partner  partnerModel = Partner.builder().name(partner.getName()).email(partner.getEmail()).phoneNumber(partner.getPhoneNumber())
                 .taxRegistrationNumber(partner.getTaxRegistrationNumber()).country(partner.getCountry())
                 .address(partner.getAddress()).iban(partner.getIban()).partnerType(partner.getPartnerType())
-                .build();
-        UUID customerId = customerRepositoryPort.saveCustomer(partnerModel).getIdPartner();
-        uploadCustomerDocumentService.upload(customerId, DocumentType.RNE, rne);
-        uploadCustomerDocumentService.upload(customerId, DocumentType.CONTRACT, contract);
-        uploadCustomerDocumentService.upload(customerId, DocumentType.PATENT, patente);
-        return customerRepositoryPort.findCustomerById(customerId.toString());
+                .rne(uploadedRne).contract(uploadedContract).patente(uploadedPatente).build();
+
+        Partner savedPartner = customerRepositoryPort.saveCustomer(partnerModel);
+
+        return customerRepositoryPort.findCustomerById(String.valueOf(savedPartner.getIdPartner()));
     }
 
     @Override
