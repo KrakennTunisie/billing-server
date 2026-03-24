@@ -1,6 +1,7 @@
 package com.example.billingservice.infrastructure.out.storage;
 
 import com.example.billingservice.domain.enums.DocumentStorageMode;
+import com.example.billingservice.domain.exceptions.BillingException;
 import com.example.billingservice.domain.model.Document;
 import com.example.billingservice.infrastructure.out.persistance.dto.UploadedFile;
 import com.example.billingservice.application.ports.out.DocumentStoragePort;
@@ -14,10 +15,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.*;
 
 
 @Component
@@ -77,10 +75,16 @@ public class LocalDocumentStorageAdapter implements DocumentStoragePort {
 
             return documentMapper.toDomain(documentEntity);
 
+        } catch (FileAlreadyExistsException e) {
+            throw BillingException.alreadyExists(
+                    "Document",
+                    "fichier",
+                    file.originalFileName()
+            );
         } catch (IOException e) {
-            throw new DocumentStorageException("Failed to store file locally",e);
+                throw new DocumentStorageException("Erreur de sauvegarde du document",e);
+            }
         }
-    }
 
 
 

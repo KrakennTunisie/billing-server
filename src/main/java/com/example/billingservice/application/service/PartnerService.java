@@ -12,6 +12,7 @@ import com.example.billingservice.infrastructure.out.persistance.dto.PartnerForm
 import com.example.billingservice.infrastructure.out.persistance.dto.UploadedFile;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -33,7 +34,13 @@ public class PartnerService implements PartnerUseCase  {
 
     @Override
     public Optional<Partner> createSupplier(PartnerForm partner) throws IOException {
-
+        if (this.existsByRegistrationNumbe(partner.getTaxRegistrationNumber())){
+            throw BillingException
+                    .alreadyExists(
+                            "Fournisseur",
+                            "Tax Registration Number",
+                            partner.getTaxRegistrationNumber());
+        }
 
 
         UploadedFile rne = new UploadedFile(
@@ -75,6 +82,11 @@ public class PartnerService implements PartnerUseCase  {
     }
 
     @Override
+    public boolean existsByRegistrationNumbe(String taxRegistrationNumber) {
+        return supplierRepositoryPort.existsByRegistrationNumbe(taxRegistrationNumber);
+    }
+
+    @Override
     public Page<Partner> getAllSuppliers(String keyword , String Country ,int page) {
         return  supplierRepositoryPort.findAllSuppliers(keyword, Country, page);
     }
@@ -108,7 +120,7 @@ public class PartnerService implements PartnerUseCase  {
             return supplierRepositoryPort.updateSupplier(updated);
         }
         else {
-            throw BillingException.notFound("Supplier not found ",id);
+            throw BillingException.notFound("Fournisseur ",id);
         }
     }
 
@@ -185,7 +197,7 @@ public class PartnerService implements PartnerUseCase  {
             return customerRepositoryPort.updateCustomer(updated);
         }
         else {
-            throw BillingException.notFound("Customer not found ",id);
+            throw BillingException.notFound("Client ",id);
         }
     }
 

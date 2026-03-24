@@ -20,7 +20,7 @@ public class BillingException extends RuntimeException{
         return new BillingException(
                 HttpStatus.NOT_FOUND,
                 "NOT_FOUND",
-                resource + " not found with id: " + id
+                resource + " avec id: " + id+ " est introuvable !"
         );
     }
 
@@ -28,7 +28,7 @@ public class BillingException extends RuntimeException{
         return new BillingException(
                 HttpStatus.CONFLICT,
                 "ALREADY_EXISTS",
-                resource + " already exists with " + field + ": " + value
+                resource + " Dèjà existant avec " + field + ": " + value
         );
     }
 

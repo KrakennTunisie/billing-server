@@ -32,7 +32,7 @@ public class SupplierPersistanceAdapter implements SupplierRepositoryPort {
     public Partner saveSupplier(Partner partner) {
 
         supplierRepository.findByTaxRegistrationNumber(partner.getTaxRegistrationNumber()).ifPresent(p-> {
-            throw BillingException.alreadyExists("Supplier","taxRegistrationNumber",partner.getTaxRegistrationNumber());
+            throw BillingException.alreadyExists("Fournisseur","taxRegistrationNumber",partner.getTaxRegistrationNumber());
         });
 
         try{
@@ -52,10 +52,16 @@ public class SupplierPersistanceAdapter implements SupplierRepositoryPort {
         try
         {
             return supplierRepository.findById(UUID.fromString(id))
-                    .map(partnerMapper::toDomain).or(() -> { throw BillingException.notFound("Supplier", id); });
+                    .map(partnerMapper::toDomain).or(() -> { throw BillingException.notFound("Fournisseur", id); });
         } catch (IllegalArgumentException ex) {
             throw BillingException.badRequest("Invalid UUID "+id);
         }
+    }
+
+    @Override
+    public boolean existsByRegistrationNumbe(String registrationNumber) {
+        return supplierRepository.existsByTaxRegistrationNumber(registrationNumber);
+
     }
 
     @Override

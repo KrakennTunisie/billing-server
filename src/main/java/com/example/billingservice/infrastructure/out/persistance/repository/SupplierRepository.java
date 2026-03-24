@@ -13,6 +13,7 @@ import java.util.UUID;
 
 public interface SupplierRepository extends JpaRepository<SupplierEntity, UUID> {
     Optional<SupplierEntity> findByTaxRegistrationNumber(String taxRegistrationNumber);
+    boolean existsByTaxRegistrationNumber(String taxRegistrationNumber);
 
     @Query("""
     SELECT p FROM SupplierEntity p

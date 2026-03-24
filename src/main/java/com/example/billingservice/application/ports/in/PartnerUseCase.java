@@ -15,6 +15,7 @@ public interface PartnerUseCase {
 
     Optional<Partner> createSupplier(PartnerForm partner) throws IOException;
     Optional<Partner> getSupplierById(String id);
+    boolean existsByRegistrationNumbe(String taxRegistrationNumber);
     Page<Partner> getAllSuppliers(String keyword , String Country ,int page);
     Partner updateSupplier (String id , PartnerDTO command);
     void deleteSupplier(String id);

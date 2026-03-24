@@ -28,7 +28,7 @@ public class CustomerPersistanceAdapter implements CustomerRepositoryPort {
     @Override
     public Partner saveCustomer(Partner partner) {
         customerRepository.findByTaxRegistrationNumber(partner.getTaxRegistrationNumber()).ifPresent(p-> {
-            throw BillingException.alreadyExists("Customer","taxRegistrationNumber",partner.getTaxRegistrationNumber());
+            throw BillingException.alreadyExists("Client","taxRegistrationNumber",partner.getTaxRegistrationNumber());
         });
         try{
             CustomerEntity entity = (CustomerEntity) partnerMapper.toEntity(partner);
@@ -44,9 +44,9 @@ public class CustomerPersistanceAdapter implements CustomerRepositoryPort {
         try
         {
             return customerRepository.findById(UUID.fromString(id))
-                    .map(partnerMapper::toDomain).or(() -> { throw BillingException.notFound("Customer", id); });
+                    .map(partnerMapper::toDomain).or(() -> { throw BillingException.notFound("Client", id); });
         } catch (IllegalArgumentException ex) {
-            throw BillingException.badRequest("Invalid UUID "+id);
+            throw BillingException.badRequest("UUID Invalid"+id);
         }
 
     }

@@ -22,16 +22,19 @@ public abstract class PartnerEntity {
 
     private String name;
 
+    @Column(unique = true)
     private String email;
 
     private String phoneNumber;
 
+    @Column(unique = true)
     private String taxRegistrationNumber;
 
     private String country;
 
     private String address;
 
+    @Column(unique = true)
     private String iban;
 
 
