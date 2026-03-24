@@ -34,6 +34,8 @@ public class PartnerService implements PartnerUseCase  {
     @Override
     public Optional<Partner> createSupplier(PartnerForm partner) throws IOException {
 
+
+
         UploadedFile rne = new UploadedFile(
                 partner.getRne().getOriginalFilename(),
                 partner.getRne().getContentType(),

@@ -7,12 +7,14 @@ import com.example.billingservice.infrastructure.out.persistance.entity.Customer
 import com.example.billingservice.infrastructure.out.persistance.entity.DocumentEntity;
 import com.example.billingservice.infrastructure.out.persistance.entity.PartnerEntity;
 import com.example.billingservice.infrastructure.out.persistance.entity.SupplierEntity;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 
 @Component
+@RequiredArgsConstructor
 public class PartnerMapper {
-    private final DocumentMapper documentMapper = new DocumentMapper();
+    private final DocumentMapper documentMapper;
 
     public PartnerEntity toEntity (Partner partner)
     {

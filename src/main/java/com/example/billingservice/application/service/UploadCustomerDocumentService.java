@@ -1,7 +1,10 @@
 package com.example.billingservice.application.service;
 
 import com.example.billingservice.application.Utils.DocumentUploadHelper;
+import com.example.billingservice.application.ports.in.GetDocumentUseCase;
 import com.example.billingservice.application.ports.in.UploadPartnerDocumentUseCase;
+import com.example.billingservice.application.ports.out.DocumentReaderPort;
+import com.example.billingservice.domain.model.DocumentContent;
 import com.example.billingservice.infrastructure.out.persistance.dto.UploadedFile;
 import com.example.billingservice.application.ports.out.CustomerRepositoryPort;
 import com.example.billingservice.domain.enums.DocumentType;
@@ -17,7 +20,7 @@ public class UploadCustomerDocumentService implements UploadPartnerDocumentUseCa
 
     private final DocumentUploadHelper documentUploadHelper;
 
-    public UploadCustomerDocumentService( DocumentUploadHelper documentUploadHelper) {
+    public UploadCustomerDocumentService(DocumentUploadHelper documentUploadHelper) {
         this.documentUploadHelper = documentUploadHelper;
     }
 
@@ -30,7 +33,6 @@ public class UploadCustomerDocumentService implements UploadPartnerDocumentUseCa
 
         return uploadedDocument;
     }
-
 
 
 }

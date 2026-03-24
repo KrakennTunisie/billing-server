@@ -9,6 +9,7 @@ import com.example.billingservice.domain.exceptions.DocumentStorageException;
 import com.example.billingservice.infrastructure.out.persistance.entity.DocumentEntity;
 import com.example.billingservice.infrastructure.out.persistance.mapper.DocumentMapper;
 import com.example.billingservice.shared.DocumentUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
@@ -27,10 +28,14 @@ public class LocalDocumentStorageAdapter implements DocumentStoragePort {
     private final String publicBaseUrl;
     private final DocumentMapper documentMapper;
 
-    public LocalDocumentStorageAdapter( DocumentMapper documentMapper) {
+    public LocalDocumentStorageAdapter(
+            @Value("${spring.storage.local.root-path}") String rootPath,
+            @Value("${spring.storage.local.public-base-url}") String publicBaseUrl,
+            DocumentMapper documentMapper)
+    {
         this.documentMapper = documentMapper;
-        this.rootPath = Paths.get("./storage");
-        this.publicBaseUrl = "http://localhost:8081";
+        this.rootPath = Paths.get(rootPath);
+        this.publicBaseUrl = publicBaseUrl;
     }
 
     @Override
@@ -42,7 +47,6 @@ public class LocalDocumentStorageAdapter implements DocumentStoragePort {
             document.setStorageMode(DocumentStorageMode.FILESYSTEM);
 
             DocumentEntity documentEntity = documentMapper.toEntity(document, documentType);
-            documentEntity.setFileContent(null);
 
             String ownerFolder = DocumentUtils.resolveOwnerFolder(documentType);
 

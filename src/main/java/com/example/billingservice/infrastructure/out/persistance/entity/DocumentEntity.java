@@ -36,8 +36,8 @@ public class DocumentEntity {
     @Column(name = "uploaded_at", nullable = false)
     private LocalDateTime uploadedAt;
 
-
-    @Lob
-    private byte[] fileContent;
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "document_content_id")
+    private DocumentContentEntity content;
 
 }

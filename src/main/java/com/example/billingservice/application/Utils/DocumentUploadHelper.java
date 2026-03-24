@@ -1,9 +1,11 @@
 package com.example.billingservice.application.Utils;
 
+import com.example.billingservice.application.ports.out.DocumentReaderPort;
 import com.example.billingservice.application.ports.out.DocumentStoragePort;
 import com.example.billingservice.domain.enums.DocumentType;
 import com.example.billingservice.domain.exceptions.InvalidDocumentTypeException;
 import com.example.billingservice.domain.model.Document;
+import com.example.billingservice.domain.model.DocumentContent;
 import com.example.billingservice.domain.model.Partner;
 import com.example.billingservice.infrastructure.out.persistance.dto.StoredDocument;
 import com.example.billingservice.infrastructure.out.persistance.dto.UploadedFile;
@@ -16,7 +18,6 @@ import java.util.UUID;
 public class DocumentUploadHelper {
     private final DocumentStoragePort documentStoragePort;
 
-
     public DocumentUploadHelper(DocumentStoragePort documentStoragePort) {
         this.documentStoragePort = documentStoragePort;
     }
@@ -28,9 +29,9 @@ public class DocumentUploadHelper {
     ) {
 
         Document storedDocument = documentStoragePort.store(ownerReference, file, documentType);
-
         return storedDocument;
     }
+
 
 
     public void validateCustomerDocumentType(DocumentType documentType) {

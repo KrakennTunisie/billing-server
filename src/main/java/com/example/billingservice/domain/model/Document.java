@@ -8,7 +8,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -34,6 +33,9 @@ public class Document {
 
     private DocumentType documentType;
 
+    @Schema(description = "Contenu Document")
+    private DocumentContent content;
+
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof Document document)) return false;
@@ -58,8 +60,10 @@ public class Document {
                 ", mimeType='" + mimeType + '\'' +
                 ", storageURL='" + storageURL + '\'' +
                 ", hash='" + hash + '\'' +
+                ", storageMode=" + storageMode +
                 ", uploadedAt=" + uploadedAt +
                 ", documentType=" + documentType +
+                ", content=" + content +
                 '}';
     }
 }

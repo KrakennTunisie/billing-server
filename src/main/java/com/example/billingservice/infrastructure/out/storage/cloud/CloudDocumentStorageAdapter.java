@@ -2,7 +2,6 @@ package com.example.billingservice.infrastructure.out.storage.cloud;
 
 import com.example.billingservice.domain.model.Document;
 import com.example.billingservice.infrastructure.out.persistance.dto.CloudStoredObject;
-import com.example.billingservice.infrastructure.out.persistance.dto.StoredDocument;
 import com.example.billingservice.infrastructure.out.persistance.dto.UploadedFile;
 import com.example.billingservice.application.ports.out.DocumentStoragePort;
 import com.example.billingservice.domain.enums.DocumentType;
@@ -11,7 +10,6 @@ import com.example.billingservice.infrastructure.out.persistance.entity.Document
 import com.example.billingservice.infrastructure.out.persistance.mapper.DocumentMapper;
 import com.example.billingservice.infrastructure.out.persistance.repository.JpaDocumentRepository;
 import com.example.billingservice.shared.DocumentUtils;
-import com.example.billingservice.shared.HashUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 

@@ -7,12 +7,16 @@ import com.example.billingservice.infrastructure.out.persistance.dto.DocumentRes
 import com.example.billingservice.infrastructure.out.persistance.dto.UploadedFile;
 import com.example.billingservice.infrastructure.out.persistance.entity.DocumentEntity;
 import com.example.billingservice.shared.HashUtils;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 
 @Component
+@RequiredArgsConstructor
 public class DocumentMapper {
+
+    private final DocumentContentMapper documentContentMapper;
     public Document toDomain(DocumentEntity entity) {
         if (entity == null) {
             return null;
@@ -27,6 +31,7 @@ public class DocumentMapper {
                 .uploadedAt(entity.getUploadedAt())
                 .documentType(entity.getDocumentType())
                 .storageMode(entity.getStorageMode())
+                .content(documentContentMapper.toDomain(entity.getContent()))
                 .build();
     }
 
@@ -43,6 +48,7 @@ public class DocumentMapper {
         entity.setDocumentType(documentType);
         entity.setStorageURL(document.getStorageURL());
         entity.setStorageMode(document.getStorageMode());
+        entity.setContent(documentContentMapper.toEntity(document.getContent()));
         return entity;
     }
 
