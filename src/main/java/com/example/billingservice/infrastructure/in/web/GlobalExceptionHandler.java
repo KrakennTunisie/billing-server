@@ -8,13 +8,31 @@ import com.example.billingservice.shared.DatabaseErrorUtils;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindException;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
+import java.util.HashMap;
+import java.util.Map;
+
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    // Case 1: @RequestBody
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, String>> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
+        return buildValidationErrors(ex.getBindingResult().getFieldErrors());
+    }
+
+    // Case 2: @ModelAttribute (Multipart)
+    @ExceptionHandler(BindException.class)
+    public ResponseEntity<Map<String, String>> handleBindException(BindException ex) {
+        return buildValidationErrors(ex.getBindingResult().getFieldErrors());
+    }
 
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public ResponseEntity<ErrorResponse> handleMaxSize(
@@ -81,7 +99,7 @@ public class GlobalExceptionHandler {
         System.out.println("Top level exception type: {}"+ ex.getClass().getName());
         ErrorResponse error = new ErrorResponse(
                 "INTERNAL_ERROR",
-                "Unexpected error occurred"
+                ex.getMessage()
         );
 
         return ResponseEntity
@@ -89,4 +107,15 @@ public class GlobalExceptionHandler {
                 .body(error);
     }
 
+
+
+    private ResponseEntity<Map<String, String>> buildValidationErrors(java.util.List<FieldError> fieldErrors) {
+        Map<String, String> errors = new HashMap<>();
+
+        for (FieldError error : fieldErrors) {
+            errors.put(error.getField(), error.getDefaultMessage());
+        }
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+    }
 }

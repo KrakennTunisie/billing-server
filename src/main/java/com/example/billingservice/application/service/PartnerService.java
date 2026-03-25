@@ -3,6 +3,7 @@ package com.example.billingservice.application.service;
 import com.example.billingservice.application.ports.out.CustomerRepositoryPort;
 import com.example.billingservice.application.ports.out.SupplierRepositoryPort;
 import com.example.billingservice.domain.enums.DocumentType;
+import com.example.billingservice.domain.enums.PartnerType;
 import com.example.billingservice.domain.exceptions.BillingException;
 import com.example.billingservice.domain.model.Document;
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerDTO;
@@ -84,7 +85,7 @@ public class PartnerService implements PartnerUseCase  {
 
          Partner  partnerModel = Partner.builder().name(partner.getName()).email(partner.getEmail()).phoneNumber(partner.getPhoneNumber())
                 .taxRegistrationNumber(partner.getTaxRegistrationNumber()).country(partner.getCountry())
-                .address(partner.getAddress()).iban(partner.getIban()).partnerType(partner.getPartnerType())
+                .address(partner.getAddress()).iban(partner.getIban()).partnerType(PartnerType.valueOf(partner.getPartnerType()))
                 .rne(uploadedRne).contract(uploadedContract).patente(uploadedPatente).build();
 
          Partner savedPartner = supplierRepositoryPort.saveSupplier(partnerModel);
@@ -199,7 +200,7 @@ public class PartnerService implements PartnerUseCase  {
 
         Partner  partnerModel = Partner.builder().name(partner.getName()).email(partner.getEmail()).phoneNumber(partner.getPhoneNumber())
                 .taxRegistrationNumber(partner.getTaxRegistrationNumber()).country(partner.getCountry())
-                .address(partner.getAddress()).iban(partner.getIban()).partnerType(partner.getPartnerType())
+                .address(partner.getAddress()).iban(partner.getIban()).partnerType(PartnerType.valueOf(partner.getPartnerType()))
                 .rne(uploadedRne).contract(uploadedContract).patente(uploadedPatente).build();
 
         Partner savedPartner = customerRepositoryPort.saveCustomer(partnerModel);
