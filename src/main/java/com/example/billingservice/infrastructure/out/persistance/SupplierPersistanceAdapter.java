@@ -10,6 +10,7 @@ import com.example.billingservice.infrastructure.out.persistance.mapper.PartnerM
 import com.example.billingservice.infrastructure.out.persistance.repository.SupplierRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -29,22 +30,12 @@ public class SupplierPersistanceAdapter implements SupplierRepositoryPort {
     private final PartnerMapper partnerMapper;
 
     @Override
-    public Partner saveSupplier(Partner partner) {
+    public Partner saveSupplier(Partner partner) throws DataIntegrityViolationException{
 
-        supplierRepository.findByTaxRegistrationNumber(partner.getTaxRegistrationNumber()).ifPresent(p-> {
-            throw BillingException.alreadyExists("Fournisseur","taxRegistrationNumber",partner.getTaxRegistrationNumber());
-        });
+        SupplierEntity entity = (SupplierEntity) partnerMapper.toEntity(partner);
 
-        try{
-            SupplierEntity entity = (SupplierEntity) partnerMapper.toEntity(partner);
+        return partnerMapper.toDomain(supplierRepository.save(entity)) ;
 
-            return partnerMapper.toDomain(supplierRepository.save(entity)) ;
-
-        } catch (DataAccessException ex) {
-
-            throw  BillingException.internalError("Failed to save Supplier "+ex.getMessage());
-
-        }
     }
 
     @Override
@@ -59,10 +50,21 @@ public class SupplierPersistanceAdapter implements SupplierRepositoryPort {
     }
 
     @Override
-    public boolean existsByRegistrationNumbe(String registrationNumber) {
-        return supplierRepository.existsByTaxRegistrationNumber(registrationNumber);
-
+    public boolean existsByTaxRegistrationNumber(String taxRegistrationNumber) {
+        return supplierRepository.existsByTaxRegistrationNumber(taxRegistrationNumber);
     }
+
+    @Override
+    public boolean existsByEmail(String email) {
+        return supplierRepository.existsByEmail(email);
+    }
+
+    @Override
+    public boolean existsByIban(String iban) {
+        return supplierRepository.existsByIban(iban);
+    }
+
+
 
     @Override
     public Page<Partner> findAllSuppliers(String keyword, String Country, int page) {

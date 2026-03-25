@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -35,7 +36,8 @@ public class PartnerController {
 
     @Operation(summary = "Créer un fournisseur", description = "Ajoute un nouveau fournisseur")
     @PostMapping(path = "/suppliers", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity <Optional<Partner>> createSupplier (@ModelAttribute PartnerForm form) throws IOException {
+    public ResponseEntity <Optional<Partner>> createSupplier (@ModelAttribute PartnerForm form) throws IOException,
+            DataIntegrityViolationException {
         return ResponseEntity.status(201).body(partnerUseCase.createSupplier(form));
     }
     @GetMapping("/suppliers/{id}")

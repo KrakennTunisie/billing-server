@@ -11,11 +11,13 @@ import com.example.billingservice.domain.model.Partner;
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerForm;
 import com.example.billingservice.infrastructure.out.persistance.dto.UploadedFile;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -33,14 +35,29 @@ public class PartnerService implements PartnerUseCase  {
     /********* SUPPLIER ********/
 
     @Override
-    public Optional<Partner> createSupplier(PartnerForm partner) throws IOException {
-        if (this.existsByRegistrationNumbe(partner.getTaxRegistrationNumber())){
+    public Optional<Partner> createSupplier(PartnerForm partner) throws IOException, DataIntegrityViolationException {
+        if (this.supplierExistsByRegistrationNumber(partner.getTaxRegistrationNumber())){
             throw BillingException
                     .alreadyExists(
                             "Fournisseur",
                             "Tax Registration Number",
                             partner.getTaxRegistrationNumber());
         }
+        if (this.supplierExistsByEmail(partner.getEmail())){
+            throw BillingException
+                    .alreadyExists(
+                            "Fournisseur",
+                            "Email",
+                            partner.getEmail());
+        }
+        if (this.supplierExistsByIban(partner.getIban())){
+            throw BillingException
+                    .alreadyExists(
+                            "Fournisseur",
+                            "Iban",
+                            partner.getIban());
+        }
+
 
 
         UploadedFile rne = new UploadedFile(
@@ -60,7 +77,6 @@ public class PartnerService implements PartnerUseCase  {
                 partner.getPatente().getContentType(),
                 partner.getPatente().getBytes()
         );
-
 
          Document uploadedRne = uploadSupplierDocumentService.upload(partner.getTaxRegistrationNumber(), DocumentType.RNE, rne);
          Document uploadedContract = uploadSupplierDocumentService.upload(partner.getTaxRegistrationNumber(), DocumentType.CONTRACT, contract);
@@ -82,8 +98,18 @@ public class PartnerService implements PartnerUseCase  {
     }
 
     @Override
-    public boolean existsByRegistrationNumbe(String taxRegistrationNumber) {
-        return supplierRepositoryPort.existsByRegistrationNumbe(taxRegistrationNumber);
+    public boolean supplierExistsByRegistrationNumber(String taxRegistrationNumber) {
+        return supplierRepositoryPort.existsByTaxRegistrationNumber(taxRegistrationNumber);
+    }
+
+    @Override
+    public boolean supplierExistsByEmail(String email) {
+        return supplierRepositoryPort.existsByEmail(email);
+    }
+
+    @Override
+    public boolean supplierExistsByIban(String iban) {
+        return supplierRepositoryPort.existsByIban(iban);
     }
 
     @Override
@@ -128,6 +154,27 @@ public class PartnerService implements PartnerUseCase  {
 
     @Override
     public Optional<Partner> createCustomer(PartnerForm partner) throws IOException {
+        if (this.customerExistsByRegistrationNumber(partner.getTaxRegistrationNumber())){
+            throw BillingException
+                    .alreadyExists(
+                            "Client",
+                            "Tax Registration Number",
+                            partner.getTaxRegistrationNumber());
+        }
+        if (this.customerExistsByEmail(partner.getEmail())){
+            throw BillingException
+                    .alreadyExists(
+                            "Client",
+                            "Email",
+                            partner.getEmail());
+        }
+        if (this.customerExistsByIban(partner.getIban())){
+            throw BillingException
+                    .alreadyExists(
+                            "Client",
+                            "Iban",
+                            partner.getIban());
+        }
         UploadedFile rne = new UploadedFile(
                 partner.getRne().getOriginalFilename(),
                 partner.getRne().getContentType(),
@@ -168,6 +215,21 @@ public class PartnerService implements PartnerUseCase  {
     @Override
     public Optional<Partner> findCustomerById(String id) {
         return customerRepositoryPort.findCustomerById(id);
+    }
+
+    @Override
+    public boolean customerExistsByRegistrationNumber(String taxRegistrationNumber) {
+        return customerRepositoryPort.existsByTaxRegistrationNumber(taxRegistrationNumber);
+    }
+
+    @Override
+    public boolean customerExistsByEmail(String email) {
+        return customerRepositoryPort.existsByEmail(email);
+    }
+
+    @Override
+    public boolean customerExistsByIban(String iban) {
+        return customerRepositoryPort.existsByIban(iban);
     }
 
     @Override

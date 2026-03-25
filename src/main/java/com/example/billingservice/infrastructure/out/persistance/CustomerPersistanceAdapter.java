@@ -2,6 +2,7 @@ package com.example.billingservice.infrastructure.out.persistance;
 
 import com.example.billingservice.application.ports.out.CustomerRepositoryPort;
 import com.example.billingservice.domain.exceptions.BillingException;
+import com.example.billingservice.domain.exceptions.DatabaseException;
 import com.example.billingservice.domain.model.Partner;
 import com.example.billingservice.infrastructure.out.persistance.entity.CustomerEntity;
 import com.example.billingservice.infrastructure.out.persistance.mapper.PartnerMapper;
@@ -14,6 +15,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -27,15 +29,9 @@ public class CustomerPersistanceAdapter implements CustomerRepositoryPort {
     private final CustomerRepository customerRepository;
     @Override
     public Partner saveCustomer(Partner partner) {
-        customerRepository.findByTaxRegistrationNumber(partner.getTaxRegistrationNumber()).ifPresent(p-> {
-            throw BillingException.alreadyExists("Client","taxRegistrationNumber",partner.getTaxRegistrationNumber());
-        });
-        try{
-            CustomerEntity entity = (CustomerEntity) partnerMapper.toEntity(partner);
-            return partnerMapper.toDomain(customerRepository.save(entity)) ;
-        } catch (DataAccessException ex) {
-            throw  BillingException.internalError("Failed to save customer "+ex.getMessage());
-        }
+
+        CustomerEntity entity = (CustomerEntity) partnerMapper.toEntity(partner);
+        return partnerMapper.toDomain(customerRepository.save(entity)) ;
 
     }
 
@@ -52,21 +48,32 @@ public class CustomerPersistanceAdapter implements CustomerRepositoryPort {
     }
 
     @Override
+    public boolean existsByTaxRegistrationNumber(String taxRegistrationNumber) {
+        return customerRepository.existsByTaxRegistrationNumber(taxRegistrationNumber);
+    }
+
+    @Override
+    public boolean existsByEmail(String email) {
+        return customerRepository.existsByEmail(email);
+    }
+
+    @Override
+    public boolean existsByIban(String iban) {
+        return customerRepository.existsByIban(iban);
+    }
+
+    @Override
     public Page<Partner> findAllCustomers(String keyword , String Country ,int page) {
-        try {
-            PageRequest pageRequest = PageRequest.of(page, 10, Sort.by("name").ascending());
-            Page<CustomerEntity> entities = customerRepository.findCustomers(keyword,Country,pageRequest);
+        PageRequest pageRequest = PageRequest.of(page, 10, Sort.by("name").ascending());
+        Page<CustomerEntity> entities = customerRepository.findCustomers(keyword,Country,pageRequest);
 
-            List<Partner> partners = entities.getContent()
-                    .stream()
-                    .map(partnerMapper::toDomain)
-                    .collect(Collectors.toList());
+        List<Partner> partners = entities.getContent()
+                .stream()
+                .map(partnerMapper::toDomain)
+                .collect(Collectors.toList());
 
-            return new PageImpl<>(partners, pageRequest, entities.getTotalElements());
+        return new PageImpl<>(partners, pageRequest, entities.getTotalElements());
 
-        } catch (DataAccessException ex) {
-            throw BillingException.internalError("Failed to fetch customers: " + ex.getMessage());
-        }
     }
 
     @Override
