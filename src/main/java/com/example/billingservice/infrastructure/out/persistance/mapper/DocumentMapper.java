@@ -41,6 +41,7 @@ public class DocumentMapper {
         }
 
         DocumentEntity entity = new DocumentEntity();
+        entity.setIdDocument(document.getIdDocument());
         entity.setFileName(safe(document.getFileName()));
         entity.setMimeType(safe(document.getMimeType()));
         entity.setHash(safe(document.getHash()));

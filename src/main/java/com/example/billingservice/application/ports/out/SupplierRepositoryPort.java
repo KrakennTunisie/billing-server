@@ -1,6 +1,7 @@
 package com.example.billingservice.application.ports.out;
 
 import com.example.billingservice.domain.model.Partner;
+import com.example.billingservice.infrastructure.out.persistance.dto.PartnerItemDTO;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 
@@ -16,7 +17,7 @@ public interface SupplierRepositoryPort {
     boolean existsByEmail(String email);
 
     boolean existsByIban(String email);
-    Page<Partner> findAllSuppliers(String keyword , String Country , int page);
+    Page<PartnerItemDTO> findAllSuppliers(String keyword , String Country , int page);
     Partner updateSupplier (Partner partner);
     void deleteSupplierById(String id);
 }

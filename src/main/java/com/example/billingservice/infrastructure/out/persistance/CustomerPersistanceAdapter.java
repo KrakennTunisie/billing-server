@@ -4,6 +4,7 @@ import com.example.billingservice.application.ports.out.CustomerRepositoryPort;
 import com.example.billingservice.domain.exceptions.BillingException;
 import com.example.billingservice.domain.exceptions.DatabaseException;
 import com.example.billingservice.domain.model.Partner;
+import com.example.billingservice.infrastructure.out.persistance.dto.PartnerItemDTO;
 import com.example.billingservice.infrastructure.out.persistance.entity.CustomerEntity;
 import com.example.billingservice.infrastructure.out.persistance.mapper.PartnerMapper;
 import com.example.billingservice.infrastructure.out.persistance.repository.CustomerRepository;
@@ -63,13 +64,13 @@ public class CustomerPersistanceAdapter implements CustomerRepositoryPort {
     }
 
     @Override
-    public Page<Partner> findAllCustomers(String keyword , String Country ,int page) {
+    public Page<PartnerItemDTO> findAllCustomers(String keyword , String Country ,int page) {
         PageRequest pageRequest = PageRequest.of(page, 10, Sort.by("name").ascending());
         Page<CustomerEntity> entities = customerRepository.findCustomers(keyword,Country,pageRequest);
 
-        List<Partner> partners = entities.getContent()
+        List<PartnerItemDTO> partners = entities.getContent()
                 .stream()
-                .map(partnerMapper::toDomain)
+                .map(partnerMapper::toItemDTO)
                 .collect(Collectors.toList());
 
         return new PageImpl<>(partners, pageRequest, entities.getTotalElements());

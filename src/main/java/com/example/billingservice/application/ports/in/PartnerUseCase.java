@@ -3,6 +3,8 @@ package com.example.billingservice.application.ports.in;
 import com.example.billingservice.domain.model.Partner;
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerForm;
+import com.example.billingservice.infrastructure.out.persistance.dto.PartnerItemDTO;
+import com.example.billingservice.infrastructure.out.persistance.dto.UpdatePartnerDTO;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 
@@ -15,16 +17,16 @@ public interface PartnerUseCase {
 
     /****** Supplier *****/
 
-    Optional<Partner> createSupplier(PartnerForm partner) throws IOException, DataIntegrityViolationException;
+    Partner createSupplier(PartnerForm partner) throws IOException, DataIntegrityViolationException;
 
     Optional<Partner> getSupplierById(String id);
     boolean supplierExistsByRegistrationNumber(String taxRegistrationNumber);
     boolean supplierExistsByEmail(String email);
     boolean supplierExistsByIban(String iban);
 
-    Page<Partner> getAllSuppliers(String keyword , String Country ,int page);
+    Page<PartnerItemDTO> getAllSuppliers(String keyword , String Country , int page);
 
-    Partner updateSupplier (String id , PartnerDTO command);
+    Partner updateSupplier (String id , UpdatePartnerDTO command);
 
     void deleteSupplier(String id);
 
@@ -39,11 +41,11 @@ public interface PartnerUseCase {
     boolean customerExistsByEmail(String email);
     boolean customerExistsByIban(String iban);
 
-    Page<Partner> getAllCustomers(String keyword , String Country ,int page);
+    Page<PartnerItemDTO> getAllCustomers(String keyword , String Country ,int page);
 
     void deleteCustomerById(String id);
 
-    Partner updateCustomer(String id,PartnerDTO partner);
+    Partner updateCustomer(String id, UpdatePartnerDTO partner);
 
     /*** Common ***/
 

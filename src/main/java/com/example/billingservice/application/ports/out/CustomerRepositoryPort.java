@@ -1,6 +1,7 @@
 package com.example.billingservice.application.ports.out;
 
 import com.example.billingservice.domain.model.Partner;
+import com.example.billingservice.infrastructure.out.persistance.dto.PartnerItemDTO;
 import org.springframework.data.domain.Page;
 
 import java.util.Optional;
@@ -13,7 +14,7 @@ public interface CustomerRepositoryPort {
     boolean existsByEmail(String email);
 
     boolean existsByIban(String iban);
-    Page<Partner> findAllCustomers(String keyword , String Country ,int page);
+    Page<PartnerItemDTO> findAllCustomers(String keyword , String Country , int page);
     Partner updateCustomer (Partner partner);
     void deleteCustomerById(String id);
 }

@@ -5,6 +5,7 @@ import com.example.billingservice.application.ports.out.SupplierRepositoryPort;
 import com.example.billingservice.domain.exceptions.BillingException;
 import com.example.billingservice.domain.model.Partner;
 
+import com.example.billingservice.infrastructure.out.persistance.dto.PartnerItemDTO;
 import com.example.billingservice.infrastructure.out.persistance.entity.SupplierEntity;
 import com.example.billingservice.infrastructure.out.persistance.mapper.PartnerMapper;
 import com.example.billingservice.infrastructure.out.persistance.repository.SupplierRepository;
@@ -67,15 +68,15 @@ public class SupplierPersistanceAdapter implements SupplierRepositoryPort {
 
 
     @Override
-    public Page<Partner> findAllSuppliers(String keyword, String Country, int page) {
+    public Page<PartnerItemDTO> findAllSuppliers(String keyword, String Country, int page) {
         try {
 
             PageRequest pageRequest = PageRequest.of(page, 10, Sort.by("name").ascending());
             Page<SupplierEntity> entities = supplierRepository.findSuppliers(keyword,Country,pageRequest);
 
-            List<Partner> partners = entities.getContent()
+            List<PartnerItemDTO> partners = entities.getContent()
                     .stream()
-                    .map(partnerMapper::toDomain)
+                    .map(partnerMapper::toItemDTO)
                     .collect(Collectors.toList());
 
             return new PageImpl<>(partners, pageRequest, entities.getTotalElements());

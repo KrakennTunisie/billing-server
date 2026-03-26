@@ -3,6 +3,8 @@ package com.example.billingservice.infrastructure.out.persistance.mapper;
 import com.example.billingservice.domain.enums.PartnerType;
 import com.example.billingservice.domain.model.Document;
 import com.example.billingservice.domain.model.Partner;
+import com.example.billingservice.infrastructure.out.persistance.dto.PartnerItemDTO;
+import com.example.billingservice.infrastructure.out.persistance.dto.UpdatePartnerDTO;
 import com.example.billingservice.infrastructure.out.persistance.entity.CustomerEntity;
 import com.example.billingservice.infrastructure.out.persistance.entity.DocumentEntity;
 import com.example.billingservice.infrastructure.out.persistance.entity.PartnerEntity;
@@ -16,7 +18,7 @@ import org.springframework.stereotype.Component;
 public class PartnerMapper {
     private final DocumentMapper documentMapper;
 
-    public PartnerEntity toEntity (Partner partner)
+    public  PartnerEntity toEntity(Partner partner)
     {
 
         // Instancier la bonne classe selon le type
@@ -81,5 +83,97 @@ public class PartnerMapper {
                 .rne(rne).contract(contrat).patente(patente)
                 .build();
 
+    }
+
+    public PartnerItemDTO toItemDTO(PartnerEntity entity) {
+        PartnerType partnerType;
+        if (entity instanceof CustomerEntity) {
+            partnerType = PartnerType.CLIENT;
+        } else if (entity instanceof SupplierEntity) {
+            partnerType = PartnerType.SUPPLIER;
+        } else {
+            throw new IllegalStateException("Unknown partner type: " + entity.getClass());
+        }
+        return PartnerItemDTO.builder()
+                .idPartner(entity.getIdPartner())
+                .name(entity.getName())
+                .email(entity.getEmail())
+                .phoneNumber(entity.getPhoneNumber())
+                .taxRegistrationNumber(entity.getTaxRegistrationNumber())
+                .partnerType(partnerType)
+                .country(entity.getCountry())
+                .address(entity.getAddress())
+                .iban(entity.getIban())
+                .build();
+    }
+
+    public static UpdatePartnerDTO toUpdatePartnerDTO(Partner partner) {
+
+        if (partner == null) {
+            return null;
+        }
+
+        return UpdatePartnerDTO.builder()
+                .name(partner.getName())
+                .email(partner.getEmail())
+                .phoneNumber(partner.getPhoneNumber())
+                .taxRegistrationNumber(partner.getTaxRegistrationNumber())
+                .country(partner.getCountry())
+                .address(partner.getAddress())
+                .iban(partner.getIban())
+                .partnerType(partner.getPartnerType())
+                .build();
+    }
+
+    public static void updatePartnerFromDTO(UpdatePartnerDTO dto, Partner partner) {
+        if (dto == null || partner == null) {
+            return;
+        }
+
+        if (dto.getName() != null) {
+            partner.setName(dto.getName());
+        }
+
+        if (dto.getEmail() != null) {
+            partner.setEmail(dto.getEmail());
+        }
+
+        if (dto.getPhoneNumber() != null) {
+            partner.setPhoneNumber(dto.getPhoneNumber());
+        }
+
+        if (dto.getTaxRegistrationNumber() != null) {
+            partner.setTaxRegistrationNumber(dto.getTaxRegistrationNumber());
+        }
+
+        if (dto.getCountry() != null) {
+            partner.setCountry(dto.getCountry());
+        }
+
+        if (dto.getAddress() != null) {
+            partner.setAddress(dto.getAddress());
+        }
+
+        if (dto.getIban() != null) {
+            partner.setIban(dto.getIban());
+        }
+
+        if (dto.getPartnerType() != null) {
+            partner.setPartnerType(dto.getPartnerType());
+        }
+    }
+
+    public static void updateEntityFromDto(UpdatePartnerDTO dto, PartnerEntity entity) {
+        if (dto == null || entity == null) {
+            return;
+        }
+
+        if (dto.getName() != null) entity.setName(dto.getName());
+        if (dto.getEmail() != null) entity.setEmail(dto.getEmail());
+        if (dto.getPhoneNumber() != null) entity.setPhoneNumber(dto.getPhoneNumber());
+        if (dto.getTaxRegistrationNumber() != null) entity.setTaxRegistrationNumber(dto.getTaxRegistrationNumber());
+        if (dto.getCountry() != null) entity.setCountry(dto.getCountry());
+        if (dto.getAddress() != null) entity.setAddress(dto.getAddress());
+        if (dto.getIban() != null) entity.setIban(dto.getIban());
     }
 }
