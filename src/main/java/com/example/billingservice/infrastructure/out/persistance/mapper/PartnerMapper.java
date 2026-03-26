@@ -107,23 +107,6 @@ public class PartnerMapper {
                 .build();
     }
 
-    public static UpdatePartnerDTO toUpdatePartnerDTO(Partner partner) {
-
-        if (partner == null) {
-            return null;
-        }
-
-        return UpdatePartnerDTO.builder()
-                .name(partner.getName())
-                .email(partner.getEmail())
-                .phoneNumber(partner.getPhoneNumber())
-                .taxRegistrationNumber(partner.getTaxRegistrationNumber())
-                .country(partner.getCountry())
-                .address(partner.getAddress())
-                .iban(partner.getIban())
-                .partnerType(partner.getPartnerType())
-                .build();
-    }
 
     public static void updatePartnerFromDTO(UpdatePartnerDTO dto, Partner partner) {
         if (dto == null || partner == null) {
@@ -161,19 +144,5 @@ public class PartnerMapper {
         if (dto.getPartnerType() != null) {
             partner.setPartnerType(dto.getPartnerType());
         }
-    }
-
-    public static void updateEntityFromDto(UpdatePartnerDTO dto, PartnerEntity entity) {
-        if (dto == null || entity == null) {
-            return;
-        }
-
-        if (dto.getName() != null) entity.setName(dto.getName());
-        if (dto.getEmail() != null) entity.setEmail(dto.getEmail());
-        if (dto.getPhoneNumber() != null) entity.setPhoneNumber(dto.getPhoneNumber());
-        if (dto.getTaxRegistrationNumber() != null) entity.setTaxRegistrationNumber(dto.getTaxRegistrationNumber());
-        if (dto.getCountry() != null) entity.setCountry(dto.getCountry());
-        if (dto.getAddress() != null) entity.setAddress(dto.getAddress());
-        if (dto.getIban() != null) entity.setIban(dto.getIban());
     }
 }

@@ -1,7 +1,6 @@
 package com.example.billingservice.application.ports.in;
 
 import com.example.billingservice.domain.model.Partner;
-import com.example.billingservice.infrastructure.out.persistance.dto.PartnerDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerForm;
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerItemDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.UpdatePartnerDTO;
@@ -9,7 +8,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.Optional;
 
 public interface PartnerUseCase {
@@ -47,7 +45,6 @@ public interface PartnerUseCase {
 
     Partner updateCustomer(String id, UpdatePartnerDTO partner);
 
-    /*** Common ***/
 
 
 

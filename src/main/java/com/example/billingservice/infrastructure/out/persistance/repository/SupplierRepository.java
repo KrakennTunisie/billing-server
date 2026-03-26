@@ -1,6 +1,5 @@
 package com.example.billingservice.infrastructure.out.persistance.repository;
 
-import com.example.billingservice.infrastructure.out.persistance.entity.CustomerEntity;
 import com.example.billingservice.infrastructure.out.persistance.entity.SupplierEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

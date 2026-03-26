@@ -25,7 +25,7 @@ public class PartnerService implements PartnerUseCase  {
 
     private final CustomerRepositoryPort customerRepositoryPort;
     private final SupplierRepositoryPort supplierRepositoryPort;
-    private final UploadSupplierDocumentService uploadSupplierDocumentService;
+    private final UploadDocumentService uploadDocumentService;
 
 
 
@@ -79,9 +79,9 @@ public class PartnerService implements PartnerUseCase  {
                 partner.getPatente().getBytes()
         );
 
-         Document uploadedRne = uploadSupplierDocumentService.upload(partner.getTaxRegistrationNumber(), DocumentType.RNE, rne);
-         Document uploadedContract = uploadSupplierDocumentService.upload(partner.getTaxRegistrationNumber(), DocumentType.CONTRACT, contract);
-         Document uploadedPatente =uploadSupplierDocumentService.upload(partner.getTaxRegistrationNumber(), DocumentType.PATENT, patente);
+         Document uploadedRne = uploadDocumentService.upload(partner.getTaxRegistrationNumber(), DocumentType.RNE, rne);
+         Document uploadedContract = uploadDocumentService.upload(partner.getTaxRegistrationNumber(), DocumentType.CONTRACT, contract);
+         Document uploadedPatente = uploadDocumentService.upload(partner.getTaxRegistrationNumber(), DocumentType.PATENT, patente);
 
          Partner  partnerModel = Partner.builder().name(partner.getName()).email(partner.getEmail()).phoneNumber(partner.getPhoneNumber())
                 .taxRegistrationNumber(partner.getTaxRegistrationNumber()).country(partner.getCountry())
@@ -177,9 +177,9 @@ public class PartnerService implements PartnerUseCase  {
                 partner.getPatente().getBytes()
         );
 
-        Document uploadedRne = uploadSupplierDocumentService.upload(partner.getTaxRegistrationNumber(), DocumentType.RNE, rne);
-        Document uploadedContract = uploadSupplierDocumentService.upload(partner.getTaxRegistrationNumber(), DocumentType.CONTRACT, contract);
-        Document uploadedPatente =uploadSupplierDocumentService.upload(partner.getTaxRegistrationNumber(), DocumentType.PATENT, patente);
+        Document uploadedRne = uploadDocumentService.upload(partner.getTaxRegistrationNumber(), DocumentType.RNE, rne);
+        Document uploadedContract = uploadDocumentService.upload(partner.getTaxRegistrationNumber(), DocumentType.CONTRACT, contract);
+        Document uploadedPatente = uploadDocumentService.upload(partner.getTaxRegistrationNumber(), DocumentType.PATENT, patente);
 
         Partner  partnerModel = Partner.builder().name(partner.getName()).email(partner.getEmail()).phoneNumber(partner.getPhoneNumber())
                 .taxRegistrationNumber(partner.getTaxRegistrationNumber()).country(partner.getCountry())
@@ -227,7 +227,7 @@ public class PartnerService implements PartnerUseCase  {
                 .orElseThrow(() -> BillingException.notFound("Client",id));
 
         PartnerMapper.updatePartnerFromDTO(partner,updatedPartner);
-        return  customerRepositoryPort.saveCustomer(updatedPartner);
+        return  customerRepositoryPort.updateCustomer(updatedPartner);
 
     }
 

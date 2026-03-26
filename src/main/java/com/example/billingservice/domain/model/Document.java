@@ -22,7 +22,7 @@ public class Document {
     private String fileName;
     @Schema(description = "Type MIME du fichier", example = "application/pdf")
     private String mimeType;
-    @Schema(description = "URL de stockage du fichier", example = "http://example.com/storage/contrat.pdf")
+    @Schema(description = "URL de stockage du fichier", example = "https://example.com/storage/contrat.pdf")
     private String storageURL;
     @Schema(description = "Empreinte du fichier (SHA-256)", example = "a1b2c3d4e5f6...")
     private String hash;

@@ -5,7 +5,6 @@ import com.example.billingservice.infrastructure.out.persistance.dto.PartnerItem
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 
-import java.sql.SQLException;
 import java.util.Optional;
 
 public interface SupplierRepositoryPort {
