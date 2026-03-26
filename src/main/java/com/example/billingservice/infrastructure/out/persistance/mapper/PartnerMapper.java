@@ -1,55 +1,41 @@
 package com.example.billingservice.infrastructure.out.persistance.mapper;
 
-import com.example.billingservice.domain.enums.DocumentType;
 import com.example.billingservice.domain.enums.PartnerType;
 import com.example.billingservice.domain.model.Document;
 import com.example.billingservice.domain.model.Partner;
+import com.example.billingservice.infrastructure.out.persistance.dto.PartnerItemDTO;
+import com.example.billingservice.infrastructure.out.persistance.dto.UpdatePartnerDTO;
 import com.example.billingservice.infrastructure.out.persistance.entity.CustomerEntity;
 import com.example.billingservice.infrastructure.out.persistance.entity.DocumentEntity;
 import com.example.billingservice.infrastructure.out.persistance.entity.PartnerEntity;
 import com.example.billingservice.infrastructure.out.persistance.entity.SupplierEntity;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
 
 @Component
+@RequiredArgsConstructor
 public class PartnerMapper {
+    private final DocumentMapper documentMapper;
 
-    public PartnerEntity toEntity (Partner partner)
+    public  PartnerEntity toEntity(Partner partner)
     {
+
         // Instancier la bonne classe selon le type
         PartnerEntity entity = switch (partner.getPartnerType()) {
-            case CUSTOMER -> new CustomerEntity();
+            case CLIENT -> new CustomerEntity();
             case SUPPLIER -> new SupplierEntity();
         };
 
+
         //RNE
-        DocumentEntity rne = new DocumentEntity();
-        rne.setFileName(partner.getRne().getFileName());
-        rne.setStorageURL(partner.getRne().getStorageURL());
-        rne.setMimeType(partner.getRne().getMimeType());
-        rne.setHash(partner.getRne().getHash());
-        rne.setUploadedAt(LocalDateTime.now());
-        rne.setDocumentType(DocumentType.RNE);
+        DocumentEntity rne = documentMapper.toRneEntity(partner.getRne());
 
         //Patente
-        DocumentEntity patente = new DocumentEntity();
-        patente.setFileName(partner.getPatente().getFileName());
-        patente.setStorageURL(partner.getPatente().getStorageURL());
-        patente.setMimeType(partner.getPatente().getMimeType());
-        patente.setHash(partner.getPatente().getHash());
-        patente.setUploadedAt(LocalDateTime.now());
-        patente.setDocumentType(DocumentType.PATENT);
+        DocumentEntity patente = documentMapper.toPatenteEntity(partner.getPatente());
 
         //Contract
-
-        DocumentEntity contract = new DocumentEntity();
-        contract.setFileName(partner.getContract().getFileName());
-        contract.setStorageURL(partner.getContract().getStorageURL());
-        contract.setMimeType(partner.getContract().getMimeType());
-        contract.setHash(partner.getContract().getHash());
-        contract.setUploadedAt(LocalDateTime.now());
-        contract.setDocumentType(DocumentType.CONTRACT);
+        DocumentEntity contract = documentMapper.toContractEntity(partner.getContract());
 
         //Partner
         entity.setIdPartner(partner.getIdPartner());
@@ -65,32 +51,25 @@ public class PartnerMapper {
         entity.setPatente(patente);
         return  entity;
     }
+
+
     public Partner toDomain(PartnerEntity entity)
     {
         // Déduire PartnerType
         PartnerType partnerType;
         if (entity instanceof CustomerEntity) {
-            partnerType = PartnerType.CUSTOMER;
+            partnerType = PartnerType.CLIENT;
         } else if (entity instanceof SupplierEntity) {
             partnerType = PartnerType.SUPPLIER;
         } else {
             throw new IllegalStateException("Unknown partner type: " + entity.getClass());
         }
         //RNE
-        Document rne =Document.builder().idDocument(entity.getRne().getIdDocument()).fileName(entity.getRne().getFileName())
-            .mimeType(entity.getRne().getMimeType()).storageURL(entity.getRne().getStorageURL()).hash(entity.getRne().getStorageURL())
-                .uploadedAt(entity.getRne().getUploadedAt()).documentType(entity.getRne().getDocumentType()).build();
-
+        Document rne =documentMapper.toDomain(entity.getRne());
         //Patente
-        Document patente =Document.builder().idDocument(entity.getPatente().getIdDocument()).fileName(entity.getPatente().getFileName())
-                .mimeType(entity.getPatente().getMimeType()).storageURL(entity.getPatente().getStorageURL()).hash(entity.getPatente().getStorageURL())
-                .uploadedAt(entity.getPatente().getUploadedAt()).documentType(entity.getPatente().getDocumentType()).build();
-
+        Document patente = documentMapper.toDomain(entity.getPatente());
         //Contrat
-        Document contrat =Document.builder().idDocument(entity.getContract().getIdDocument()).fileName(entity.getContract().getFileName())
-                .mimeType(entity.getContract().getMimeType()).storageURL(entity.getContract().getStorageURL()).hash(entity.getContract().getStorageURL())
-                .uploadedAt(entity.getContract().getUploadedAt()).documentType(entity.getContract().getDocumentType()).build();
-
+        Document contrat = documentMapper.toDomain(entity.getContract());
         return Partner.builder()
                 .idPartner(entity.getIdPartner())
                 .name(entity.getName())
@@ -104,5 +83,66 @@ public class PartnerMapper {
                 .rne(rne).contract(contrat).patente(patente)
                 .build();
 
+    }
+
+    public PartnerItemDTO toItemDTO(PartnerEntity entity) {
+        PartnerType partnerType;
+        if (entity instanceof CustomerEntity) {
+            partnerType = PartnerType.CLIENT;
+        } else if (entity instanceof SupplierEntity) {
+            partnerType = PartnerType.SUPPLIER;
+        } else {
+            throw new IllegalStateException("Unknown partner type: " + entity.getClass());
+        }
+        return PartnerItemDTO.builder()
+                .idPartner(entity.getIdPartner())
+                .name(entity.getName())
+                .email(entity.getEmail())
+                .phoneNumber(entity.getPhoneNumber())
+                .taxRegistrationNumber(entity.getTaxRegistrationNumber())
+                .partnerType(partnerType)
+                .country(entity.getCountry())
+                .address(entity.getAddress())
+                .iban(entity.getIban())
+                .build();
+    }
+
+
+    public static void updatePartnerFromDTO(UpdatePartnerDTO dto, Partner partner) {
+        if (dto == null || partner == null) {
+            return;
+        }
+
+        if (dto.getName() != null) {
+            partner.setName(dto.getName());
+        }
+
+        if (dto.getEmail() != null) {
+            partner.setEmail(dto.getEmail());
+        }
+
+        if (dto.getPhoneNumber() != null) {
+            partner.setPhoneNumber(dto.getPhoneNumber());
+        }
+
+        if (dto.getTaxRegistrationNumber() != null) {
+            partner.setTaxRegistrationNumber(dto.getTaxRegistrationNumber());
+        }
+
+        if (dto.getCountry() != null) {
+            partner.setCountry(dto.getCountry());
+        }
+
+        if (dto.getAddress() != null) {
+            partner.setAddress(dto.getAddress());
+        }
+
+        if (dto.getIban() != null) {
+            partner.setIban(dto.getIban());
+        }
+
+        if (dto.getPartnerType() != null) {
+            partner.setPartnerType(dto.getPartnerType());
+        }
     }
 }

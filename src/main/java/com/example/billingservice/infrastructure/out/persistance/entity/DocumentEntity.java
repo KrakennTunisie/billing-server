@@ -1,5 +1,6 @@
 package com.example.billingservice.infrastructure.out.persistance.entity;
 
+import com.example.billingservice.domain.enums.DocumentStorageMode;
 import com.example.billingservice.domain.enums.DocumentType;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -25,12 +26,18 @@ public class DocumentEntity {
     @Column(name = "mime_type", nullable = false, length = 120)
     private String mimeType;
 
-    @Column(name = "storage_url", nullable = false, length = 500)
-    private String storageURL;
-
     private String hash;
+
+    @Enumerated(EnumType.STRING)
+    private DocumentStorageMode storageMode;
+
+    private String storageURL;
 
     @Column(name = "uploaded_at", nullable = false)
     private LocalDateTime uploadedAt;
+
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "document_content_id")
+    private DocumentContentEntity content;
 
 }

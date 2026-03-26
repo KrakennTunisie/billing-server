@@ -5,11 +5,13 @@ import com.example.billingservice.application.ports.out.SupplierRepositoryPort;
 import com.example.billingservice.domain.exceptions.BillingException;
 import com.example.billingservice.domain.model.Partner;
 
+import com.example.billingservice.infrastructure.out.persistance.dto.PartnerItemDTO;
 import com.example.billingservice.infrastructure.out.persistance.entity.SupplierEntity;
 import com.example.billingservice.infrastructure.out.persistance.mapper.PartnerMapper;
 import com.example.billingservice.infrastructure.out.persistance.repository.SupplierRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -29,16 +31,12 @@ public class SupplierPersistanceAdapter implements SupplierRepositoryPort {
     private final PartnerMapper partnerMapper;
 
     @Override
-    public Partner saveSupplier(Partner partner) {
-        supplierRepository.findByTaxRegistrationNumber(partner.getTaxRegistrationNumber()).ifPresent(p-> {
-            throw BillingException.alreadyExists("Supplier","taxRegistrationNumber",partner.getTaxRegistrationNumber());
-        });
-        try{
-            SupplierEntity entity = (SupplierEntity) partnerMapper.toEntity(partner);
-            return partnerMapper.toDomain(supplierRepository.save(entity)) ;
-        } catch (DataAccessException ex) {
-            throw  BillingException.internalError("Failed to save Supplier "+ex.getMessage());
-        }
+    public Partner saveSupplier(Partner partner) throws DataIntegrityViolationException{
+
+        SupplierEntity entity = (SupplierEntity) partnerMapper.toEntity(partner);
+
+        return partnerMapper.toDomain(supplierRepository.save(entity)) ;
+
     }
 
     @Override
@@ -46,21 +44,39 @@ public class SupplierPersistanceAdapter implements SupplierRepositoryPort {
         try
         {
             return supplierRepository.findById(UUID.fromString(id))
-                    .map(partnerMapper::toDomain).or(() -> { throw BillingException.notFound("Supplier", id); });
+                    .map(partnerMapper::toDomain).or(() -> { throw BillingException.notFound("Fournisseur", id); });
         } catch (IllegalArgumentException ex) {
             throw BillingException.badRequest("Invalid UUID "+id);
         }
     }
 
     @Override
-    public Page<Partner> findAllSuppliers(String keyword, String Country, int page) {
+    public boolean existsByTaxRegistrationNumber(String taxRegistrationNumber) {
+        return supplierRepository.existsByTaxRegistrationNumber(taxRegistrationNumber);
+    }
+
+    @Override
+    public boolean existsByEmail(String email) {
+        return supplierRepository.existsByEmail(email);
+    }
+
+    @Override
+    public boolean existsByIban(String iban) {
+        return supplierRepository.existsByIban(iban);
+    }
+
+
+
+    @Override
+    public Page<PartnerItemDTO> findAllSuppliers(String keyword, String Country, int page) {
         try {
+
             PageRequest pageRequest = PageRequest.of(page, 10, Sort.by("name").ascending());
             Page<SupplierEntity> entities = supplierRepository.findSuppliers(keyword,Country,pageRequest);
 
-            List<Partner> partners = entities.getContent()
+            List<PartnerItemDTO> partners = entities.getContent()
                     .stream()
-                    .map(partnerMapper::toDomain)
+                    .map(partnerMapper::toItemDTO)
                     .collect(Collectors.toList());
 
             return new PageImpl<>(partners, pageRequest, entities.getTotalElements());
@@ -73,8 +89,12 @@ public class SupplierPersistanceAdapter implements SupplierRepositoryPort {
     @Override
     public Partner updateSupplier(Partner partner) {
         try{
+
             SupplierEntity entity = (SupplierEntity) partnerMapper.toEntity(partner);
-            return partnerMapper.toDomain(supplierRepository.save(entity));
+
+            SupplierEntity savedSupplier = supplierRepository.save(entity);
+
+            return partnerMapper.toDomain(savedSupplier);
 
         } catch (Exception ex) {
             throw BillingException.internalError("Failed to save Supplier "+ex.getMessage());

@@ -2,7 +2,6 @@ package com.example.billingservice.domain.model;
 
 import com.example.billingservice.domain.enums.*;
 
-import javax.print.Doc;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;

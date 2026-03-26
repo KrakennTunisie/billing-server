@@ -3,11 +3,11 @@ package com.example.billingservice.infrastructure.out.persistance;
 import com.example.billingservice.application.ports.out.CustomerRepositoryPort;
 import com.example.billingservice.domain.exceptions.BillingException;
 import com.example.billingservice.domain.model.Partner;
+import com.example.billingservice.infrastructure.out.persistance.dto.PartnerItemDTO;
 import com.example.billingservice.infrastructure.out.persistance.entity.CustomerEntity;
 import com.example.billingservice.infrastructure.out.persistance.mapper.PartnerMapper;
 import com.example.billingservice.infrastructure.out.persistance.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -27,15 +27,9 @@ public class CustomerPersistanceAdapter implements CustomerRepositoryPort {
     private final CustomerRepository customerRepository;
     @Override
     public Partner saveCustomer(Partner partner) {
-        customerRepository.findByTaxRegistrationNumber(partner.getTaxRegistrationNumber()).ifPresent(p-> {
-            throw BillingException.alreadyExists("Customer","taxRegistrationNumber",partner.getTaxRegistrationNumber());
-        });
-        try{
-            CustomerEntity entity = (CustomerEntity) partnerMapper.toEntity(partner);
-            return partnerMapper.toDomain(customerRepository.save(entity)) ;
-        } catch (DataAccessException ex) {
-            throw  BillingException.internalError("Failed to save customer "+ex.getMessage());
-        }
+
+        CustomerEntity entity = (CustomerEntity) partnerMapper.toEntity(partner);
+        return partnerMapper.toDomain(customerRepository.save(entity)) ;
 
     }
 
@@ -44,29 +38,40 @@ public class CustomerPersistanceAdapter implements CustomerRepositoryPort {
         try
         {
             return customerRepository.findById(UUID.fromString(id))
-                    .map(partnerMapper::toDomain).or(() -> { throw BillingException.notFound("Customer", id); });
+                    .map(partnerMapper::toDomain).or(() -> { throw BillingException.notFound("Client", id); });
         } catch (IllegalArgumentException ex) {
-            throw BillingException.badRequest("Invalid UUID "+id);
+            throw BillingException.badRequest("UUID Invalid"+id);
         }
 
     }
 
     @Override
-    public Page<Partner> findAllCustomers(String keyword , String Country ,int page) {
-        try {
-            PageRequest pageRequest = PageRequest.of(page, 10, Sort.by("name").ascending());
-            Page<CustomerEntity> entities = customerRepository.findCustomers(keyword,Country,pageRequest);
+    public boolean existsByTaxRegistrationNumber(String taxRegistrationNumber) {
+        return customerRepository.existsByTaxRegistrationNumber(taxRegistrationNumber);
+    }
 
-            List<Partner> partners = entities.getContent()
-                    .stream()
-                    .map(partnerMapper::toDomain)
-                    .collect(Collectors.toList());
+    @Override
+    public boolean existsByEmail(String email) {
+        return customerRepository.existsByEmail(email);
+    }
 
-            return new PageImpl<>(partners, pageRequest, entities.getTotalElements());
+    @Override
+    public boolean existsByIban(String iban) {
+        return customerRepository.existsByIban(iban);
+    }
 
-        } catch (DataAccessException ex) {
-            throw BillingException.internalError("Failed to fetch customers: " + ex.getMessage());
-        }
+    @Override
+    public Page<PartnerItemDTO> findAllCustomers(String keyword , String Country ,int page) {
+        PageRequest pageRequest = PageRequest.of(page, 10, Sort.by("name").ascending());
+        Page<CustomerEntity> entities = customerRepository.findCustomers(keyword,Country,pageRequest);
+
+        List<PartnerItemDTO> partners = entities.getContent()
+                .stream()
+                .map(partnerMapper::toItemDTO)
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(partners, pageRequest, entities.getTotalElements());
+
     }
 
     @Override

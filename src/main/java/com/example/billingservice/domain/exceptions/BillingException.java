@@ -14,13 +14,18 @@ public class BillingException extends RuntimeException{
         this.status = status;
         this.errorCode = errorCode;
     }
+    public BillingException(HttpStatus status, String errorCode, String message, Throwable cause) {
+        super(message, cause);
+        this.status = status;
+        this.errorCode = errorCode;
+    }
 
 
     public static BillingException notFound(String resource, String id) {
         return new BillingException(
                 HttpStatus.NOT_FOUND,
                 "NOT_FOUND",
-                resource + " not found with id: " + id
+                resource + " avec id: " + id+ " est introuvable !"
         );
     }
 
@@ -28,7 +33,7 @@ public class BillingException extends RuntimeException{
         return new BillingException(
                 HttpStatus.CONFLICT,
                 "ALREADY_EXISTS",
-                resource + " already exists with " + field + ": " + value
+                resource + " Dèjà existant avec " + field + ": " + value
         );
     }
 
@@ -36,6 +41,14 @@ public class BillingException extends RuntimeException{
         return new BillingException(
                 HttpStatus.BAD_REQUEST,
                 "BAD_REQUEST",
+                message
+        );
+    }
+
+    public static BillingException fileTooLarge(String message) {
+        return new BillingException(
+                HttpStatus.BAD_REQUEST,
+                "FILE_TOO_LARGE",
                 message
         );
     }

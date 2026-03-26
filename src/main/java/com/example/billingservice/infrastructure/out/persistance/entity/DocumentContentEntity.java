@@ -1,29 +1,29 @@
 package com.example.billingservice.infrastructure.out.persistance.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.UUID;
 
 @Entity
-@Table(name = "document_content")
+@Table(name = "document_contents")
 @Getter
 @Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class DocumentContentEntity {
 
     @Id
-    private UUID id;
+    @Column(name = "id_document", nullable = false)
+    private UUID idDocument;
 
-    @Column(nullable = false)
-    private String originalFileName;
-
-    @Column(nullable = false)
+    private String fileName;
     private String mimeType;
 
-    @Lob
-    @Column(nullable = false)
-    private byte[] fileData;
+    @Column(name = "file_content", nullable = false)
+    private byte[] fileContent;
 
-
+    @Column(name = "file_size", nullable = false)
+    private Long fileSize;
 }

@@ -1,7 +1,10 @@
 package com.example.billingservice.application.ports.in;
 
 import com.example.billingservice.domain.model.Partner;
-import com.example.billingservice.infrastructure.out.persistance.dto.PartnerDTO;
+import com.example.billingservice.infrastructure.out.persistance.dto.PartnerForm;
+import com.example.billingservice.infrastructure.out.persistance.dto.PartnerItemDTO;
+import com.example.billingservice.infrastructure.out.persistance.dto.UpdatePartnerDTO;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 
 import java.io.IOException;
@@ -12,20 +15,39 @@ public interface PartnerUseCase {
 
     /****** Supplier *****/
 
-    Optional<Partner> createSupplier(PartnerDTO partner) throws IOException;
+    Partner createSupplier(PartnerForm partner) throws IOException, DataIntegrityViolationException;
+
     Optional<Partner> getSupplierById(String id);
-    Page<Partner> getAllSuppliers(String keyword , String Country ,int page);
-    Partner updateSupplier (String id , PartnerDTO command);
+    boolean supplierExistsByRegistrationNumber(String taxRegistrationNumber);
+    boolean supplierExistsByEmail(String email);
+    boolean supplierExistsByIban(String iban);
+
+    Page<PartnerItemDTO> getAllSuppliers(String keyword , String Country , int page);
+
+    Partner updateSupplier (String id , UpdatePartnerDTO command);
+
     void deleteSupplier(String id);
 
 
     /**** CUSTOMER ****/
 
-    Optional<Partner> createCustomer(PartnerDTO partner) throws IOException;
-    Page<Partner> getAllCustomers(String keyword , String Country ,int page);
+    Optional<Partner> createCustomer(PartnerForm partner) throws IOException;
+
     Optional<Partner> findCustomerById(String id);
+
+    boolean customerExistsByRegistrationNumber(String taxRegistrationNumber);
+    boolean customerExistsByEmail(String email);
+    boolean customerExistsByIban(String iban);
+
+    Page<PartnerItemDTO> getAllCustomers(String keyword , String Country ,int page);
+
     void deleteCustomerById(String id);
-    Partner updateCustomer(String id,PartnerDTO partner);
+
+    Partner updateCustomer(String id, UpdatePartnerDTO partner);
+
+
+
+
 
 
 }

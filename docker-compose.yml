@@ -1,12 +1,10 @@
 services:
-  billing-service:
+  billing-server:
     build:
       context: .
     container_name: billing-server
     ports:
       - "8081:8081"
-    environment:
-      - SPRING_CONFIG_IMPORT=configserver:http://config-server:8888
     depends_on:
       - billing-db
     restart: unless-stopped

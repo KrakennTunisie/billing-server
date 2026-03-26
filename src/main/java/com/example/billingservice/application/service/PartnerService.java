@@ -3,18 +3,21 @@ package com.example.billingservice.application.service;
 import com.example.billingservice.application.ports.out.CustomerRepositoryPort;
 import com.example.billingservice.application.ports.out.SupplierRepositoryPort;
 import com.example.billingservice.domain.enums.DocumentType;
+import com.example.billingservice.domain.enums.PartnerType;
 import com.example.billingservice.domain.exceptions.BillingException;
-import com.example.billingservice.infrastructure.out.persistance.dto.PartnerDTO;
+import com.example.billingservice.domain.model.Document;
+import com.example.billingservice.infrastructure.out.persistance.dto.*;
 import com.example.billingservice.application.ports.in.PartnerUseCase;
 import com.example.billingservice.domain.model.Partner;
-import com.example.billingservice.infrastructure.out.persistance.dto.UploadedFile;
+import com.example.billingservice.infrastructure.out.persistance.mapper.PartnerMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -22,15 +25,41 @@ public class PartnerService implements PartnerUseCase  {
 
     private final CustomerRepositoryPort customerRepositoryPort;
     private final SupplierRepositoryPort supplierRepositoryPort;
-    private final UploadCustomerDocumentService uploadCustomerDocumentService;
-    private final UploadSupplierDocumentService uploadSupplierDocumentService;
+    private final UploadDocumentService uploadDocumentService;
 
 
 
     /********* SUPPLIER ********/
 
     @Override
-    public Optional<Partner> createSupplier(PartnerDTO partner) throws IOException {
+    public Partner createSupplier(PartnerForm partner) throws IOException, DataIntegrityViolationException {
+        if(!Objects.equals(partner.getPartnerType(), PartnerType.SUPPLIER.name())){
+            throw BillingException
+                    .badRequest("Le Type est inadéquat");
+        }
+        if (this.supplierExistsByRegistrationNumber(partner.getTaxRegistrationNumber())){
+            throw BillingException
+                    .alreadyExists(
+                            "Fournisseur",
+                            "Tax Registration Number",
+                            partner.getTaxRegistrationNumber());
+        }
+        if (this.supplierExistsByEmail(partner.getEmail())){
+            throw BillingException
+                    .alreadyExists(
+                            "Fournisseur",
+                            "Email",
+                            partner.getEmail());
+        }
+        if (this.supplierExistsByIban(partner.getIban())){
+            throw BillingException
+                    .alreadyExists(
+                            "Fournisseur",
+                            "Iban",
+                            partner.getIban());
+        }
+
+
 
         UploadedFile rne = new UploadedFile(
                 partner.getRne().getOriginalFilename(),
@@ -50,15 +79,16 @@ public class PartnerService implements PartnerUseCase  {
                 partner.getPatente().getBytes()
         );
 
-        Partner  partnerModel = Partner.builder().name(partner.getName()).email(partner.getEmail()).phoneNumber(partner.getPhoneNumber())
+         Document uploadedRne = uploadDocumentService.upload(partner.getTaxRegistrationNumber(), DocumentType.RNE, rne);
+         Document uploadedContract = uploadDocumentService.upload(partner.getTaxRegistrationNumber(), DocumentType.CONTRACT, contract);
+         Document uploadedPatente = uploadDocumentService.upload(partner.getTaxRegistrationNumber(), DocumentType.PATENT, patente);
+
+         Partner  partnerModel = Partner.builder().name(partner.getName()).email(partner.getEmail()).phoneNumber(partner.getPhoneNumber())
                 .taxRegistrationNumber(partner.getTaxRegistrationNumber()).country(partner.getCountry())
-                .address(partner.getAddress()).iban(partner.getIban()).partnerType(partner.getPartnerType())
-                 .build();
-         UUID supplierID = supplierRepositoryPort.saveSupplier(partnerModel).getIdPartner();
-         uploadSupplierDocumentService.upload(supplierID, DocumentType.RNE, rne);
-         uploadSupplierDocumentService.upload(supplierID, DocumentType.CONTRACT, contract);
-         uploadSupplierDocumentService.upload(supplierID, DocumentType.PATENT, patente);
-         return supplierRepositoryPort.findSupplierById(supplierID.toString());
+                .address(partner.getAddress()).iban(partner.getIban()).partnerType(PartnerType.valueOf(partner.getPartnerType()))
+                .rne(uploadedRne).contract(uploadedContract).patente(uploadedPatente).build();
+
+        return supplierRepositoryPort.saveSupplier(partnerModel);
     }
 
     @Override
@@ -67,8 +97,24 @@ public class PartnerService implements PartnerUseCase  {
     }
 
     @Override
-    public Page<Partner> getAllSuppliers(String keyword , String Country ,int page) {
-        return  supplierRepositoryPort.findAllSuppliers(keyword, Country, page);
+    public boolean supplierExistsByRegistrationNumber(String taxRegistrationNumber) {
+        return supplierRepositoryPort.existsByTaxRegistrationNumber(taxRegistrationNumber);
+    }
+
+    @Override
+    public boolean supplierExistsByEmail(String email) {
+        return supplierRepositoryPort.existsByEmail(email);
+    }
+
+    @Override
+    public boolean supplierExistsByIban(String iban) {
+        return supplierRepositoryPort.existsByIban(iban);
+    }
+
+    @Override
+    public Page<PartnerItemDTO> getAllSuppliers(String keyword , String Country , int page) {
+        return  supplierRepositoryPort
+                .findAllSuppliers(keyword, Country, page);
     }
 
     @Override
@@ -78,36 +124,41 @@ public class PartnerService implements PartnerUseCase  {
 
 
     @Override
-    public Partner updateSupplier(String id, PartnerDTO partnerDTO) {
+    public Partner updateSupplier(String id, UpdatePartnerDTO partnerDTO) {
 
-        Optional <Partner> existing = supplierRepositoryPort.findSupplierById(id);
+        Partner updatedPartner = supplierRepositoryPort.findSupplierById(id)
+                .orElseThrow(() -> BillingException.notFound("Fournisseur",id));
 
-        if (existing.isPresent()) {
-            Partner updated = Partner.builder()
-                    .idPartner(existing.get().getIdPartner())
-                    .name(partnerDTO.getName())
-                    .email(partnerDTO.getEmail())
-                    .phoneNumber(partnerDTO.getPhoneNumber())
-                    .country(partnerDTO.getCountry())
-                    .address(partnerDTO.getAddress())
-                    .iban(partnerDTO.getIban())
-                    .partnerType(existing.get().getPartnerType())
-                    .taxRegistrationNumber(existing.get().getTaxRegistrationNumber())
-                    .rne(existing.get().getRne())
-                    .patente(existing.get().getPatente())
-                    .contract(existing.get().getContract())
-                    .build();
-            return supplierRepositoryPort.updateSupplier(updated);
-        }
-        else {
-            throw BillingException.notFound("Supplier not found ",id);
-        }
+        PartnerMapper.updatePartnerFromDTO(partnerDTO,updatedPartner);
+
+        return supplierRepositoryPort.updateSupplier(updatedPartner);
     }
 
     /************ CUSTOMER **********/
 
     @Override
-    public Optional<Partner> createCustomer(PartnerDTO partner) throws IOException {
+    public Optional<Partner> createCustomer(PartnerForm partner) throws IOException {
+        if (this.customerExistsByRegistrationNumber(partner.getTaxRegistrationNumber())){
+            throw BillingException
+                    .alreadyExists(
+                            "Client",
+                            "Tax Registration Number",
+                            partner.getTaxRegistrationNumber());
+        }
+        if (this.customerExistsByEmail(partner.getEmail())){
+            throw BillingException
+                    .alreadyExists(
+                            "Client",
+                            "Email",
+                            partner.getEmail());
+        }
+        if (this.customerExistsByIban(partner.getIban())){
+            throw BillingException
+                    .alreadyExists(
+                            "Client",
+                            "Iban",
+                            partner.getIban());
+        }
         UploadedFile rne = new UploadedFile(
                 partner.getRne().getOriginalFilename(),
                 partner.getRne().getContentType(),
@@ -126,19 +177,22 @@ public class PartnerService implements PartnerUseCase  {
                 partner.getPatente().getBytes()
         );
 
+        Document uploadedRne = uploadDocumentService.upload(partner.getTaxRegistrationNumber(), DocumentType.RNE, rne);
+        Document uploadedContract = uploadDocumentService.upload(partner.getTaxRegistrationNumber(), DocumentType.CONTRACT, contract);
+        Document uploadedPatente = uploadDocumentService.upload(partner.getTaxRegistrationNumber(), DocumentType.PATENT, patente);
+
         Partner  partnerModel = Partner.builder().name(partner.getName()).email(partner.getEmail()).phoneNumber(partner.getPhoneNumber())
                 .taxRegistrationNumber(partner.getTaxRegistrationNumber()).country(partner.getCountry())
-                .address(partner.getAddress()).iban(partner.getIban()).partnerType(partner.getPartnerType())
-                .build();
-        UUID customerId = customerRepositoryPort.saveCustomer(partnerModel).getIdPartner();
-        uploadCustomerDocumentService.upload(customerId, DocumentType.RNE, rne);
-        uploadCustomerDocumentService.upload(customerId, DocumentType.CONTRACT, contract);
-        uploadCustomerDocumentService.upload(customerId, DocumentType.PATENT, patente);
-        return customerRepositoryPort.findCustomerById(customerId.toString());
+                .address(partner.getAddress()).iban(partner.getIban()).partnerType(PartnerType.valueOf(partner.getPartnerType()))
+                .rne(uploadedRne).contract(uploadedContract).patente(uploadedPatente).build();
+
+        Partner savedPartner = customerRepositoryPort.saveCustomer(partnerModel);
+
+        return customerRepositoryPort.findCustomerById(String.valueOf(savedPartner.getIdPartner()));
     }
 
     @Override
-    public Page<Partner> getAllCustomers(String keyword , String Country ,int page) {
+    public Page<PartnerItemDTO> getAllCustomers(String keyword , String Country ,int page) {
         return customerRepositoryPort.findAllCustomers(keyword, Country, page);
     }
 
@@ -148,37 +202,34 @@ public class PartnerService implements PartnerUseCase  {
     }
 
     @Override
+    public boolean customerExistsByRegistrationNumber(String taxRegistrationNumber) {
+        return customerRepositoryPort.existsByTaxRegistrationNumber(taxRegistrationNumber);
+    }
+
+    @Override
+    public boolean customerExistsByEmail(String email) {
+        return customerRepositoryPort.existsByEmail(email);
+    }
+
+    @Override
+    public boolean customerExistsByIban(String iban) {
+        return customerRepositoryPort.existsByIban(iban);
+    }
+
+    @Override
     public void deleteCustomerById(String id) {
         customerRepositoryPort.deleteCustomerById(id);
     }
 
     @Override
-    public Partner updateCustomer(String id, PartnerDTO partner) {
-        Optional <Partner> existing = customerRepositoryPort.findCustomerById(id);
+    public Partner updateCustomer(String id, UpdatePartnerDTO partner) {
+        Partner updatedPartner = customerRepositoryPort.findCustomerById(id)
+                .orElseThrow(() -> BillingException.notFound("Client",id));
 
-        if (existing.isPresent()) {
-            Partner updated = Partner.builder()
-                    .idPartner(existing.get().getIdPartner())
-                    .name(partner.getName())
-                    .email(partner.getEmail())
-                    .phoneNumber(partner.getPhoneNumber())
-                    .country(partner.getCountry())
-                    .address(partner.getAddress())
-                    .iban(partner.getIban())
-                    .partnerType(existing.get().getPartnerType())
-                    .taxRegistrationNumber(existing.get().getTaxRegistrationNumber())
-                    .rne(existing.get().getRne())
-                    .patente(existing.get().getPatente())
-                    .contract(existing.get().getContract())
-                    .build();
-            return customerRepositoryPort.updateCustomer(updated);
-        }
-        else {
-            throw BillingException.notFound("Customer not found ",id);
-        }
+        PartnerMapper.updatePartnerFromDTO(partner,updatedPartner);
+        return  customerRepositoryPort.updateCustomer(updatedPartner);
+
     }
-
-
 
 
 }

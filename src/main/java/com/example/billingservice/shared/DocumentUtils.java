@@ -3,6 +3,7 @@ package com.example.billingservice.shared;
 import com.example.billingservice.domain.enums.DocumentType;
 import com.example.billingservice.infrastructure.out.persistance.dto.UploadedFile;
 
+
 public final class DocumentUtils {
     public DocumentUtils() {
     }

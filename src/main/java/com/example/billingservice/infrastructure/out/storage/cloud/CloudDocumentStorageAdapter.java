@@ -1,13 +1,15 @@
 package com.example.billingservice.infrastructure.out.storage.cloud;
 
+import com.example.billingservice.domain.model.Document;
 import com.example.billingservice.infrastructure.out.persistance.dto.CloudStoredObject;
-import com.example.billingservice.infrastructure.out.persistance.dto.StoredDocument;
 import com.example.billingservice.infrastructure.out.persistance.dto.UploadedFile;
 import com.example.billingservice.application.ports.out.DocumentStoragePort;
 import com.example.billingservice.domain.enums.DocumentType;
 import com.example.billingservice.domain.exceptions.DocumentStorageException;
+import com.example.billingservice.infrastructure.out.persistance.entity.DocumentEntity;
+import com.example.billingservice.infrastructure.out.persistance.mapper.DocumentMapper;
+import com.example.billingservice.infrastructure.out.persistance.repository.JpaDocumentRepository;
 import com.example.billingservice.shared.DocumentUtils;
-import com.example.billingservice.shared.HashUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
@@ -17,30 +19,30 @@ import java.util.UUID;
 @ConditionalOnProperty(name = "spring.storage.type", havingValue = "cloud")
 public class CloudDocumentStorageAdapter implements DocumentStoragePort {
     private final CloudObjectStorageClient cloudObjectStorageClient;
+    private final JpaDocumentRepository jpaDocumentRepository;
+    private final DocumentMapper documentMapper;
 
-    public CloudDocumentStorageAdapter(CloudObjectStorageClient cloudObjectStorageClient) {
+    public CloudDocumentStorageAdapter(CloudObjectStorageClient cloudObjectStorageClient, JpaDocumentRepository jpaDocumentRepository, DocumentMapper documentMapper) {
         this.cloudObjectStorageClient = cloudObjectStorageClient;
+        this.jpaDocumentRepository = jpaDocumentRepository;
+        this.documentMapper = documentMapper;
     }
 
     @Override
-    public StoredDocument store(UUID ownerId, UploadedFile file, DocumentType documentType) {
+    public Document store(String ownerReference, UploadedFile file, DocumentType documentType) {
         DocumentUtils.validateFile(file);
 
         try {
-            String objectKey = buildObjectKey(ownerId, documentType, file.originalFileName());
+            String objectKey = buildObjectKey(ownerReference, documentType, file.originalFileName());
 
             CloudStoredObject storedObject = cloudObjectStorageClient.upload(
                     objectKey,
                     file.content(),
                     file.mimeType()
             );
+            DocumentEntity documentEntity = jpaDocumentRepository.save(new DocumentEntity());
 
-            return new StoredDocument(
-                    file.originalFileName(),
-                    file.mimeType(),
-                    storedObject.publicUrl(),
-                    HashUtils.sha256(file.content())
-            );
+            return documentMapper.toDomain(documentEntity);
 
         } catch (Exception e) {
             throw new DocumentStorageException("Failed to store file in cloud storage", e);
@@ -48,12 +50,12 @@ public class CloudDocumentStorageAdapter implements DocumentStoragePort {
     }
 
 
-    private String buildObjectKey(UUID ownerId, DocumentType documentType, String originalFileName) {
+    private String buildObjectKey(String ownerReference, DocumentType documentType, String originalFileName) {
         String rootFolder = DocumentUtils.resolveOwnerFolder(documentType);
         String safeFileName = DocumentUtils.sanitizeFileName(originalFileName);
 
         return rootFolder + "/"
-                + ownerId + "/"
+                + ownerReference + "/"
                 + documentType.name().toLowerCase() + "/"
                 + UUID.randomUUID() + "_"
                 + safeFileName;

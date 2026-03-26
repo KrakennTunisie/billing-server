@@ -1,14 +1,16 @@
 package com.example.billingservice.infrastructure.out.storage;
 
-import com.example.billingservice.infrastructure.out.persistance.dto.StoredDocument;
+import com.example.billingservice.domain.enums.DocumentStorageMode;
+import com.example.billingservice.domain.model.Document;
+import com.example.billingservice.domain.model.DocumentContent;
 import com.example.billingservice.infrastructure.out.persistance.dto.UploadedFile;
 import com.example.billingservice.application.ports.out.DocumentStoragePort;
 import com.example.billingservice.domain.enums.DocumentType;
 import com.example.billingservice.domain.exceptions.DocumentStorageException;
 import com.example.billingservice.infrastructure.out.persistance.entity.DocumentContentEntity;
-import com.example.billingservice.infrastructure.out.persistance.repository.DocumentContentJpaRepository;
+import com.example.billingservice.infrastructure.out.persistance.mapper.DocumentContentMapper;
+import com.example.billingservice.infrastructure.out.persistance.mapper.DocumentMapper;
 import com.example.billingservice.shared.DocumentUtils;
-import com.example.billingservice.shared.HashUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
@@ -16,43 +18,47 @@ import org.springframework.stereotype.Component;
 import java.util.UUID;
 
 @Component
-@ConditionalOnProperty(name = "spring.storage.type", havingValue = "postgres")
+@ConditionalOnProperty(name = "spring.storage.type", havingValue = "database")
 public class PostgresDocumentStorageAdapter implements DocumentStoragePort {
 
-    private final DocumentContentJpaRepository documentContentJpaRepository;
     private final String apiBaseUrl;
+    private final String downloadPrefix;
+    private final DocumentMapper documentMapper;
+    private final DocumentContentMapper documentContentMapper;
 
     public PostgresDocumentStorageAdapter(
-            DocumentContentJpaRepository documentContentJpaRepository,
-            @Value("${spring.storage.local.public-base-url}") String apiBaseUrl
+            @Value("${spring.storage.local.public-base-url}") String apiBaseUrl,
+            @Value("${spring.storage.database.download-path}") String downloadPrefix,
+            DocumentMapper documentMapper,
+            DocumentContentMapper documentContentMapper
     ) {
-        this.documentContentJpaRepository = documentContentJpaRepository;
         this.apiBaseUrl = apiBaseUrl;
+        this.downloadPrefix = downloadPrefix;
+        this.documentMapper = documentMapper;
+        this.documentContentMapper = documentContentMapper;
     }
 
     @Override
-    public StoredDocument store(UUID ownerId, UploadedFile file, DocumentType documentType) {
+    public Document store(String ownerReference, UploadedFile file, DocumentType documentType) {
         DocumentUtils.validateFile(file);
 
         try {
-            UUID contentId = UUID.randomUUID();
+            Document document = documentMapper.fromUploadedFile(file, documentType);
+            document.setStorageMode(DocumentStorageMode.DATABASE);
 
-            DocumentContentEntity entity = new DocumentContentEntity();
-            entity.setId(contentId);
-            entity.setOriginalFileName(file.originalFileName());
-            entity.setMimeType(file.mimeType());
-            entity.setFileData(file.content());
+            DocumentContentEntity documentContentEntity = DocumentContentEntity.builder()
+                    .idDocument(UUID.randomUUID())
+                    .fileName(file.originalFileName())
+                    .mimeType(file.mimeType())
+                    .fileContent(file.content())
+                    .fileSize((long) file.content().length)
+                    .build();
 
-            documentContentJpaRepository.save(entity);
-
-            String downloadUrl = apiBaseUrl + "/api/documents/" + contentId + "/download";
-
-            return new StoredDocument(
-                    file.originalFileName(),
-                    file.mimeType(),
-                    downloadUrl,
-                    HashUtils.sha256(file.content())
-            );
+            DocumentContent documentContent = documentContentMapper.toDomain(documentContentEntity);
+            String downloadUrl = apiBaseUrl + downloadPrefix + documentContent.getIdDocumentContent()+ "/content";
+            document.setStorageURL(downloadUrl);
+            document.setContent(documentContent);
+            return document;
 
         } catch (Exception e) {
             throw new DocumentStorageException("Failed to store file in PostgreSQL",e);
