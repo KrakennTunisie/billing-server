@@ -3,7 +3,9 @@ package com.example.billingservice.domain.model;
 import com.example.billingservice.domain.enums.*;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 public class InvoiceCreditNote extends Invoice{
 
@@ -11,39 +13,10 @@ public class InvoiceCreditNote extends Invoice{
     private String description;
     private Invoice invoice;
 
-
-
-    public InvoiceCreditNote(String invoiceNumber, Date issueDate, Date dueDate, InvoiceType invoiceType,
-                             InvoiceStatus invoiceStatus, InvoiceComplianceStatus invoiceComplianceStatus,
-                             Double totalExclTaxEUR, Double totalInclTaxEUR, Double totalExclTaxTND,
-                             Double totalInclTaxTND, Double vatRate, PaymentMethod paymentMethod, String creditedAccount,
-                             Date exchangeRateReferenceDate, Double appliedExchangeRate, ExchangeRateSource exchangeRateSource,
-                             String complianceQRcode, Invoice invoice, String motif, String description) {
-
-        super(invoiceNumber, issueDate, dueDate, invoiceType, invoiceStatus, invoiceComplianceStatus, totalExclTaxEUR,
-                totalInclTaxEUR, totalExclTaxTND, totalInclTaxTND, vatRate, paymentMethod, creditedAccount,
-                exchangeRateReferenceDate, appliedExchangeRate, exchangeRateSource, complianceQRcode);
-        this.motif = motif;
-        this.description = description;
-        this.invoice = invoice;
+    public InvoiceCreditNote(UUID idInvoice, String invoiceNumber, Date issueDate, Date dueDate, InvoiceType invoiceType, InvoiceStatus invoiceStatus, InvoiceComplianceStatus invoiceComplianceStatus, InvoiceCurrency invoiceCurrency, Double totalExclTaxEUR, Double totalInclTaxEUR, Double totalExclTaxTND, Double totalInclTaxTND, Double vatRate, PaymentMethod paymentMethod, Date exchangeRateReferenceDate, Double appliedExchangeRate, ExchangeRateSource exchangeRateSource, String complianceQRcode, PurchaseOrder purchaseOrder, Partner partner, List<InvoiceItem> invoiceItems, List<InvoiceEvent> invoiceEvents, Document invoiceDocument) {
+        super(idInvoice, invoiceNumber, issueDate, dueDate, invoiceType, invoiceStatus, invoiceComplianceStatus, invoiceCurrency, totalExclTaxEUR, totalInclTaxEUR, totalExclTaxTND, totalInclTaxTND, vatRate, paymentMethod, exchangeRateReferenceDate, appliedExchangeRate, exchangeRateSource, complianceQRcode, purchaseOrder, partner, invoiceItems, invoiceEvents, invoiceDocument);
     }
 
-    public InvoiceCreditNote(String invoiceNumber, Date issueDate, Date dueDate, InvoiceType invoiceType,
-                             InvoiceStatus invoiceStatus, InvoiceComplianceStatus invoiceComplianceStatus,
-                             Double totalExclTaxEUR, Double totalInclTaxEUR, Double totalExclTaxTND, Double totalInclTaxTND,
-                             Double vatRate, PaymentMethod paymentMethod, String creditedAccount,
-                             Date exchangeRateReferenceDate, Double appliedExchangeRate, ExchangeRateSource exchangeRateSource,
-                             String complianceQRcode, PurchaseOrder purchaseOrder, Invoice invoice, String motif,
-                             String description) {
-
-        super(invoiceNumber, issueDate, dueDate, invoiceType, invoiceStatus, invoiceComplianceStatus, totalExclTaxEUR,
-                totalInclTaxEUR, totalExclTaxTND, totalInclTaxTND, vatRate, paymentMethod, creditedAccount,
-                exchangeRateReferenceDate, appliedExchangeRate, exchangeRateSource, complianceQRcode, purchaseOrder);
-        this.motif = motif;
-        this.description = description;
-        this.invoice = invoice;
-
-    }
 
     public String getMotif() {
         return motif;

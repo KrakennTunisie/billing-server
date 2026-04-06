@@ -15,6 +15,8 @@ public interface CustomerRepository extends JpaRepository<CustomerEntity, UUID> 
 
     Optional<CustomerEntity> findByTaxRegistrationNumber(String taxRegistrationNumber);
 
+    boolean existsByIdPartner(UUID uuid);
+
     boolean existsByTaxRegistrationNumber(String taxRegistrationNumber);
 
     boolean existsByEmail(String email);

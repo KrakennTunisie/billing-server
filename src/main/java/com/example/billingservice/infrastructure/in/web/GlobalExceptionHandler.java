@@ -5,6 +5,8 @@ import com.example.billingservice.domain.exceptions.DatabaseException;
 import com.example.billingservice.domain.exceptions.DocumentStorageException;
 import com.example.billingservice.infrastructure.out.persistance.dto.ErrorResponse;
 import com.example.billingservice.shared.DatabaseErrorUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,12 +17,16 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     // Case 1: @RequestBody
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -96,7 +102,11 @@ public class GlobalExceptionHandler {
     // fallback (important)
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneric(Exception ex) {
-        System.out.println("Top level exception type: {}"+ ex.getClass().getName());
+        System.out.println("Exception type: " + ex.getClass().getName());
+        System.out.println("Message: " + ex.getMessage());
+
+        ex.printStackTrace();
+
         ErrorResponse error = new ErrorResponse(
                 "INTERNAL_ERROR",
                 ex.getMessage()
@@ -109,7 +119,7 @@ public class GlobalExceptionHandler {
 
 
 
-    private ResponseEntity<Map<String, String>> buildValidationErrors(java.util.List<FieldError> fieldErrors) {
+    private ResponseEntity<Map<String, String>> buildValidationErrors(List<FieldError> fieldErrors) {
         Map<String, String> errors = new HashMap<>();
 
         for (FieldError error : fieldErrors) {

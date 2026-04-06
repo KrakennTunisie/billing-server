@@ -7,7 +7,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "invoices_credit_notes")
-public class InvoiceCreditNoteEntity{
+public class InvoiceCreditNoteEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

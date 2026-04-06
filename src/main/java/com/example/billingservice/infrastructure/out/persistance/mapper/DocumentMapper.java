@@ -4,6 +4,7 @@ import com.example.billingservice.domain.enums.DocumentStorageMode;
 import com.example.billingservice.domain.enums.DocumentType;
 import com.example.billingservice.domain.model.Document;
 import com.example.billingservice.infrastructure.out.persistance.dto.DocumentResponse;
+import com.example.billingservice.infrastructure.out.persistance.dto.DocumentSummaryDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.UploadedFile;
 import com.example.billingservice.infrastructure.out.persistance.entity.DocumentEntity;
 import com.example.billingservice.shared.HashUtils;
@@ -99,6 +100,23 @@ public class DocumentMapper {
         }
 
         return response;
+    }
+
+    public DocumentSummaryDTO toDocumentSummary(Document document){
+        if(document==null){
+            return null;
+        }
+
+        return DocumentSummaryDTO.builder()
+                .idDocument(document.getIdDocument())
+                .fileName(document.getFileName())
+                .mimeType(document.getMimeType())
+                .storageURL(document.getStorageURL())
+                .hash(document.getHash())
+                .storageMode(document.getStorageMode())
+                .uploadedAt(document.getUploadedAt())
+                .documentType(document.getDocumentType())
+                .build();
     }
 
     private String safe(String value) {

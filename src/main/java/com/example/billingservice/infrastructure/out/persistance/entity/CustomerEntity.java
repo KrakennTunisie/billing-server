@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@DiscriminatorValue("CUSTOMER")
+@DiscriminatorValue("CLIENT")
 @Getter
 @Setter
 public class CustomerEntity extends PartnerEntity{

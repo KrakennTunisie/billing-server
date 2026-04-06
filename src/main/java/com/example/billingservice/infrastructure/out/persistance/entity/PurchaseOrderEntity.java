@@ -1,6 +1,8 @@
 package com.example.billingservice.infrastructure.out.persistance.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDate;
 import java.util.Date;
@@ -9,6 +11,8 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "purchase_orders")
+@Getter
+@Setter
 public class PurchaseOrderEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -17,7 +21,7 @@ public class PurchaseOrderEntity {
 
     private String reference;
 
-    private LocalDate orderDate;
+    private Date orderDate;
 
     private Double totalAmountExclTax;
 

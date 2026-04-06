@@ -1,11 +1,22 @@
 package com.example.billingservice.domain.model;
 
+import com.example.billingservice.domain.enums.InvoiceEventTrigger;
 import com.example.billingservice.domain.enums.InvoiceEventType;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Date;
 import java.util.Objects;
 import java.util.UUID;
 
+@Getter
+@Setter
+@Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@Schema(description = "Modèle Evenement Facture")
 public class InvoiceEvent {
 
     private UUID idInvoiceEvent;
@@ -13,56 +24,9 @@ public class InvoiceEvent {
     private InvoiceEventType invoiceEventType;
     private Date eventDate;
     private String description;
+    private InvoiceEventTrigger eventTrigger;
+    private String triggeredBy;
 
-    public InvoiceEvent(Invoice invoice, InvoiceEventType invoiceEventType, Date eventDate, String description) {
-        this.invoice = invoice;
-        this.invoiceEventType = invoiceEventType;
-        this.eventDate = eventDate;
-        this.description = description;
-    }
-
-    public InvoiceEvent() {
-    }
-
-    public UUID getIdInvoiceEvent() {
-        return idInvoiceEvent;
-    }
-
-    public void setIdInvoiceEvent(UUID idInvoiceEvent) {
-        this.idInvoiceEvent = idInvoiceEvent;
-    }
-
-    public Invoice getInvoice() {
-        return invoice;
-    }
-
-    public void setInvoice(Invoice invoice) {
-        this.invoice = invoice;
-    }
-
-    public InvoiceEventType getInvoiceEventType() {
-        return invoiceEventType;
-    }
-
-    public void setInvoiceEventType(InvoiceEventType invoiceEventType) {
-        this.invoiceEventType = invoiceEventType;
-    }
-
-    public Date getEventDate() {
-        return eventDate;
-    }
-
-    public void setEventDate(Date eventDate) {
-        this.eventDate = eventDate;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
 
     @Override
     public boolean equals(Object o) {
