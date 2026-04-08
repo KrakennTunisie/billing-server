@@ -6,3 +6,8 @@ spring:
         enabled: false
   config:
     import: ""
+
+  storage:
+    local:
+      root-path: ./target/test-storage
+      public-base-url: http://billing-service:8081 #Docker :billing-service
