@@ -11,7 +11,7 @@ services:
     networks:
       - ms-net
     environment:
-      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
+      SPRING_CONFIG_IMPORT: configserver:http://config-server:8888
 
   billing-db:
     image: postgres:18
