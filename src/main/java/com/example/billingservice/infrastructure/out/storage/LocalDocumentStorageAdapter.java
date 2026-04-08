@@ -19,7 +19,10 @@ import java.nio.file.*;
 
 
 @Component
-@ConditionalOnProperty(name = "spring.storage.type", havingValue = "local")
+@ConditionalOnProperty(
+        name = "spring.storage.type",
+        havingValue = "local",
+        matchIfMissing = true)
 public class LocalDocumentStorageAdapter implements DocumentStoragePort {
 
     private final Path rootPath;
