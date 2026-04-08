@@ -2,6 +2,7 @@ package com.example.billingservice.application.service;
 
 import com.example.billingservice.application.ports.in.GenerateInvoiceNumberUseCase;
 import com.example.billingservice.application.ports.in.GenerateNextInvoiceSequenceUseCase;
+import com.example.billingservice.domain.enums.SequenceNumberType;
 import org.springframework.stereotype.Service;
 
 import java.time.Year;
@@ -15,24 +16,29 @@ public class GenerateInvoiceNumberService implements GenerateInvoiceNumberUseCas
     }
 
     @Override
-    public String generate() {
+    public String generate(SequenceNumberType sequenceNumberType) {
         int year = Year.now().getValue();
-        long sequence = generateNextInvoiceSequenceUseCase.generateNextSequence(year);
+        long sequence = generateNextInvoiceSequenceUseCase.generateNextSequence(sequenceNumberType, year);
 
-        return formatInvoiceNumber(year, sequence);
+        return formatInvoiceNumber(sequenceNumberType, year, sequence);
     }
 
     @Override
-    public void validateNextSequence(String invoiceNumber) {
+    public void validateNextSequence(SequenceNumberType sequenceNumberType, String invoiceNumber) {
         int year = Year.now().getValue();
         long lastSequence = extractSequence(invoiceNumber);
 
-         generateNextInvoiceSequenceUseCase.storeNextSequence(year, lastSequence);
+         generateNextInvoiceSequenceUseCase.storeNextSequence(sequenceNumberType, year, lastSequence);
     }
 
-    private String formatInvoiceNumber(int year, long sequence) {
-        return "FAC-" + year + "-" + String.format("%05d", sequence);
+    private String formatInvoiceNumber(SequenceNumberType sequenceNumberType, int year, long sequence) {
+
+        return sequenceNumberType == SequenceNumberType.INVOICE
+                ? "FAC-" + year + "-" + String.format("%05d", sequence)
+                : "AV-" + year + "-" + String.format("%05d", sequence);
     }
+
+
 
     private long extractSequence(String invoiceNumber) {
         String[] parts = invoiceNumber.split("-");

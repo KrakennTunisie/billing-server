@@ -1,47 +1,48 @@
 package com.example.billingservice.domain.model;
 
-import com.example.billingservice.domain.enums.*;
+import com.example.billingservice.domain.enums.InvoiceComplianceStatus;
+import com.example.billingservice.domain.enums.InvoiceCreditNoteStatus;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-public class InvoiceCreditNote extends Invoice{
+
+@Getter
+@Setter
+@Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@Schema(description = "Modèle Facture d'Avoir")
+public class InvoiceCreditNote {
+
+    private UUID idInvoiceCreditNote;
+
+    private String invoiceCreditNoteNumber;
+
+    private Date issueDate;
 
     private String motif;
     private String description;
+
+    private String qrCode;
+
+    private InvoiceComplianceStatus complianceStatus;
+
+    private InvoiceCreditNoteStatus invoiceCreditNoteStatus;
+
     private Invoice invoice;
 
-    public InvoiceCreditNote(UUID idInvoice, String invoiceNumber, Date issueDate, Date dueDate, InvoiceType invoiceType, InvoiceStatus invoiceStatus, InvoiceComplianceStatus invoiceComplianceStatus, InvoiceCurrency invoiceCurrency, Double totalExclTaxEUR, Double totalInclTaxEUR, Double totalExclTaxTND, Double totalInclTaxTND, Double vatRate, PaymentMethod paymentMethod, Date exchangeRateReferenceDate, Double appliedExchangeRate, ExchangeRateSource exchangeRateSource, String complianceQRcode, PurchaseOrder purchaseOrder, Partner partner, List<InvoiceItem> invoiceItems, List<InvoiceEvent> invoiceEvents, Document invoiceDocument) {
-        super(idInvoice, invoiceNumber, issueDate, dueDate, invoiceType, invoiceStatus, invoiceComplianceStatus, invoiceCurrency, totalExclTaxEUR, totalInclTaxEUR, totalExclTaxTND, totalInclTaxTND, vatRate, paymentMethod, exchangeRateReferenceDate, appliedExchangeRate, exchangeRateSource, complianceQRcode, purchaseOrder, partner, invoiceItems, invoiceEvents, invoiceDocument);
-    }
+    private Document invoiceCreditNoteDocument;
 
+    private List<InvoiceCreditNoteItem> invoiceCreditNoteItems;
 
-    public String getMotif() {
-        return motif;
-    }
-
-    public void setMotif(String motif) {
-        this.motif = motif;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public Invoice getInvoice() {
-        return invoice;
-    }
-
-    public void setInvoice(Invoice invoice) {
-        this.invoice = invoice;
-    }
-
+    private List<InvoiceCreditNoteEvent> invoiceCreditNoteEvents;
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof InvoiceCreditNote that)) return false;

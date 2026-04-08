@@ -104,7 +104,4 @@ public class CustomerPersistanceAdapter implements CustomerRepositoryPort {
             throw BillingException.badRequest("Invalid UUID format: " + id);
         }
     }
-
-
-
 }

@@ -24,6 +24,7 @@ public class InvoiceMapper {
     private final PurchaseOrderMapper purchaseOrderMapper;
     private final PartnerUseCase partnerUseCase;
     private final InvoiceEventMapper invoiceEventMapper;
+    //private final InvoiceCreditNoteMapper invoiceCreditNoteMapper;
 
     public InvoiceEntity toEntity(Invoice dto) {
         if (dto == null) {
@@ -76,6 +77,7 @@ public class InvoiceMapper {
         invoiceEventEntities.forEach(event -> event.setInvoice(invoice));
         invoice.setInvoiceEvents(invoiceEventEntities);
 
+
         return invoice;
     }
 
@@ -121,7 +123,6 @@ public class InvoiceMapper {
                 .map(invoiceEventMapper::toDomain)
                 .toList()
                 : List.of();
-
         dto.setInvoiceEvents(invoiceEvents);
 
 
@@ -303,6 +304,8 @@ public class InvoiceMapper {
 
         invoiceDTO.setInvoiceEvents(invoiceEvents);
 
+        //invoiceDTO.setHasInvoiceCreditNotes(invoice.getInvoiceCreditNotes().isEmpty());
+
         invoiceEvents.forEach(e-> System.out.println(e.toString()));
 
         return invoiceDTO;
@@ -343,7 +346,6 @@ public class InvoiceMapper {
             List<InvoiceEvent> invoiceEvents = invoiceDTO.getInvoiceEvents() != null
                     ? invoiceDTO.getInvoiceEvents()
                     : List.of();
-            System.out.println(invoiceEvents);
 
             InvoiceEvent invoiceEvent = InvoiceEvent.builder()
                     .invoiceEventType(InvoiceEventType.UPDATED)
@@ -352,7 +354,6 @@ public class InvoiceMapper {
                     .eventTrigger(InvoiceEventTrigger.USER)
                     .triggeredBy("user: wassef")
                     .build();
-            System.out.println(invoiceEvent);
 
 
             List<InvoiceEvent> updatedEvents = new ArrayList<>(invoiceEvents);
@@ -398,6 +399,25 @@ public class InvoiceMapper {
         }
     }
 
+    public InvoiceSummaryDTO toSummaryDTO(Invoice invoice) {
+        if (invoice == null) {
+            return null;
+        }
+
+        return InvoiceSummaryDTO.builder()
+                .idInvoice(invoice.getIdInvoice())
+                .invoiceNumber(invoice.getInvoiceNumber())
+                .issueDate(invoice.getIssueDate())
+                .invoiceType(invoice.getInvoiceType())
+                .invoiceStatus(invoice.getInvoiceStatus())
+                .invoiceComplianceStatus(invoice.getInvoiceComplianceStatus())
+                .invoiceCurrency(invoice.getInvoiceCurrency())
+                .totalExclTaxEUR(invoice.getTotalExclTaxEUR())
+                .totalInclTaxEUR(invoice.getTotalInclTaxEUR())
+                .totalExclTaxTND(invoice.getTotalExclTaxTND())
+                .totalInclTaxTND(invoice.getTotalInclTaxTND())
+                .build();
+    }
 
     public Partner getPartner(InvoiceType invoiceType, String idPartner){
         if(invoiceType == InvoiceType.PURCHASE){
@@ -410,9 +430,5 @@ public class InvoiceMapper {
             throw BillingException.notFound("Partner ", idPartner);
         }
     }
-
-
-
-
 
 }

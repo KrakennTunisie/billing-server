@@ -1,49 +1,53 @@
 package com.example.billingservice.application.service;
 
 import com.example.billingservice.application.ports.in.GenerateNextInvoiceSequenceUseCase;
-import com.example.billingservice.application.ports.out.InvoiceCounterRepositoryPort;
-import com.example.billingservice.domain.model.InvoiceCounter;
+import com.example.billingservice.application.ports.out.SequenceNumberCounterRepositoryPort;
+import com.example.billingservice.domain.enums.SequenceNumberType;
+import com.example.billingservice.domain.model.SequenceNumberCounter;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@AllArgsConstructor
 public class GenerateNextInvoiceSequenceService implements GenerateNextInvoiceSequenceUseCase {
-    private final InvoiceCounterRepositoryPort invoiceCounterRepositoryPort;
 
-    public GenerateNextInvoiceSequenceService(InvoiceCounterRepositoryPort invoiceCounterRepositoryPort) {
-        this.invoiceCounterRepositoryPort = invoiceCounterRepositoryPort;
-    }
+    private final SequenceNumberCounterRepositoryPort sequenceNumberCounterRepositoryPort;
+
 
     @Override
     @Transactional
-    public Long generateNextSequence(Integer year) {
-        InvoiceCounter counter = invoiceCounterRepositoryPort.findByYearForUpdate(year)
+    public Long generateNextSequence(SequenceNumberType sequenceNumberType, Integer year) {
+        SequenceNumberCounter counter = sequenceNumberCounterRepositoryPort.findByYearAndDocumentForUpdate(sequenceNumberType,year)
                 .orElse(
-                        InvoiceCounter.builder()
+                        SequenceNumberCounter.builder()
                                 .year(year)
+                                .sequenceNumberType(sequenceNumberType)
                                 .lastSequence(0L)
                                 .build()
                 );
 
-        long nextSequence = counter.getLastSequence() + 1;
+        long nextSequence = counter.getLastSequence()+1;
 
         return nextSequence;
     }
 
     @Override
     @Transactional
-    public void storeNextSequence(Integer year, long nextSequence) {
-        InvoiceCounter counter = invoiceCounterRepositoryPort.findByYearForUpdate(year)
-                .orElse(
-                        InvoiceCounter.builder()
-                                .year(year)
-                                .lastSequence(0L)
-                                .build()
-                );
+    public void storeNextSequence(SequenceNumberType type,
+                                  Integer year,
+                                  long nextSequence) {
 
+        SequenceNumberCounter counter = sequenceNumberCounterRepositoryPort
+                .findByYearAndDocumentForUpdate(type, year)
+                .orElseGet(() -> SequenceNumberCounter.builder()
+                        .year(year)
+                        .sequenceNumberType(type)
+                        .lastSequence(0L)
+                        .build()
+                );
         counter.setLastSequence(nextSequence);
 
-        invoiceCounterRepositoryPort.save(counter);
-
+        sequenceNumberCounterRepositoryPort.save(counter);
     }
 }

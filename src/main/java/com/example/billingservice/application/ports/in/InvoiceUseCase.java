@@ -1,6 +1,7 @@
 package com.example.billingservice.application.ports.in;
 
 import com.example.billingservice.domain.enums.InvoiceStatus;
+import com.example.billingservice.domain.model.Invoice;
 import com.example.billingservice.infrastructure.out.persistance.dto.InvoiceCreateDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.InvoiceDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.InvoicePageItemDTO;
@@ -22,6 +23,8 @@ public interface InvoiceUseCase {
     InvoiceDTO updateInvoiceStatus(UUID invoiceId, InvoiceStatus invoiceStatus);
 
     InvoiceDTO getInvoiceById(UUID invoiceId);
+
+    Invoice getInvoiceDomainById(UUID invoiceId);
 
     void deleteInvoice(UUID invoiceId);
 

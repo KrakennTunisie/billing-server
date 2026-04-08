@@ -38,5 +38,6 @@ public class InvoiceDTO {
 
     private List<InvoiceItem> invoiceItems;
     private List<InvoiceEvent> invoiceEvents;
+    private boolean hasInvoiceCreditNotes;
     private DocumentSummaryDTO invoiceDocument;
 }

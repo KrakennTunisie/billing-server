@@ -45,7 +45,7 @@ public class InvoiceService implements InvoiceUseCase {
             throw BillingException.alreadyExists("Facture", "invoiceNumber", createDTO.getInvoiceNumber());
         }
 
-        String invoiceNumber = generateInvoiceNumberUseCase.generate();
+        String invoiceNumber = generateInvoiceNumberUseCase.generate(SequenceNumberType.INVOICE);
         createDTO.setInvoiceNumber(invoiceNumber);
 
         Document invoiceDocument = null;
@@ -75,8 +75,7 @@ public class InvoiceService implements InvoiceUseCase {
 
         InvoiceDTO savedInvoice = invoiceRepositoryPort.save(invoice);
 
-        generateInvoiceNumberUseCase.validateNextSequence(invoiceNumber);
-
+        generateInvoiceNumberUseCase.validateNextSequence(SequenceNumberType.INVOICE, invoiceNumber);
 
 
         return savedInvoice;
@@ -130,7 +129,7 @@ public class InvoiceService implements InvoiceUseCase {
     public InvoiceDTO updateInvoiceStatus(UUID invoiceId, InvoiceStatus invoiceStatus) {
 
         if(!invoiceRepositoryPort.existsByInvoiceId(invoiceId)){
-          throw   BillingException.notFound("Facture", String.valueOf(invoiceId));
+          throw BillingException.notFound("Facture", String.valueOf(invoiceId));
         }
 
         InvoiceDTO invoiceDTO = getInvoiceById(invoiceId);
@@ -146,6 +145,14 @@ public class InvoiceService implements InvoiceUseCase {
             throw  BillingException.notFound("Facture", String.valueOf(invoiceId));
         }
         return invoiceRepositoryPort.getById(invoiceId);
+    }
+
+    @Override
+    public Invoice getInvoiceDomainById(UUID invoiceId) {
+        if(!existsByInvoiceId(invoiceId)){
+            throw  BillingException.notFound("Facture", String.valueOf(invoiceId));
+        }
+        return invoiceRepositoryPort.getInvoice(invoiceId);
     }
 
     @Override

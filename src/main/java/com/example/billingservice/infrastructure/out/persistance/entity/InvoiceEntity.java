@@ -68,4 +68,7 @@ public class InvoiceEntity {
 
     @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<InvoiceItemEntity> invoiceItems;
+
+    @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<InvoiceCreditNoteEntity> invoiceCreditNotes;
 }

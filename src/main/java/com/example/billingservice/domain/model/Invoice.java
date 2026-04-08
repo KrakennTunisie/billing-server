@@ -37,6 +37,7 @@ public class Invoice {
 
     private List<InvoiceItem> invoiceItems;
     private List<InvoiceEvent> invoiceEvents;
+    private List<InvoiceCreditNote> invoiceCreditNotes;
     private Document invoiceDocument;
 
     public void addEvent(InvoiceEvent event) {

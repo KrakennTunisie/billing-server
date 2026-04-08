@@ -22,6 +22,8 @@ public interface InvoiceRepositoryPort {
 
     InvoiceDTO getById(UUID idInvoice);
 
+    Invoice getInvoice(UUID idInvoice);
+
     void delete(UUID idInvoice);
 
     boolean existsByInvoiceNumber(String invoiceNumber);

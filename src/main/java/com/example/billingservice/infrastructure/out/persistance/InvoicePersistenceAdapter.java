@@ -80,6 +80,12 @@ public class InvoicePersistenceAdapter implements InvoiceRepositoryPort {
     }
 
     @Override
+    public Invoice getInvoice(UUID idInvoice) {
+        InvoiceEntity entity = jpaInvoiceRepository.getReferenceById(idInvoice);
+        return invoiceMapper.toDomain(entity);
+    }
+
+    @Override
     public void delete(UUID idInvoice) {
         InvoiceEntity entity = jpaInvoiceRepository.getReferenceById(idInvoice);
         if(entity.getInvoiceStatus()!=InvoiceStatus.DRAFT){
