@@ -1,8 +1,8 @@
 spring:
   application:
     name: billing-server
-  #config:
+  config:
     #  Docker  → import: "configserver:http://config-server:8888"
     #  Local   → import: "configserver:http://localhost:8888"
-    #import:  "configserver:http://localhost:8888"
+    import:  "configserver:http://config-server:8888"
 
