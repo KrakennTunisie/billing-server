@@ -4,6 +4,7 @@ import com.example.billingservice.domain.enums.PartnerType;
 import com.example.billingservice.domain.model.Document;
 import com.example.billingservice.domain.model.Partner;
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerItemDTO;
+import com.example.billingservice.infrastructure.out.persistance.dto.PartnerSummaryDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.UpdatePartnerDTO;
 import com.example.billingservice.infrastructure.out.persistance.entity.CustomerEntity;
 import com.example.billingservice.infrastructure.out.persistance.entity.DocumentEntity;
@@ -22,11 +23,7 @@ public class PartnerMapper {
     {
 
         // Instancier la bonne classe selon le type
-        PartnerEntity entity = switch (partner.getPartnerType()) {
-            case CLIENT -> new CustomerEntity();
-            case SUPPLIER -> new SupplierEntity();
-        };
-
+        PartnerEntity entity = createEntityByPartnerType(partner.getPartnerType());
 
         //RNE
         DocumentEntity rne = documentMapper.toRneEntity(partner.getRne());
@@ -53,16 +50,11 @@ public class PartnerMapper {
     }
 
 
-    public Partner toDomain(PartnerEntity entity)
+    public Partner toDomain(PartnerEntity entity, PartnerType type)
     {
         // Déduire PartnerType
-        PartnerType partnerType;
-        if (entity instanceof CustomerEntity) {
-            partnerType = PartnerType.CLIENT;
-        } else if (entity instanceof SupplierEntity) {
-            partnerType = PartnerType.SUPPLIER;
-        } else {
-            throw new IllegalStateException("Unknown partner type: " + entity.getClass());
+        if (type!=PartnerType.CLIENT && type!=PartnerType.SUPPLIER){
+            throw new IllegalStateException("Unknown partner type: " + type);
         }
         //RNE
         Document rne =documentMapper.toDomain(entity.getRne());
@@ -79,7 +71,7 @@ public class PartnerMapper {
                 .country(entity.getCountry())
                 .address(entity.getAddress())
                 .iban(entity.getIban())
-                .partnerType(partnerType)
+                .partnerType(type)
                 .rne(rne).contract(contrat).patente(patente)
                 .build();
 
@@ -144,5 +136,31 @@ public class PartnerMapper {
         if (dto.getPartnerType() != null) {
             partner.setPartnerType(dto.getPartnerType());
         }
+    }
+
+    public PartnerSummaryDTO toSummaryDTO(Partner partner) {
+        if (partner == null) {
+            return null;
+        }
+
+        return PartnerSummaryDTO.builder()
+                .idPartner(partner.getIdPartner())
+                .name(partner.getName())
+                .email(partner.getEmail())
+                .address(partner.getAddress())// optionnel
+                .phoneNumber(partner.getPhoneNumber())      // optionnel
+                .partnerType(partner.getPartnerType())
+                .build();
+    }
+
+    private PartnerEntity createEntityByPartnerType(PartnerType partnerType) {
+        if (partnerType == null) {
+            throw new IllegalArgumentException("PartnerType must not be null");
+        }
+
+        return switch (partnerType) {
+            case CLIENT -> new CustomerEntity();
+            case SUPPLIER -> new SupplierEntity();
+        };
     }
 }

@@ -63,7 +63,7 @@ public class LocalDocumentStorageAdapter implements DocumentStoragePort {
             Files.write(
                     target,
                     file.content(),
-                    StandardOpenOption.CREATE_NEW
+                    StandardOpenOption.CREATE
             );
 
             String url = publicBaseUrl + "/storage/"

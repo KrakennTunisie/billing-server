@@ -1,6 +1,5 @@
 package com.example.billingservice.infrastructure.out.persistance.entity;
 
-import com.example.billingservice.domain.enums.PartnerType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -54,6 +53,6 @@ public abstract class PartnerEntity {
     private DocumentEntity contract;
 
 
-    @OneToMany(mappedBy = "partner")
+    @OneToMany(mappedBy = "partner", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<InvoiceEntity> invoice;
 }

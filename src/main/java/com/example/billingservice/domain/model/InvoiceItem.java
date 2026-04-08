@@ -1,10 +1,18 @@
 package com.example.billingservice.domain.model;
 
 import com.example.billingservice.domain.enums.OperationCategory;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.Objects;
 import java.util.UUID;
 
+@Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class InvoiceItem {
 
     private UUID idInvoiceItem;
@@ -18,22 +26,7 @@ public class InvoiceItem {
     private OperationCategory operationCategory;
     private Invoice invoice;
 
-    public InvoiceItem(String description, Integer quantity, Double unityPriceEXclTax,
-                       Double vatRate, Double itemTotalExclTax, Double itemTaxAmount,
-                       Double itemTotalInclTax, OperationCategory operationCategory, Invoice invoice) {
-        this.description = description;
-        this.quantity = quantity;
-        this.unityPriceEXclTax = unityPriceEXclTax;
-        this.vatRate = vatRate;
-        this.itemTotalExclTax = itemTotalExclTax;
-        this.itemTaxAmount = itemTaxAmount;
-        this.itemTotalInclTax = itemTotalInclTax;
-        this.operationCategory = operationCategory;
-        this.invoice = invoice;
-    }
 
-    public InvoiceItem() {
-    }
 
     public UUID getIdInvoiceItem() {
         return idInvoiceItem;
@@ -138,7 +131,6 @@ public class InvoiceItem {
                 ", itemTaxAmount=" + itemTaxAmount +
                 ", itemTotalInclTax=" + itemTotalInclTax +
                 ", operationCategory=" + operationCategory +
-                ", invoice=" + invoice.toString() +
                 '}';
     }
 }

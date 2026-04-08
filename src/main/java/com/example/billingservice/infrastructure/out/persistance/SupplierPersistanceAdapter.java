@@ -2,6 +2,7 @@ package com.example.billingservice.infrastructure.out.persistance;
 
 
 import com.example.billingservice.application.ports.out.SupplierRepositoryPort;
+import com.example.billingservice.domain.enums.PartnerType;
 import com.example.billingservice.domain.exceptions.BillingException;
 import com.example.billingservice.domain.model.Partner;
 
@@ -35,7 +36,7 @@ public class SupplierPersistanceAdapter implements SupplierRepositoryPort {
 
         SupplierEntity entity = (SupplierEntity) partnerMapper.toEntity(partner);
 
-        return partnerMapper.toDomain(supplierRepository.save(entity)) ;
+        return partnerMapper.toDomain(supplierRepository.save(entity), PartnerType.SUPPLIER) ;
 
     }
 
@@ -44,10 +45,16 @@ public class SupplierPersistanceAdapter implements SupplierRepositoryPort {
         try
         {
             return supplierRepository.findById(UUID.fromString(id))
-                    .map(partnerMapper::toDomain).or(() -> { throw BillingException.notFound("Fournisseur", id); });
+                    .map(p-> partnerMapper.toDomain(p, PartnerType.SUPPLIER))
+                    .or(() -> { throw BillingException.notFound("Fournisseur", id); });
         } catch (IllegalArgumentException ex) {
             throw BillingException.badRequest("Invalid UUID "+id);
         }
+    }
+
+    @Override
+    public boolean existsByIdPartner(UUID idPartner) {
+        return supplierRepository.existsByIdPartner(idPartner);
     }
 
     @Override
@@ -87,18 +94,15 @@ public class SupplierPersistanceAdapter implements SupplierRepositoryPort {
     }
 
     @Override
-    public Partner updateSupplier(Partner partner) {
-        try{
+    public Partner updateSupplier(Partner partner) throws DataIntegrityViolationException {
 
             SupplierEntity entity = (SupplierEntity) partnerMapper.toEntity(partner);
 
             SupplierEntity savedSupplier = supplierRepository.save(entity);
 
-            return partnerMapper.toDomain(savedSupplier);
+            return partnerMapper.toDomain(savedSupplier, PartnerType.SUPPLIER);
 
-        } catch (Exception ex) {
-            throw BillingException.internalError("Failed to save Supplier "+ex.getMessage());
-        }
+
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.example.billingservice.infrastructure.out.persistance;
 
 import com.example.billingservice.application.ports.out.CustomerRepositoryPort;
+import com.example.billingservice.domain.enums.PartnerType;
 import com.example.billingservice.domain.exceptions.BillingException;
 import com.example.billingservice.domain.model.Partner;
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerItemDTO;
@@ -8,6 +9,7 @@ import com.example.billingservice.infrastructure.out.persistance.entity.Customer
 import com.example.billingservice.infrastructure.out.persistance.mapper.PartnerMapper;
 import com.example.billingservice.infrastructure.out.persistance.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -25,11 +27,12 @@ public class CustomerPersistanceAdapter implements CustomerRepositoryPort {
 
     private final PartnerMapper partnerMapper;
     private final CustomerRepository customerRepository;
+
     @Override
     public Partner saveCustomer(Partner partner) {
 
         CustomerEntity entity = (CustomerEntity) partnerMapper.toEntity(partner);
-        return partnerMapper.toDomain(customerRepository.save(entity)) ;
+        return partnerMapper.toDomain(customerRepository.save(entity), PartnerType.CLIENT) ;
 
     }
 
@@ -38,11 +41,16 @@ public class CustomerPersistanceAdapter implements CustomerRepositoryPort {
         try
         {
             return customerRepository.findById(UUID.fromString(id))
-                    .map(partnerMapper::toDomain).or(() -> { throw BillingException.notFound("Client", id); });
+                    .map(p -> partnerMapper.toDomain(p, PartnerType.CLIENT)).or(() -> { throw BillingException.notFound("Client", id); });
         } catch (IllegalArgumentException ex) {
             throw BillingException.badRequest("UUID Invalid"+id);
         }
 
+    }
+
+    @Override
+    public boolean existsByIdPartner(UUID idPartner) {
+        return customerRepository.existsByIdPartner(idPartner);
     }
 
     @Override
@@ -75,14 +83,10 @@ public class CustomerPersistanceAdapter implements CustomerRepositoryPort {
     }
 
     @Override
-    public Partner updateCustomer(Partner partner) {
-        try{
+    public Partner updateCustomer(Partner partner) throws DataIntegrityViolationException {
             CustomerEntity entity = (CustomerEntity) partnerMapper.toEntity(partner);
-            return partnerMapper.toDomain(customerRepository.save(entity));
+            return partnerMapper.toDomain(customerRepository.save(entity), PartnerType.CLIENT);
 
-        } catch (Exception ex) {
-            throw BillingException.internalError("Failed to save customer "+ex.getMessage());
-        }
     }
 
     @Override
@@ -100,7 +104,4 @@ public class CustomerPersistanceAdapter implements CustomerRepositoryPort {
             throw BillingException.badRequest("Invalid UUID format: " + id);
         }
     }
-
-
-
 }

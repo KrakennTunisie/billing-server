@@ -1,10 +1,15 @@
 package com.example.billingservice.domain.model;
 
+import lombok.Builder;
+import lombok.Getter;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+@Getter
+@Builder
 public class PurchaseOrder {
 
     private UUID idPurchaseOrder;
@@ -14,56 +19,19 @@ public class PurchaseOrder {
     private Double totalAmountInclTax;
     private List<Invoice> invoices;
 
-    public PurchaseOrder(String reference, Date orderDate, Double totalAmountExclTax,
-                         Double totalAmountInclTax) {
+    public PurchaseOrder(UUID idPurchaseOrder, String reference, Date orderDate, Double totalAmountExclTax,
+                         Double totalAmountInclTax, List<Invoice> invoices) {
+        this.idPurchaseOrder = idPurchaseOrder;
         this.reference = reference;
         this.orderDate = orderDate;
         this.totalAmountExclTax = totalAmountExclTax;
         this.totalAmountInclTax = totalAmountInclTax;
+        this.invoices = invoices;
     }
 
     public PurchaseOrder() {
     }
 
-    public UUID getIdPurchaseOrder() {
-        return idPurchaseOrder;
-    }
-
-    public void setIdPurchaseOrder(UUID idPurchaseOrder) {
-        this.idPurchaseOrder = idPurchaseOrder;
-    }
-
-    public String getReference() {
-        return reference;
-    }
-
-    public void setReference(String reference) {
-        this.reference = reference;
-    }
-
-    public Date getOrderDate() {
-        return orderDate;
-    }
-
-    public void setOrderDate(Date orderDate) {
-        this.orderDate = orderDate;
-    }
-
-    public Double getTotalAmountExclTax() {
-        return totalAmountExclTax;
-    }
-
-    public void setTotalAmountExclTax(Double totalAmountExclTax) {
-        this.totalAmountExclTax = totalAmountExclTax;
-    }
-
-    public Double getTotalAmountInclTax() {
-        return totalAmountInclTax;
-    }
-
-    public void setTotalAmountInclTax(Double totalAmountInclTax) {
-        this.totalAmountInclTax = totalAmountInclTax;
-    }
 
 
 

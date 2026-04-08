@@ -2,14 +2,19 @@ package com.example.billingservice.infrastructure.out.persistance.entity;
 
 import com.example.billingservice.domain.enums.*;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
 @Entity
 @Table(name = "invoices")
+@Getter
+@Setter
 public class InvoiceEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -28,16 +33,13 @@ public class InvoiceEntity {
     @Enumerated(EnumType.STRING)
     private InvoiceComplianceStatus invoiceComplianceStatus;
 
-    private Double totalExclTaxEUR;
-    private Double totalInclTaxEUR;
-    private Double totalExclTaxTND;
-    private Double totalInclTaxTND;
     private Double vatRate;
 
     @Enumerated(EnumType.STRING)
     private PaymentMethod paymentMethod;
 
-    private String creditedAccount;
+    @Enumerated(EnumType.STRING)
+    private InvoiceCurrency currency;
 
     @DateTimeFormat
     private Date exchangeRateReferenceDate;
@@ -53,7 +55,7 @@ public class InvoiceEntity {
     @JoinColumn(name = "invoice_document_id", referencedColumnName = "idDocument")
     private DocumentEntity invoiceDocument;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "purchase_order_id", nullable = true)
     private PurchaseOrderEntity purchaseOrder;
 
@@ -61,9 +63,12 @@ public class InvoiceEntity {
     @JoinColumn(name = "partner_id")
     private PartnerEntity partner;
 
-    @OneToMany(mappedBy = "invoice")
-    private List<InvoiceEventEntity> invoiceEvents;
+    @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<InvoiceEventEntity> invoiceEvents = new ArrayList<>();
 
-    @OneToMany(mappedBy = "invoice")
+    @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<InvoiceItemEntity> invoiceItems;
+
+    @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<InvoiceCreditNoteEntity> invoiceCreditNotes;
 }

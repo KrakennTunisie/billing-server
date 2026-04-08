@@ -14,10 +14,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -97,6 +99,11 @@ public class PartnerService implements PartnerUseCase  {
     }
 
     @Override
+    public boolean supplierExistsByIdPartner(UUID idPartner) {
+        return supplierRepositoryPort.existsByIdPartner(idPartner);
+    }
+
+    @Override
     public boolean supplierExistsByRegistrationNumber(String taxRegistrationNumber) {
         return supplierRepositoryPort.existsByTaxRegistrationNumber(taxRegistrationNumber);
     }
@@ -118,13 +125,14 @@ public class PartnerService implements PartnerUseCase  {
     }
 
     @Override
+    @Transactional
     public void deleteSupplier(String id) {
       supplierRepositoryPort.deleteSupplierById(id);
     }
 
 
     @Override
-    public Partner updateSupplier(String id, UpdatePartnerDTO partnerDTO) {
+    public Partner updateSupplier(String id, UpdatePartnerDTO partnerDTO) throws DataIntegrityViolationException{
 
         Partner updatedPartner = supplierRepositoryPort.findSupplierById(id)
                 .orElseThrow(() -> BillingException.notFound("Fournisseur",id));
@@ -138,6 +146,10 @@ public class PartnerService implements PartnerUseCase  {
 
     @Override
     public Optional<Partner> createCustomer(PartnerForm partner) throws IOException {
+        if(!Objects.equals(partner.getPartnerType(), PartnerType.CLIENT.name())){
+            throw BillingException
+                    .badRequest("Le Type est inadéquat");
+        }
         if (this.customerExistsByRegistrationNumber(partner.getTaxRegistrationNumber())){
             throw BillingException
                     .alreadyExists(
@@ -202,6 +214,11 @@ public class PartnerService implements PartnerUseCase  {
     }
 
     @Override
+    public boolean customerExistsByIdPartner(UUID idPartner) {
+        return customerRepositoryPort.existsByIdPartner(idPartner);
+    }
+
+    @Override
     public boolean customerExistsByRegistrationNumber(String taxRegistrationNumber) {
         return customerRepositoryPort.existsByTaxRegistrationNumber(taxRegistrationNumber);
     }
@@ -217,12 +234,13 @@ public class PartnerService implements PartnerUseCase  {
     }
 
     @Override
+    @Transactional
     public void deleteCustomerById(String id) {
         customerRepositoryPort.deleteCustomerById(id);
     }
 
     @Override
-    public Partner updateCustomer(String id, UpdatePartnerDTO partner) {
+    public Partner updateCustomer(String id, UpdatePartnerDTO partner) throws DataIntegrityViolationException{
         Partner updatedPartner = customerRepositoryPort.findCustomerById(id)
                 .orElseThrow(() -> BillingException.notFound("Client",id));
 

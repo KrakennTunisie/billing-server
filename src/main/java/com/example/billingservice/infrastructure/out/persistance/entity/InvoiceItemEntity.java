@@ -2,11 +2,15 @@ package com.example.billingservice.infrastructure.out.persistance.entity;
 
 import com.example.billingservice.domain.enums.OperationCategory;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.UUID;
 
 @Entity
 @Table(name = "invoice_items")
+@Getter
+@Setter
 public class InvoiceItemEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -21,12 +25,6 @@ public class InvoiceItemEntity {
     private Double unityPriceEXclTax;
 
     private Double vatRate;
-
-    private Double itemTotalExclTax;
-
-    private Double itemTaxAmount;
-
-    private Double itemTotalInclTax;
 
     @Enumerated(EnumType.STRING)
     private OperationCategory operationCategory;

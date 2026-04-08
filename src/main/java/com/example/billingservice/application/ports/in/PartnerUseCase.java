@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 
 import java.io.IOException;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface PartnerUseCase {
 
@@ -18,13 +19,14 @@ public interface PartnerUseCase {
     Partner createSupplier(PartnerForm partner) throws IOException, DataIntegrityViolationException;
 
     Optional<Partner> getSupplierById(String id);
+    boolean supplierExistsByIdPartner(UUID idPartner);
     boolean supplierExistsByRegistrationNumber(String taxRegistrationNumber);
     boolean supplierExistsByEmail(String email);
     boolean supplierExistsByIban(String iban);
 
     Page<PartnerItemDTO> getAllSuppliers(String keyword , String Country , int page);
 
-    Partner updateSupplier (String id , UpdatePartnerDTO command);
+    Partner updateSupplier (String id , UpdatePartnerDTO command) throws DataIntegrityViolationException;
 
     void deleteSupplier(String id);
 
@@ -35,6 +37,8 @@ public interface PartnerUseCase {
 
     Optional<Partner> findCustomerById(String id);
 
+    boolean customerExistsByIdPartner(UUID idPartner);
+
     boolean customerExistsByRegistrationNumber(String taxRegistrationNumber);
     boolean customerExistsByEmail(String email);
     boolean customerExistsByIban(String iban);
@@ -43,7 +47,7 @@ public interface PartnerUseCase {
 
     void deleteCustomerById(String id);
 
-    Partner updateCustomer(String id, UpdatePartnerDTO partner);
+    Partner updateCustomer(String id, UpdatePartnerDTO partner) throws DataIntegrityViolationException;
 
 
 
