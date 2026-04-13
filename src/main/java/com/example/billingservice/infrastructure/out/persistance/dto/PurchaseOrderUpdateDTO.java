@@ -1,8 +1,6 @@
 package com.example.billingservice.infrastructure.out.persistance.dto;
 
-import com.example.billingservice.domain.enums.ExchangeRateSource;
-import com.example.billingservice.domain.enums.InvoiceCurrency;
-import com.example.billingservice.domain.enums.PaymentMethod;
+import com.example.billingservice.domain.enums.*;
 import com.example.billingservice.infrastructure.out.persistance.validators.ValidEnum;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
@@ -15,12 +13,15 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Builder
-public class PurchaseOrderCreateDTO {
+public class PurchaseOrderUpdateDTO {
 
-    //@NotBlank(message = "Le numéro de facture est obligatoire")
+    @NotNull(message = "L'id de Bon de commande est obligatoire")
+    private UUID idPurchaseOrder;
+
     @Setter
     private String purchaseOrderNumber;
 
@@ -52,6 +53,7 @@ public class PurchaseOrderCreateDTO {
     private String exchangeRateSource;
 
     @NotNull(message = "Le partenaire est obligatoire")
+    @Setter
     private String partner;
 
     //@Valid
@@ -61,5 +63,4 @@ public class PurchaseOrderCreateDTO {
     // 👉 Document (like rne/patente)
     @NotNull(message = "Le document de bon de commande est obligatoire")
     private MultipartFile purchaseOrderDocument;
-
 }

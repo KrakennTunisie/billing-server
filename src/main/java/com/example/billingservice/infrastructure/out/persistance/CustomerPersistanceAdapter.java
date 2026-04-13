@@ -75,6 +75,7 @@ public class CustomerPersistanceAdapter implements CustomerRepositoryPort {
 
         List<PartnerItemDTO> partners = entities.getContent()
                 .stream()
+                .map(p-> partnerMapper.toDomain(p, PartnerType.CLIENT))
                 .map(partnerMapper::toItemDTO)
                 .collect(Collectors.toList());
 

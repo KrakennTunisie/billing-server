@@ -50,6 +50,8 @@ public class PartnerMapper {
     }
 
 
+
+
     public Partner toDomain(PartnerEntity entity, PartnerType type)
     {
         // Déduire PartnerType
@@ -77,25 +79,18 @@ public class PartnerMapper {
 
     }
 
-    public PartnerItemDTO toItemDTO(PartnerEntity entity) {
-        PartnerType partnerType;
-        if (entity instanceof CustomerEntity) {
-            partnerType = PartnerType.CLIENT;
-        } else if (entity instanceof SupplierEntity) {
-            partnerType = PartnerType.SUPPLIER;
-        } else {
-            throw new IllegalStateException("Unknown partner type: " + entity.getClass());
-        }
+    public PartnerItemDTO toItemDTO(Partner partner) {
+
         return PartnerItemDTO.builder()
-                .idPartner(entity.getIdPartner())
-                .name(entity.getName())
-                .email(entity.getEmail())
-                .phoneNumber(entity.getPhoneNumber())
-                .taxRegistrationNumber(entity.getTaxRegistrationNumber())
-                .partnerType(partnerType)
-                .country(entity.getCountry())
-                .address(entity.getAddress())
-                .iban(entity.getIban())
+                .idPartner(partner.getIdPartner())
+                .name(partner.getName())
+                .email(partner.getEmail())
+                .phoneNumber(partner.getPhoneNumber())
+                .taxRegistrationNumber(partner.getTaxRegistrationNumber())
+                .partnerType(partner.getPartnerType())
+                .country(partner.getCountry())
+                .address(partner.getAddress())
+                .iban(partner.getIban())
                 .build();
     }
 

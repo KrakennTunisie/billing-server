@@ -1,6 +1,5 @@
 package com.example.billingservice.infrastructure.out.persistance.entity;
 
-import com.example.billingservice.domain.enums.OperationCategory;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,16 +7,17 @@ import lombok.Setter;
 import java.util.UUID;
 
 @Entity
-@Table(name = "invoice_items")
+@Table(name = "purchase_order_items")
 @Getter
 @Setter
-public class InvoiceItemEntity extends BaseItemEntity{
+public class PurchaseOrderItemEntity extends BaseItemEntity{
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID idInvoiceItem;
+    private UUID idPurchaseOrderItem;
 
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "invoice_id", nullable = false)
-    private InvoiceEntity invoice;
+    @JoinColumn(name = "purchase_order_id", nullable = false)
+    private PurchaseOrderEntity purchaseOrder;
 }

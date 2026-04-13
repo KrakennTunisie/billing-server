@@ -17,7 +17,9 @@ SELECT i FROM InvoiceEntity i
 WHERE
     (
         :keyword IS NULL OR :keyword = '' OR
-        LOWER(i.invoiceNumber) LIKE LOWER(CONCAT('%', :keyword, '%'))
+        LOWER(i.reference) LIKE LOWER(CONCAT('%', :keyword, '%')) OR
+        LOWER(i.partner.email) LIKE LOWER(CONCAT('%', :keyword, '%')) OR
+        LOWER(i.partner.name) LIKE LOWER(CONCAT('%', :keyword, '%'))
     )
 AND
     (
@@ -35,7 +37,7 @@ AND
             Pageable pageable
     );
 
-    boolean existsByInvoiceNumber(String invoiceNumber);
+    boolean existsByReference(String invoiceNumber);
 
     boolean existsByIdInvoice(UUID invoiceId);
 }

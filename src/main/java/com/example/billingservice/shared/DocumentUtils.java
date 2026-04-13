@@ -21,7 +21,11 @@ public final class DocumentUtils {
     }
 
     public static String resolveOwnerFolder(DocumentType documentType) {
-        return documentType == DocumentType.INVOICE ? "invoices" : "partners";
+        return documentType == DocumentType.INVOICE
+                ? "invoices"
+                : documentType == DocumentType.PURCHASE_ORDER
+                    ? "purchase_orders"
+                    : "partners";
     }
 
 
