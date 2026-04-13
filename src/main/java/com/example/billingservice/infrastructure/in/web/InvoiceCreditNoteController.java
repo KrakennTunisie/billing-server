@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.util.UUID;
 
-@Tag(name= "API Factures", description = "Gestion des factures d'avoir")
+@Tag(name= "API Factures d'Avoir", description = "Gestion des factures d'avoir")
 @RestController
 @RequestMapping("/api/credit-note-invoices")
 @RequiredArgsConstructor

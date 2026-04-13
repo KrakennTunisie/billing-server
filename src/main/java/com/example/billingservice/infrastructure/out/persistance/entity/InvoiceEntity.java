@@ -4,7 +4,6 @@ import com.example.billingservice.domain.enums.*;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -15,15 +14,17 @@ import java.util.UUID;
 @Table(name = "invoices")
 @Getter
 @Setter
-public class InvoiceEntity extends BaseCommercialDocumentEntity{
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "invoice_type",discriminatorType = DiscriminatorType.STRING)
+public abstract class InvoiceEntity extends BaseCommercialDocumentEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID idInvoice;
 
     private Date dueDate;
 
-    @Enumerated(EnumType.STRING)
-    private InvoiceType invoiceType;
+    //@Enumerated(EnumType.STRING)
+    //private InvoiceType invoiceType;
 
     @Enumerated(EnumType.STRING)
     private InvoiceStatus invoiceStatus;
@@ -50,4 +51,7 @@ public class InvoiceEntity extends BaseCommercialDocumentEntity{
 
     @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<InvoiceCreditNoteEntity> invoiceCreditNotes;
+
+    public abstract InvoiceType getInvoiceType();
+
 }

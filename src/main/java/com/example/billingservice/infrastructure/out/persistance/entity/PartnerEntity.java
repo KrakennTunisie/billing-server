@@ -55,4 +55,6 @@ public abstract class PartnerEntity {
 
     @OneToMany(mappedBy = "partner", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<InvoiceEntity> invoice;
+
+
 }
