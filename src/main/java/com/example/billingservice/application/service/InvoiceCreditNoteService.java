@@ -4,8 +4,10 @@ import com.example.billingservice.application.Utils.InvoiceCreditNoteStatusPassa
 import com.example.billingservice.application.Utils.StatusMapper;
 import com.example.billingservice.application.ports.in.GenerateInvoiceNumberUseCase;
 import com.example.billingservice.application.ports.in.InvoiceCreditNoteUseCase;
+import com.example.billingservice.application.ports.out.ClientInvoicesRepositoryPort;
 import com.example.billingservice.application.ports.out.InvoiceCreditNoteRepositoryPort;
 import com.example.billingservice.application.ports.out.InvoiceRepositoryPort;
+import com.example.billingservice.application.ports.out.SupplierInvoicesRepositoryPort;
 import com.example.billingservice.domain.enums.*;
 import com.example.billingservice.domain.exceptions.BillingException;
 import com.example.billingservice.domain.model.*;
@@ -27,7 +29,8 @@ import java.util.UUID;
 public class InvoiceCreditNoteService implements InvoiceCreditNoteUseCase {
 
     private final InvoiceCreditNoteRepositoryPort invoiceCreditNoteRepositoryPort;
-    private final InvoiceRepositoryPort invoiceRepositoryPort;
+    private final SupplierInvoicesRepositoryPort supplierInvoicesRepositoryPort;
+    private final ClientInvoicesRepositoryPort clientInvoicesRepositoryPort;
     private final UploadDocumentService uploadDocumentService;
     private final InvoiceCreditNoteMapper invoiceCreditNoteMapper;
     private  final GenerateInvoiceNumberUseCase generateInvoiceNumberUseCase;
@@ -38,7 +41,9 @@ public class InvoiceCreditNoteService implements InvoiceCreditNoteUseCase {
 
         InvoiceCreditNoteStatus invoiceCreditNoteStatus = ParseEnum.parseEnum(status, InvoiceCreditNoteStatus.class);
 
-        if(!invoiceRepositoryPort.existsByInvoiceId(idInvoice)){
+        if(!supplierInvoicesRepositoryPort.existsByInvoiceId(idInvoice)
+            && !clientInvoicesRepositoryPort.existsByInvoiceId(idInvoice)
+        ){
             throw BillingException.notFound("Facture", String.valueOf(idInvoice));
         }
         return invoiceCreditNoteRepositoryPort.getInvoiceCreditNotes(idInvoice,keyword,invoiceCreditNoteStatus,page);
@@ -54,11 +59,18 @@ public class InvoiceCreditNoteService implements InvoiceCreditNoteUseCase {
 
     @Override
     public InvoiceCreditNoteDTO create(InvoiceCreditNoteCreateDTO createDTO) throws IOException {
-        if (!invoiceRepositoryPort.existsByInvoiceId(UUID.fromString(createDTO.getOriginalInvoiceId()))) {
+        Invoice invoice ;
+
+        if(clientInvoicesRepositoryPort.existsByInvoiceId(UUID.fromString(createDTO.getOriginalInvoiceId()))){
+            invoice = clientInvoicesRepositoryPort.getInvoice(UUID.fromString(createDTO.getOriginalInvoiceId()));
+        } else if (supplierInvoicesRepositoryPort.existsByInvoiceId(UUID.fromString(createDTO.getOriginalInvoiceId()))) {
+            invoice = supplierInvoicesRepositoryPort.getInvoice(UUID.fromString(createDTO.getOriginalInvoiceId()));
+        }
+        else {
             throw BillingException.notFound("Facture",createDTO.getOriginalInvoiceId());
         }
 
-        Invoice invoice = invoiceRepositoryPort.getInvoice(UUID.fromString(createDTO.getOriginalInvoiceId()));
+
 
         if (createDTO.getInvoiceCreditNoteNumber() != null && existsByInvoiceCreditNoteNumber(createDTO.getInvoiceCreditNoteNumber())) {
             throw BillingException.alreadyExists("Facture d'avoir", "invoiceCreditNoteNumber", createDTO.getInvoiceCreditNoteNumber());

@@ -30,12 +30,12 @@ public class InvoiceMapper {
             return null;
         }
 
-        InvoiceEntity invoice = new InvoiceEntity();
+        InvoiceEntity invoice = createEntityByInvoiceType(dto.getInvoiceType());
         invoice.setIdInvoice(dto.getIdInvoice());
         invoice.setReference(dto.getReference());
         invoice.setIssueDate(dto.getIssueDate());
         invoice.setDueDate(dto.getDueDate());
-        invoice.setInvoiceType(dto.getInvoiceType());
+       // invoice.setInvoiceType(dto.getInvoiceType());
         invoice.setInvoiceStatus(dto.getInvoiceStatus() != null ? dto.getInvoiceStatus() : InvoiceStatus.DRAFT);
         invoice.setInvoiceComplianceStatus(
                 dto.getInvoiceComplianceStatus() != null
@@ -81,19 +81,23 @@ public class InvoiceMapper {
         return invoice;
     }
 
-    public Invoice toDomain(InvoiceEntity entity) {
+
+    public Invoice toDomain(InvoiceEntity entity, InvoiceType invoiceType) {
         if (entity == null) {
             return null;
         }
-        PartnerType partnerType = entity.getInvoiceType() == InvoiceType.PURCHASE ? PartnerType.SUPPLIER : PartnerType.CLIENT;
-
+       // PartnerType partnerType = invoiceType == InvoiceType.PURCHASE ? PartnerType.SUPPLIER : PartnerType.CLIENT;
+        PartnerType partnerType = entity instanceof SupplierInvoiceEntity ?
+                PartnerType.SUPPLIER
+                :
+                PartnerType.CLIENT;
 
         Invoice dto =  Invoice.builder()
                 .idInvoice(entity.getIdInvoice())
                 .reference(entity.getReference())
                 .issueDate(entity.getIssueDate())
                 .dueDate(entity.getDueDate())
-                .invoiceType(entity.getInvoiceType())
+                .invoiceType(invoiceType)
                 .invoiceStatus(entity.getInvoiceStatus())
                 .invoiceComplianceStatus(entity.getInvoiceComplianceStatus())
                 .currency(entity.getCurrency())
@@ -149,6 +153,7 @@ public class InvoiceMapper {
 
         return dto;
     }
+
 
     public InvoicePageItemDTO toInvoicePageItemDTO(Invoice invoice) {
         if (invoice == null) {
@@ -429,6 +434,17 @@ public class InvoiceMapper {
         else {
             throw BillingException.notFound("Partner ", idPartner);
         }
+    }
+
+    private InvoiceEntity createEntityByInvoiceType(InvoiceType invoiceType) {
+        if (invoiceType == null) {
+            throw new IllegalArgumentException("PartnerType must not be null");
+        }
+
+        return switch (invoiceType) {
+            case SALE -> new ClientInvoiceEntity();
+            case PURCHASE -> new SupplierInvoiceEntity();
+        };
     }
 
 }
