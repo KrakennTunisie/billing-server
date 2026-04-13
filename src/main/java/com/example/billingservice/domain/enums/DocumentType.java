@@ -5,5 +5,6 @@ public enum DocumentType {
     PATENT,
     RNE,
     CONTRACT,
+    PURCHASE_ORDER,
     OTHER
 }

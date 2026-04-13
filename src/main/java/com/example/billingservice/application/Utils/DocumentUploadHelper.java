@@ -31,7 +31,8 @@ public class DocumentUploadHelper {
         if (documentType != DocumentType.RNE
                 && documentType != DocumentType.CONTRACT
                 && documentType != DocumentType.PATENT
-                && documentType!= DocumentType.INVOICE) {
+                && documentType!= DocumentType.INVOICE
+                && documentType!= DocumentType.PURCHASE_ORDER) {
             throw new InvalidDocumentTypeException(
                     "Unsupported customer document type: " + documentType
             );

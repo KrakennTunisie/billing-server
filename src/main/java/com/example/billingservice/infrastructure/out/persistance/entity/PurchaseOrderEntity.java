@@ -13,21 +13,18 @@ import java.util.UUID;
 @Table(name = "purchase_orders")
 @Getter
 @Setter
-public class PurchaseOrderEntity {
+public class PurchaseOrderEntity extends BaseCommercialDocumentEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID idPurchaseOrder;
 
-
-    private String reference;
-
-    private Date orderDate;
-
-    private Double totalAmountExclTax;
-
-
-    private Double totalAmountInclTax;
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "purchase_order_document_id", referencedColumnName = "idDocument")
+    private DocumentEntity purchaseOrderDocument;
 
     @OneToMany(mappedBy = "purchaseOrder")
     private List<InvoiceEntity> invoices;
+
+    @OneToMany(mappedBy = "purchaseOrder", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PurchaseOrderItemEntity> purchaseOrderItems;
 }

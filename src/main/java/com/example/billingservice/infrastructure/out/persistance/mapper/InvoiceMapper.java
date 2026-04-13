@@ -24,7 +24,6 @@ public class InvoiceMapper {
     private final PurchaseOrderMapper purchaseOrderMapper;
     private final PartnerUseCase partnerUseCase;
     private final InvoiceEventMapper invoiceEventMapper;
-    //private final InvoiceCreditNoteMapper invoiceCreditNoteMapper;
 
     public InvoiceEntity toEntity(Invoice dto) {
         if (dto == null) {
@@ -33,7 +32,7 @@ public class InvoiceMapper {
 
         InvoiceEntity invoice = new InvoiceEntity();
         invoice.setIdInvoice(dto.getIdInvoice());
-        invoice.setInvoiceNumber(dto.getInvoiceNumber());
+        invoice.setReference(dto.getReference());
         invoice.setIssueDate(dto.getIssueDate());
         invoice.setDueDate(dto.getDueDate());
         invoice.setInvoiceType(dto.getInvoiceType());
@@ -56,7 +55,7 @@ public class InvoiceMapper {
         invoice.setInvoiceDocument(documentMapper.toEntity(dto.getInvoiceDocument(), DocumentType.INVOICE));
         invoice.setPurchaseOrder(purchaseOrderMapper.toEntity(dto.getPurchaseOrder()));
         invoice.setPartner(partnerMapper.toEntity(dto.getPartner()));
-        invoice.setCurrency(dto.getInvoiceCurrency());
+        invoice.setCurrency(dto.getCurrency());
 
         List<InvoiceItemEntity> items = dto.getInvoiceItems() != null
                 ? dto.getInvoiceItems().stream()
@@ -77,6 +76,7 @@ public class InvoiceMapper {
         invoiceEventEntities.forEach(event -> event.setInvoice(invoice));
         invoice.setInvoiceEvents(invoiceEventEntities);
 
+        System.out.println("getPartner: "+dto.getPartner());
 
         return invoice;
     }
@@ -85,18 +85,18 @@ public class InvoiceMapper {
         if (entity == null) {
             return null;
         }
-        PartnerType partnerType = entity.getInvoiceType() == InvoiceType.PURCHASE ? PartnerType.CLIENT : PartnerType.SUPPLIER;
+        PartnerType partnerType = entity.getInvoiceType() == InvoiceType.PURCHASE ? PartnerType.SUPPLIER : PartnerType.CLIENT;
 
 
         Invoice dto =  Invoice.builder()
                 .idInvoice(entity.getIdInvoice())
-                .invoiceNumber(entity.getInvoiceNumber())
+                .reference(entity.getReference())
                 .issueDate(entity.getIssueDate())
                 .dueDate(entity.getDueDate())
                 .invoiceType(entity.getInvoiceType())
                 .invoiceStatus(entity.getInvoiceStatus())
                 .invoiceComplianceStatus(entity.getInvoiceComplianceStatus())
-                .invoiceCurrency(entity.getCurrency())
+                .currency(entity.getCurrency())
                 .vatRate(entity.getVatRate())
                 .paymentMethod(entity.getPaymentMethod())
                 .exchangeRateReferenceDate(entity.getExchangeRateReferenceDate())
@@ -157,13 +157,13 @@ public class InvoiceMapper {
 
         return InvoicePageItemDTO.builder()
                 .idInvoice(invoice.getIdInvoice())
-                .invoiceNumber(invoice.getInvoiceNumber())
+                .invoiceNumber(invoice.getReference())
                 .issueDate(invoice.getIssueDate())
                 .dueDate(invoice.getDueDate())
                 .invoiceType(invoice.getInvoiceType())
                 .invoiceStatus(invoice.getInvoiceStatus())
                 .invoiceComplianceStatus(invoice.getInvoiceComplianceStatus())
-                .invoiceCurrency(invoice.getInvoiceCurrency())
+                .invoiceCurrency(invoice.getCurrency())
 
                 // 💰 Currency split
                 .totalExclTaxEUR(CurrencyCalculator.getTotalExclTaxEUR(invoice))
@@ -187,13 +187,13 @@ public class InvoiceMapper {
         }
         try{
             Invoice invoice =  Invoice.builder()
-                    .invoiceNumber(invoiceCreateDTO.getInvoiceNumber())
+                    .reference(invoiceCreateDTO.getInvoiceNumber())
                     .issueDate(invoiceCreateDTO.getIssueDate())
                     .dueDate(invoiceCreateDTO.getDueDate())
                     .invoiceType(InvoiceType.valueOf(invoiceCreateDTO.getInvoiceType()))
                     .invoiceStatus(InvoiceStatus.DRAFT)
                     .invoiceComplianceStatus(InvoiceComplianceStatus.TTN_PENDING)
-                    .invoiceCurrency(InvoiceCurrency.valueOf(invoiceCreateDTO.getInvoiceCurrency()))
+                    .currency(InvoiceCurrency.valueOf(invoiceCreateDTO.getInvoiceCurrency()))
                     .vatRate(invoiceCreateDTO.getVatRate())
                     .appliedExchangeRate(invoiceCreateDTO.getAppliedExchangeRate())
                     .invoiceDocument(document)
@@ -273,13 +273,13 @@ public class InvoiceMapper {
 
         InvoiceDTO invoiceDTO =  InvoiceDTO.builder()
                 .idInvoice(invoice.getIdInvoice())
-                .invoiceNumber(invoice.getInvoiceNumber())
+                .invoiceNumber(invoice.getReference())
                 .issueDate(invoice.getIssueDate())
                 .dueDate(invoice.getDueDate())
                 .invoiceType(invoice.getInvoiceType())
                 .invoiceStatus(invoice.getInvoiceStatus())
                 .invoiceComplianceStatus(invoice.getInvoiceComplianceStatus())
-                .invoiceCurrency(invoice.getInvoiceCurrency())
+                .invoiceCurrency(invoice.getCurrency())
                 .totalExclTaxEUR(invoice.getTotalExclTaxEUR())
                 .totalInclTaxEUR(invoice.getTotalInclTaxEUR())
                 .totalExclTaxTND(invoice.getTotalExclTaxTND())
@@ -321,13 +321,13 @@ public class InvoiceMapper {
 
             Invoice invoice = Invoice.builder()
                     .idInvoice(invoiceDTO.getIdInvoice())
-                    .invoiceNumber(invoiceUpdateDTO.getInvoiceNumber())
+                    .reference(invoiceUpdateDTO.getInvoiceNumber())
                     .issueDate(invoiceUpdateDTO.getIssueDate())
                     .dueDate(invoiceUpdateDTO.getDueDate())
                     .invoiceType(invoiceDTO.getInvoiceType())
                     .invoiceStatus(InvoiceStatus.valueOf(invoiceUpdateDTO.getInvoiceStatus()))
                     .invoiceComplianceStatus(InvoiceComplianceStatus.TTN_PENDING)
-                    .invoiceCurrency(InvoiceCurrency.valueOf(invoiceUpdateDTO.getInvoiceCurrency()))
+                    .currency(InvoiceCurrency.valueOf(invoiceUpdateDTO.getInvoiceCurrency()))
                     .vatRate(invoiceUpdateDTO.getVatRate())
                     .appliedExchangeRate(invoiceUpdateDTO.getAppliedExchangeRate())
                     .invoiceDocument(document)
@@ -406,12 +406,12 @@ public class InvoiceMapper {
 
         return InvoiceSummaryDTO.builder()
                 .idInvoice(invoice.getIdInvoice())
-                .invoiceNumber(invoice.getInvoiceNumber())
+                .invoiceNumber(invoice.getReference())
                 .issueDate(invoice.getIssueDate())
                 .invoiceType(invoice.getInvoiceType())
                 .invoiceStatus(invoice.getInvoiceStatus())
                 .invoiceComplianceStatus(invoice.getInvoiceComplianceStatus())
-                .invoiceCurrency(invoice.getInvoiceCurrency())
+                .invoiceCurrency(invoice.getCurrency())
                 .totalExclTaxEUR(invoice.getTotalExclTaxEUR())
                 .totalInclTaxEUR(invoice.getTotalInclTaxEUR())
                 .totalExclTaxTND(invoice.getTotalExclTaxTND())

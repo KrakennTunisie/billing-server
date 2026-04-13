@@ -98,7 +98,7 @@ public class InvoicePersistenceAdapter implements InvoiceRepositoryPort {
 
     @Override
     public boolean existsByInvoiceNumber(String invoiceNumber) {
-        return jpaInvoiceRepository.existsByInvoiceNumber(invoiceNumber);
+        return jpaInvoiceRepository.existsByReference(invoiceNumber);
     }
 
     @Override
