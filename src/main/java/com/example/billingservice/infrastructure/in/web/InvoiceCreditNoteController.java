@@ -49,11 +49,11 @@ public class InvoiceCreditNoteController {
     @GetMapping("/invoice/{id}")
     public ResponseEntity <Page<InvoiceCreditNotePageItemDTO>> getClientsInvoices(@PathVariable String id,
                                                                         @RequestParam(required = false) String keyword,
-                                                                        @RequestParam(required = false) String status,
+                                                                        @RequestParam(required = false) String filter,
                                                                         @RequestParam int page )
     {
         return ResponseEntity.ok(
-                invoiceCreditNoteUseCase.getInvoiceCreditNotes(UUID.fromString(id),keyword, status, page)
+                invoiceCreditNoteUseCase.getInvoiceCreditNotes(UUID.fromString(id),keyword, filter, page)
         );
     }
 

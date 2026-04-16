@@ -8,6 +8,8 @@ services:
     depends_on:
       - billing-db
     restart: unless-stopped
+    volumes:
+      - billing_storage:/app/storage
     networks:
       - ms-net
     environment:
@@ -28,6 +30,7 @@ services:
 
 volumes:
   billing_db_data:
+  billing_storage:
 
 networks:
   ms-net:
