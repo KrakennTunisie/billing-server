@@ -23,7 +23,7 @@ public class CorsConfig {
 
             @Override
             public void addResourceHandlers(ResourceHandlerRegistry registry) {
-                registry.addResourceHandler("/storage/**")
+                registry.addResourceHandler("/api/storage/**")
                         .addResourceLocations("file:./storage/");
             }
         };
