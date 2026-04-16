@@ -1,6 +1,8 @@
 package com.example.billingservice.infrastructure.in.web;
 
 import com.example.billingservice.application.ports.in.PurchaseOrderUseCase;
+import com.example.billingservice.application.service.GenerateInvoiceNumberService;
+import com.example.billingservice.domain.enums.SequenceNumberType;
 import com.example.billingservice.domain.model.PurchaseOrder;
 import com.example.billingservice.infrastructure.out.persistance.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
@@ -24,7 +26,17 @@ import java.util.UUID;
 public class PurchaseOrderController {
 
     private final PurchaseOrderUseCase purchaseOrderUseCase;
+    private final GenerateInvoiceNumberService generateInvoiceNumberService;
 
+    @Operation(summary = "Numéro facture suivant", description = "Générer le numéro facture suivant")
+    @GetMapping(path = "/next-number")
+    public ResponseEntity <NextNumberDTO> generateNextCreditNoteNumber()
+    {
+        NextNumberDTO nextNumberDTO = NextNumberDTO.builder()
+                .value(generateInvoiceNumberService.generate(SequenceNumberType.PURCHASE_ORDER))
+                .build();
+        return ResponseEntity.ok(nextNumberDTO);
+    }
     @Operation(summary = "Créer un bon de commande", description = "Ajoute un nouveau bon de commande")
     @PostMapping(path = "/", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<PurchaseOrderDTO> createPurchaseOrder (@Valid @ModelAttribute PurchaseOrderCreateDTO form)

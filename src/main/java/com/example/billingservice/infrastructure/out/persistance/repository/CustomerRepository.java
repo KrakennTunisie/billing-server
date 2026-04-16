@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -42,4 +43,25 @@ public interface CustomerRepository extends JpaRepository<CustomerEntity, UUID> 
             @Param("keyword") String keyword,
             @Param("country") String country,
             Pageable pageable);
+
+
+    @Query("""
+    SELECT p FROM CustomerEntity p
+    WHERE
+        (
+            :keyword IS NULL OR :keyword = '' OR
+            LOWER(p.name) LIKE LOWER(CONCAT('%', CAST(:keyword AS string), '%')) OR
+            LOWER(p.email) LIKE LOWER(CONCAT('%', CAST(:keyword AS string), '%')) OR
+            LOWER(p.taxRegistrationNumber) LIKE LOWER(CONCAT('%', CAST(:keyword AS string), '%'))
+        )
+    AND
+        (
+            :country IS NULL OR :country = '' OR
+            LOWER(p.country) = LOWER(CAST(:country AS string))
+        )
+""")
+    List<CustomerEntity> getCustomers(
+            @Param("keyword") String keyword,
+            @Param("country") String country
+            );
 }

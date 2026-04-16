@@ -5,6 +5,7 @@ import com.example.billingservice.application.ports.in.PartnerUseCase;
 import com.example.billingservice.domain.model.Partner;
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerForm;
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerItemDTO;
+import com.example.billingservice.infrastructure.out.persistance.dto.PartnerSummaryDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.UpdatePartnerDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -18,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -96,6 +98,14 @@ public class PartnerController {
             @RequestParam int page ) {
 
         return ResponseEntity.ok(partnerUseCase.getAllCustomers(keyword, country, page));
+    }
+
+    @GetMapping("/clients-summary")
+    public ResponseEntity <List<PartnerSummaryDTO>> getAllCustomers(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String country) {
+
+        return ResponseEntity.ok(partnerUseCase.getSummaryClients(keyword, country));
     }
 
 

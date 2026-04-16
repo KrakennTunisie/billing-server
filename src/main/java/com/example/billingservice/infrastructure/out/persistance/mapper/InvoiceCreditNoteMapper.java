@@ -5,7 +5,6 @@ import com.example.billingservice.domain.model.*;
 import com.example.billingservice.infrastructure.out.persistance.dto.InvoiceCreditNoteCreateDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.InvoiceCreditNoteDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.InvoiceCreditNotePageItemDTO;
-import com.example.billingservice.infrastructure.out.persistance.entity.ClientInvoiceEntity;
 import com.example.billingservice.infrastructure.out.persistance.entity.InvoiceCreditNoteEntity;
 import com.example.billingservice.infrastructure.out.persistance.entity.InvoiceCreditNoteEventEntity;
 import com.example.billingservice.infrastructure.out.persistance.entity.InvoiceCreditNoteItemEntity;
@@ -31,9 +30,6 @@ public class InvoiceCreditNoteMapper {
         if (entity == null) {
             return null;
         }
-
-        System.out.println("classe de facture: "+entity.getInvoice().getClass());
-        System.out.println("ClientInvoiceEntity: "+ClientInvoiceEntity.class);
 
         InvoiceCreditNote invoiceCreditNote =  InvoiceCreditNote.builder()
                 .motif(entity.getMotif())

@@ -3,7 +3,6 @@ package com.example.billingservice.domain.model;
 
 import com.example.billingservice.domain.enums.InvoiceCreditNoteEventType;
 import com.example.billingservice.domain.enums.InvoiceEventTrigger;
-import com.example.billingservice.domain.enums.InvoiceEventType;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;

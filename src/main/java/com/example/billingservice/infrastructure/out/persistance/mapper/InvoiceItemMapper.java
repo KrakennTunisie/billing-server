@@ -135,7 +135,7 @@ public class InvoiceItemMapper {
         entity.setQuantity(invoiceItem.getQuantity());
         entity.setUnityPriceEXclTax(invoiceItem.getUnityPriceEXclTax());
         entity.setVatRate(invoiceItem.getVatRate());
-        entity.setOperationCategory(entity.getOperationCategory());
+        entity.setOperationCategory(invoiceItem.getOperationCategory());
 
         return entity;
     }

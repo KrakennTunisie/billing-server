@@ -76,7 +76,6 @@ public class InvoiceMapper {
         invoiceEventEntities.forEach(event -> event.setInvoice(invoice));
         invoice.setInvoiceEvents(invoiceEventEntities);
 
-        System.out.println("getPartner: "+dto.getPartner());
 
         return invoice;
     }
@@ -149,7 +148,7 @@ public class InvoiceMapper {
         dto.setTotalExclTaxEUR(totals.totalExclTaxEUR());
         dto.setTotalInclTaxEUR(totals.totalInclTaxEUR());
         dto.setTotalExclTaxTND(totals.totalExclTaxTND());
-        dto.setTotalInclTaxTND(totals.totalExclTaxTND());
+        dto.setTotalInclTaxTND(totals.totalInclTaxTND());
 
         return dto;
     }
@@ -186,13 +185,13 @@ public class InvoiceMapper {
                 .build();
     }
 
-    public Invoice invoiceCreateDTOtoDomain(InvoiceCreateDTO invoiceCreateDTO, Document document) throws BillingException{
+    public Invoice invoiceCreateDTOtoDomain(InvoiceCreateDTO invoiceCreateDTO, Document document, String invoiceNumber) throws BillingException{
         if (invoiceCreateDTO == null) {
             return null;
         }
         try{
             Invoice invoice =  Invoice.builder()
-                    .reference(invoiceCreateDTO.getInvoiceNumber())
+                    .reference(invoiceNumber)
                     .issueDate(invoiceCreateDTO.getIssueDate())
                     .dueDate(invoiceCreateDTO.getDueDate())
                     .invoiceType(InvoiceType.valueOf(invoiceCreateDTO.getInvoiceType()))
@@ -223,8 +222,9 @@ public class InvoiceMapper {
                     .map(invoiceItemMapper::invoiceItemCreateDTOtoDomain)
                     .toList()
                     : List.of();
+            List<InvoiceItem> invoiceItems= new ArrayList<>(items);
 
-            invoice.setInvoiceItems(items);
+            invoice.setInvoiceItems(invoiceItems);
 
 
             InvoiceEvent invoiceEvent = InvoiceEvent.builder()
@@ -370,6 +370,7 @@ public class InvoiceMapper {
             List<InvoiceItem> items = invoiceUpdateDTO.getInvoiceItems() != null
                     ? invoiceUpdateDTO.getInvoiceItems()
                     .stream()
+                    .map(invoiceItemMapper::invoiceItemCreateDTOtoDomain)
                     .toList()
                     : List.of();
 

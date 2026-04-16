@@ -18,6 +18,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -50,11 +51,12 @@ public class ClientInvoicesPersistenceAdapter implements ClientInvoicesRepositor
         }    }
 
     @Override
+    @Transactional
     public InvoiceDTO save(Invoice invoice) {
         ClientInvoiceEntity entity = (ClientInvoiceEntity) invoiceMapper.toEntity(invoice);
         ClientInvoiceEntity savedEntity = clientInvoicesRepository.save(entity);
-        Invoice invoice1 = invoiceMapper.toDomain(savedEntity, invoice.getInvoiceType());/*
-        entity.getInvoiceEvents().forEach(
+        Invoice invoice1 = invoiceMapper.toDomain(savedEntity, invoice.getInvoiceType());
+      /*  entity.getInvoiceEvents().forEach(
                 invoiceEventEntity -> invoiceEventEntity.setInvoice(savedEntity)
         );
         jpaInvoiceEventRepository.saveAll(entity.getInvoiceEvents());*/

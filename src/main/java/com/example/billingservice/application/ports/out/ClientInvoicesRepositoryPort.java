@@ -12,7 +12,6 @@ import java.util.UUID;
 public interface ClientInvoicesRepositoryPort {
     Page<InvoicePageItemDTO> findAllInvoices(String keyword , InvoiceStatus status , int page, InvoiceType type);
 
-
     InvoiceDTO save(Invoice invoice);
 
     InvoiceDTO update(Invoice invoice);

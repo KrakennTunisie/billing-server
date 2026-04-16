@@ -1,11 +1,9 @@
 package com.example.billingservice.infrastructure.out.persistance;
 
 import com.example.billingservice.application.ports.out.PurchaseOrderRepoistoryPort;
-import com.example.billingservice.domain.model.Invoice;
 import com.example.billingservice.domain.model.PurchaseOrder;
 import com.example.billingservice.infrastructure.out.persistance.dto.PurchaseOrderDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.PurchaseOrderPageItemDTO;
-import com.example.billingservice.infrastructure.out.persistance.entity.InvoiceEntity;
 import com.example.billingservice.infrastructure.out.persistance.entity.PurchaseOrderEntity;
 import com.example.billingservice.infrastructure.out.persistance.mapper.PurchaseOrderMapper;
 import com.example.billingservice.infrastructure.out.persistance.repository.PurchaseOrderRepository;
