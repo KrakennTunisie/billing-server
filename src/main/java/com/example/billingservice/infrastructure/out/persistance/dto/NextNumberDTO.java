@@ -5,9 +5,6 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class InvoiceCounterDTO {
-
-    private Integer year;
-
-    private Long lastSequence;
+public class NextNumberDTO {
+    String value;
 }

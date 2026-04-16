@@ -2,6 +2,7 @@ package com.example.billingservice.infrastructure.out.persistance.dto;
 
 import com.example.billingservice.domain.enums.*;
 import com.example.billingservice.infrastructure.out.persistance.validators.ValidEnum;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,8 +18,8 @@ import java.util.List;
 public class InvoiceCreateDTO {
 
     //@NotBlank(message = "Le numéro de facture est obligatoire")
-    @Setter
-    private String invoiceNumber;
+    //@Setter
+   // private String invoiceNumber;
 
     @NotNull(message = "La date d'émission est obligatoire")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
@@ -59,7 +60,7 @@ public class InvoiceCreateDTO {
 
     private String purchaseOrder;
 
-    //@Valid
+    @Setter
     //@NotEmpty(message = "Au moins une ligne de facture est obligatoire")
     private List<InvoiceItemCreateDTO> invoiceItems;
 
@@ -70,7 +71,7 @@ public class InvoiceCreateDTO {
     @Override
     public String toString() {
         return "InvoiceCreateDTO{" +
-                "invoiceNumber='" + invoiceNumber + '\'' +
+               // "invoiceNumber='" + invoiceNumber + '\'' +
                 ", issueDate=" + issueDate +
                 ", dueDate=" + dueDate +
                 ", invoiceType='" + invoiceType + '\'' +

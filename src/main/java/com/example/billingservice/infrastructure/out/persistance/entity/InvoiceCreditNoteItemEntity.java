@@ -1,6 +1,5 @@
 package com.example.billingservice.infrastructure.out.persistance.entity;
 
-import com.example.billingservice.domain.model.InvoiceItem;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

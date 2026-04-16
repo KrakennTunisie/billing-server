@@ -81,7 +81,7 @@ public final class SyncInvoiceItems {
 
         // 7. 💱 Conversion devise
         CurrencyTotals totals = CurrencyCalculator.calculateTotals(
-                String.valueOf(invoice.getInvoiceCurrency()),
+                String.valueOf(invoice.getCurrency()),
                 totalExclTax,
                 totalInclTax,
                 invoice.getAppliedExchangeRate()

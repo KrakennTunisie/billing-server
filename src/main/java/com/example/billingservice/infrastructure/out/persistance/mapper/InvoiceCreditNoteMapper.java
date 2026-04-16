@@ -36,7 +36,9 @@ public class InvoiceCreditNoteMapper {
                 .description(entity.getDescription())
                 .invoice(
                         entity.getInvoice() != null
-                                ? invoiceMapper.toDomain(entity.getInvoice())
+                                ? invoiceMapper.toDomain(
+                                        entity.getInvoice(),
+                                        entity.getInvoice().getInvoiceType())
                                 : null
                 )
                 .invoiceCreditNoteItems(

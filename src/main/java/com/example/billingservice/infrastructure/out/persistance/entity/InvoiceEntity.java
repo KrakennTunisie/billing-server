@@ -4,7 +4,6 @@ import com.example.billingservice.domain.enums.*;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -15,39 +14,23 @@ import java.util.UUID;
 @Table(name = "invoices")
 @Getter
 @Setter
-public class InvoiceEntity {
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "invoice_type",discriminatorType = DiscriminatorType.STRING)
+public abstract class InvoiceEntity extends BaseCommercialDocumentEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID idInvoice;
 
-    private String invoiceNumber;
-    private Date issueDate;
     private Date dueDate;
 
-    @Enumerated(EnumType.STRING)
-    private InvoiceType invoiceType;
+    //@Enumerated(EnumType.STRING)
+    //private InvoiceType invoiceType;
 
     @Enumerated(EnumType.STRING)
     private InvoiceStatus invoiceStatus;
 
     @Enumerated(EnumType.STRING)
     private InvoiceComplianceStatus invoiceComplianceStatus;
-
-    private Double vatRate;
-
-    @Enumerated(EnumType.STRING)
-    private PaymentMethod paymentMethod;
-
-    @Enumerated(EnumType.STRING)
-    private InvoiceCurrency currency;
-
-    @DateTimeFormat
-    private Date exchangeRateReferenceDate;
-
-    private Double appliedExchangeRate;
-
-    @Enumerated(EnumType.STRING)
-    private ExchangeRateSource exchangeRateSource;
 
     private String complianceQRcode;
 
@@ -59,9 +42,6 @@ public class InvoiceEntity {
     @JoinColumn(name = "purchase_order_id", nullable = true)
     private PurchaseOrderEntity purchaseOrder;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "partner_id")
-    private PartnerEntity partner;
 
     @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<InvoiceEventEntity> invoiceEvents = new ArrayList<>();
@@ -71,4 +51,7 @@ public class InvoiceEntity {
 
     @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<InvoiceCreditNoteEntity> invoiceCreditNotes;
+
+    public abstract InvoiceType getInvoiceType();
+
 }

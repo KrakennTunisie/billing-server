@@ -91,40 +91,40 @@ public class CurrencyCalculator {
     }
 
     public static Double getTotalExclTaxEUR(Invoice invoice) {
-        if (invoice.getInvoiceCurrency() == InvoiceCurrency.EUR) {
+        if (invoice.getCurrency() == InvoiceCurrency.EUR) {
             return invoice.getTotalInclTaxEUR();
         }
-        if (invoice.getInvoiceCurrency() == InvoiceCurrency.TND && invoice.getAppliedExchangeRate() != null) {
+        if (invoice.getCurrency() == InvoiceCurrency.TND && invoice.getAppliedExchangeRate() != null) {
             return invoice.getTotalExclTaxEUR() / invoice.getAppliedExchangeRate();
         }
         return 0.0;
     }
 
     public static Double getTotalInclTaxEUR(Invoice invoice) {
-        if (invoice.getInvoiceCurrency() == InvoiceCurrency.EUR) {
+        if (invoice.getCurrency() == InvoiceCurrency.EUR) {
             return invoice.getTotalInclTaxEUR();
         }
-        if (invoice.getInvoiceCurrency() == InvoiceCurrency.TND && invoice.getAppliedExchangeRate() != null) {
+        if (invoice.getCurrency() == InvoiceCurrency.TND && invoice.getAppliedExchangeRate() != null) {
             return invoice.getTotalInclTaxEUR() / invoice.getAppliedExchangeRate();
         }
         return 0.0;
     }
 
     public static Double getTotalExclTaxTND(Invoice invoice) {
-        if (invoice.getInvoiceCurrency() == InvoiceCurrency.TND) {
+        if (invoice.getCurrency() == InvoiceCurrency.TND) {
             return invoice.getTotalExclTaxTND();
         }
-        if (invoice.getInvoiceCurrency() == InvoiceCurrency.EUR && invoice.getAppliedExchangeRate() != null) {
+        if (invoice.getCurrency() == InvoiceCurrency.EUR && invoice.getAppliedExchangeRate() != null) {
             return invoice.getTotalExclTaxEUR() * invoice.getAppliedExchangeRate();
         }
         return 0.0;
     }
 
     public static Double getTotalInclTaxTND(Invoice invoice) {
-        if (invoice.getInvoiceCurrency() == InvoiceCurrency.TND) {
+        if (invoice.getCurrency() == InvoiceCurrency.TND) {
             return invoice.getTotalInclTaxTND();
         }
-        if (invoice.getInvoiceCurrency() == InvoiceCurrency.EUR && invoice.getAppliedExchangeRate() != null) {
+        if (invoice.getCurrency() == InvoiceCurrency.EUR && invoice.getAppliedExchangeRate() != null) {
             return invoice.getTotalInclTaxEUR() * invoice.getAppliedExchangeRate();
         }
         return 0.0;

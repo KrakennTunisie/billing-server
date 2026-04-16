@@ -15,5 +15,4 @@ public class PartnerSummaryDTO {
     private String address;
     private String phoneNumber;
     private PartnerType partnerType;
-
 }

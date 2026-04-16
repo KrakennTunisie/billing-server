@@ -1,5 +1,6 @@
 package com.example.billingservice.infrastructure.out.persistance.dto;
 
+import com.example.billingservice.domain.enums.InvoiceCurrency;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -10,6 +11,7 @@ import java.util.UUID;
 @Builder
 public class PurchaseOrderSummaryDTO {
     private UUID idPurchaseOrder;
-    private String reference;
-    private Date orderDate;
+    private String purchaseOrderNumber;
+    private Date issueDate;
+    private InvoiceCurrency purchaseCurrency;
 }

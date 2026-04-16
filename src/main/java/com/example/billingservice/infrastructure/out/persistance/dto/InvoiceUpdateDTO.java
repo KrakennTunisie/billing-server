@@ -3,7 +3,6 @@ package com.example.billingservice.infrastructure.out.persistance.dto;
 import com.example.billingservice.domain.enums.*;
 import com.example.billingservice.domain.model.InvoiceItem;
 import com.example.billingservice.infrastructure.out.persistance.validators.ValidEnum;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -75,7 +74,8 @@ public class InvoiceUpdateDTO {
 
     //@Valid
     //@NotEmpty(message = "Au moins une ligne de facture est obligatoire")
-    private List<InvoiceItem> invoiceItems;
+    @Setter
+    private List<InvoiceItemCreateDTO> invoiceItems;
 
     @NotNull(message = "Le document de facture est obligatoire")
     private MultipartFile invoiceDocument;

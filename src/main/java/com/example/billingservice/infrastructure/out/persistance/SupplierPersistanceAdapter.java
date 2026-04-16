@@ -83,6 +83,7 @@ public class SupplierPersistanceAdapter implements SupplierRepositoryPort {
 
             List<PartnerItemDTO> partners = entities.getContent()
                     .stream()
+                    .map(p->partnerMapper.toDomain(p, PartnerType.SUPPLIER))
                     .map(partnerMapper::toItemDTO)
                     .collect(Collectors.toList());
 
