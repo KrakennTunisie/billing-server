@@ -1,7 +1,6 @@
 package com.example.billingservice.infrastructure.out.persistance.repository;
 
 import com.example.billingservice.domain.enums.InvoiceStatus;
-import com.example.billingservice.domain.enums.InvoiceType;
 import com.example.billingservice.infrastructure.out.persistance.entity.InvoiceEntity;
 import com.example.billingservice.infrastructure.out.persistance.entity.SupplierInvoiceEntity;
 import org.springframework.data.domain.Page;

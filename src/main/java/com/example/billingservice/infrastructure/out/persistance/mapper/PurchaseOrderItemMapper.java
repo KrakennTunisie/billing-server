@@ -1,10 +1,8 @@
 package com.example.billingservice.infrastructure.out.persistance.mapper;
 
 import com.example.billingservice.domain.enums.OperationCategory;
-import com.example.billingservice.domain.model.PurchaseOrder;
 import com.example.billingservice.domain.model.PurchaseOrderItem;
 import com.example.billingservice.infrastructure.out.persistance.dto.PurchaseOrderItemCreateDTO;
-import com.example.billingservice.infrastructure.out.persistance.dto.PurchaseOrderItemDTO;
 import com.example.billingservice.infrastructure.out.persistance.entity.PurchaseOrderItemEntity;
 import org.springframework.stereotype.Component;
 

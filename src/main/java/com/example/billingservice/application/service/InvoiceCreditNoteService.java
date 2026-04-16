@@ -6,7 +6,6 @@ import com.example.billingservice.application.ports.in.GenerateInvoiceNumberUseC
 import com.example.billingservice.application.ports.in.InvoiceCreditNoteUseCase;
 import com.example.billingservice.application.ports.out.ClientInvoicesRepositoryPort;
 import com.example.billingservice.application.ports.out.InvoiceCreditNoteRepositoryPort;
-import com.example.billingservice.application.ports.out.InvoiceRepositoryPort;
 import com.example.billingservice.application.ports.out.SupplierInvoicesRepositoryPort;
 import com.example.billingservice.domain.enums.*;
 import com.example.billingservice.domain.exceptions.BillingException;

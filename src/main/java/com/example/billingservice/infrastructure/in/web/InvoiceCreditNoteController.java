@@ -1,7 +1,9 @@
 package com.example.billingservice.infrastructure.in.web;
 
 import com.example.billingservice.application.ports.in.InvoiceCreditNoteUseCase;
+import com.example.billingservice.application.service.GenerateInvoiceNumberService;
 import com.example.billingservice.domain.enums.InvoiceCreditNoteStatus;
+import com.example.billingservice.domain.enums.SequenceNumberType;
 import com.example.billingservice.domain.model.InvoiceCreditNote;
 import com.example.billingservice.infrastructure.out.persistance.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,7 +27,17 @@ import java.util.UUID;
 public class InvoiceCreditNoteController {
 
     private final InvoiceCreditNoteUseCase invoiceCreditNoteUseCase;
+    private final GenerateInvoiceNumberService generateInvoiceNumberService;
 
+    @Operation(summary = "Numéro facture suivant", description = "Générer le numéro facture suivant")
+    @GetMapping(path = "/next-number")
+    public ResponseEntity <NextNumberDTO> generateNextCreditNoteNumber()
+    {
+        NextNumberDTO nextNumberDTO = NextNumberDTO.builder()
+                .value(generateInvoiceNumberService.generate(SequenceNumberType.CREDIT_NOTE))
+                .build();
+        return ResponseEntity.ok(nextNumberDTO);
+    }
     @Operation(summary = "Créer une facture d'avoir", description = "Ajoute une nouvelle facture d'avoir")
     @PostMapping(path = "/", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<InvoiceCreditNoteDTO> createClientInvoice (@Valid @ModelAttribute InvoiceCreditNoteCreateDTO form)

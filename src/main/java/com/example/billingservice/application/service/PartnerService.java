@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -206,6 +207,11 @@ public class PartnerService implements PartnerUseCase  {
     @Override
     public Page<PartnerItemDTO> getAllCustomers(String keyword , String Country ,int page) {
         return customerRepositoryPort.findAllCustomers(keyword, Country, page);
+    }
+
+    @Override
+    public List<PartnerSummaryDTO> getSummaryClients(String keyword, String Country) {
+        return customerRepositoryPort.getSummaryClients(keyword, Country);
     }
 
     @Override

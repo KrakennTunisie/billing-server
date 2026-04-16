@@ -1,11 +1,6 @@
 package com.example.billingservice.application.ports.out;
 
-import com.example.billingservice.domain.enums.InvoiceStatus;
-import com.example.billingservice.domain.enums.InvoiceType;
-import com.example.billingservice.domain.model.Invoice;
 import com.example.billingservice.domain.model.PurchaseOrder;
-import com.example.billingservice.infrastructure.out.persistance.dto.InvoiceDTO;
-import com.example.billingservice.infrastructure.out.persistance.dto.InvoicePageItemDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.PurchaseOrderDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.PurchaseOrderPageItemDTO;
 import org.springframework.data.domain.Page;

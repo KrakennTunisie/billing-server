@@ -1,16 +1,13 @@
 package com.example.billingservice.application.service;
 
-import com.example.billingservice.application.Utils.InvoiceStatusPassagePolicy;
 import com.example.billingservice.application.ports.in.GenerateInvoiceNumberUseCase;
 import com.example.billingservice.application.ports.in.PartnerUseCase;
 import com.example.billingservice.application.ports.in.PurchaseOrderUseCase;
 import com.example.billingservice.application.ports.out.PurchaseOrderRepoistoryPort;
 import com.example.billingservice.domain.enums.DocumentType;
-import com.example.billingservice.domain.enums.InvoiceStatus;
 import com.example.billingservice.domain.enums.SequenceNumberType;
 import com.example.billingservice.domain.exceptions.BillingException;
 import com.example.billingservice.domain.model.Document;
-import com.example.billingservice.domain.model.Invoice;
 import com.example.billingservice.domain.model.PurchaseOrder;
 import com.example.billingservice.infrastructure.out.persistance.dto.*;
 import com.example.billingservice.infrastructure.out.persistance.mapper.PurchaseOrderMapper;
@@ -77,7 +74,6 @@ public class PurchaseOrderService implements PurchaseOrderUseCase {
                 createDTO.getInvoiceItems() != null ? createDTO.getInvoiceItems() : List.of()
         );
 */
-        System.out.println("createdPurchaseOrder:"+purchaseOrder);
 
         PurchaseOrder savedPurchaseOrder = purchaseOrderRepoistoryPort.createPurchaseOrder(purchaseOrder);
 

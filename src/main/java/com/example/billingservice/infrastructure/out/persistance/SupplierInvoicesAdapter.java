@@ -10,7 +10,6 @@ import com.example.billingservice.infrastructure.out.persistance.dto.InvoicePage
 import com.example.billingservice.infrastructure.out.persistance.entity.InvoiceEntity;
 import com.example.billingservice.infrastructure.out.persistance.entity.SupplierInvoiceEntity;
 import com.example.billingservice.infrastructure.out.persistance.mapper.InvoiceMapper;
-import com.example.billingservice.infrastructure.out.persistance.repository.JpaInvoiceEventRepository;
 import com.example.billingservice.infrastructure.out.persistance.repository.SupplierInvoicesRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataAccessException;

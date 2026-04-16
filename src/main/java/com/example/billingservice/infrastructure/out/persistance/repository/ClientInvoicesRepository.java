@@ -13,7 +13,7 @@ import java.util.UUID;
 
 public interface ClientInvoicesRepository extends JpaRepository<ClientInvoiceEntity, UUID> {
     @Query("""
-SELECT i FROM InvoiceEntity i
+SELECT i FROM ClientInvoiceEntity i
 WHERE
     (
         :keyword IS NULL OR :keyword = '' OR

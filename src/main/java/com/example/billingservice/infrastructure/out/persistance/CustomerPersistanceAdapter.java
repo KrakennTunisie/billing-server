@@ -5,6 +5,7 @@ import com.example.billingservice.domain.enums.PartnerType;
 import com.example.billingservice.domain.exceptions.BillingException;
 import com.example.billingservice.domain.model.Partner;
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerItemDTO;
+import com.example.billingservice.infrastructure.out.persistance.dto.PartnerSummaryDTO;
 import com.example.billingservice.infrastructure.out.persistance.entity.CustomerEntity;
 import com.example.billingservice.infrastructure.out.persistance.mapper.PartnerMapper;
 import com.example.billingservice.infrastructure.out.persistance.repository.CustomerRepository;
@@ -81,6 +82,15 @@ public class CustomerPersistanceAdapter implements CustomerRepositoryPort {
 
         return new PageImpl<>(partners, pageRequest, entities.getTotalElements());
 
+    }
+
+    @Override
+    public List<PartnerSummaryDTO> getSummaryClients(String keyword, String Country) {
+        List<CustomerEntity> customerEntities= customerRepository.getCustomers(keyword, Country);
+        return customerEntities.stream()
+                .map(entity->partnerMapper.toDomain(entity, PartnerType.CLIENT))
+                .map(partnerMapper::toSummaryDTO)
+                .toList();
     }
 
     @Override

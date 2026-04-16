@@ -6,7 +6,6 @@ import com.example.billingservice.application.ports.in.GenerateInvoiceNumberUseC
 import com.example.billingservice.application.ports.in.InvoiceUseCase;
 import com.example.billingservice.application.ports.in.PartnerUseCase;
 import com.example.billingservice.application.ports.out.ClientInvoicesRepositoryPort;
-import com.example.billingservice.application.ports.out.InvoiceRepositoryPort;
 import com.example.billingservice.application.ports.out.SupplierInvoicesRepositoryPort;
 import com.example.billingservice.domain.enums.*;
 import com.example.billingservice.domain.exceptions.BillingException;
@@ -17,7 +16,6 @@ import com.example.billingservice.infrastructure.out.persistance.dto.*;
 import com.example.billingservice.infrastructure.out.persistance.mapper.InvoiceMapper;
 import com.example.billingservice.shared.ParseEnum;
 import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -135,7 +133,8 @@ public class InvoiceService implements InvoiceUseCase {
         if(!clientInvoicesRepositoryPort.existsByInvoiceId(invoiceId)){
             throw  BillingException.notFound("Facture Client", String.valueOf(invoiceId));
         }
-        return clientInvoicesRepositoryPort.getById(invoiceId);    }
+        return clientInvoicesRepositoryPort.getById(invoiceId);
+    }
 
     @Override
     public Invoice getInvoiceDomainById(UUID invoiceId) {
@@ -214,12 +213,8 @@ public class InvoiceService implements InvoiceUseCase {
 
     private InvoiceDTO createBaseInvoice(InvoiceCreateDTO createDTO) throws IOException {
 
-        if (createDTO.getInvoiceNumber() != null && existsByInvoiceNumber(createDTO.getInvoiceNumber())) {
-            throw BillingException.alreadyExists("Facture", "invoiceNumber", createDTO.getInvoiceNumber());
-        }
 
         String invoiceNumber = generateInvoiceNumberUseCase.generate(SequenceNumberType.INVOICE);
-        createDTO.setInvoiceNumber(invoiceNumber);
 
         Document invoiceDocument = null;
         if (createDTO.getInvoiceDocument() != null && !createDTO.getInvoiceDocument().isEmpty()) {
@@ -230,13 +225,13 @@ public class InvoiceService implements InvoiceUseCase {
             );
 
             invoiceDocument = uploadDocumentService.upload(
-                    createDTO.getInvoiceNumber(),
+                    invoiceNumber,
                     DocumentType.INVOICE,
                     document
             );
         }
 
-        Invoice invoice = invoiceMapper.invoiceCreateDTOtoDomain(createDTO, invoiceDocument);
+        Invoice invoice = invoiceMapper.invoiceCreateDTOtoDomain(createDTO, invoiceDocument, invoiceNumber);
 
 /*
         SyncInvoiceItems.syncInvoiceItems(
@@ -244,7 +239,7 @@ public class InvoiceService implements InvoiceUseCase {
                 createDTO.getInvoiceItems() != null ? createDTO.getInvoiceItems() : List.of()
         );
 */
-        System.out.println("createdInvoice:"+invoice.getInvoiceType());
+        //System.out.println("createdInvoice:"+invoice.getInvoiceType());
 
         InvoiceDTO savedInvoice =
                 invoice.getInvoiceType() == InvoiceType.PURCHASE

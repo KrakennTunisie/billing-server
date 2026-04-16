@@ -3,13 +3,22 @@ package com.example.billingservice.infrastructure.out.persistance.dto;
 import com.example.billingservice.domain.enums.OperationCategory;
 import com.example.billingservice.infrastructure.out.persistance.validators.ValidEnum;
 import jakarta.validation.constraints.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+import java.util.UUID;
 
 
 @Getter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class InvoiceItemCreateDTO {
+    private UUID idInvoiceItem;
+
+
     @NotBlank(message = "La description est obligatoire")
     private String description;
 
@@ -30,8 +39,26 @@ public class InvoiceItemCreateDTO {
     @DecimalMin(value = "0.0", message = "Le montant de TVA doit être positif ou nul")
     private Double itemTaxAmount;
 
+    private Double itemTotalExclTax;
+
+    private Double itemTotalInclTax;
+
     @NotNull(message = "La catégorie d'opération est obligatoire")
     @ValidEnum(enumClass = OperationCategory.class, message = "Catégorie d'opération invalide")
     private String operationCategory;
 
+    @Override
+    public String toString() {
+        return "InvoiceItemCreateDTO{" +
+                "idInvoiceItem=" + idInvoiceItem +
+                ", description='" + description + '\'' +
+                ", quantity=" + quantity +
+                ", unityPriceEXclTax=" + unityPriceEXclTax +
+                ", vatRate=" + vatRate +
+                ", itemTaxAmount=" + itemTaxAmount +
+                ", itemTotalExclTax=" + itemTotalExclTax +
+                ", itemTotalInclTax=" + itemTotalInclTax +
+                ", operationCategory='" + operationCategory + '\'' +
+                '}';
+    }
 }
