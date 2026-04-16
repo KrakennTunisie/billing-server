@@ -65,10 +65,10 @@ public class InvoiceController {
     @Operation(summary = "Liste des factures clients")
     @GetMapping(CLIENT_INVOICES)
     public ResponseEntity <Page<InvoicePageItemDTO>> getClientsInvoices(@RequestParam(required = false) String keyword,
-                                                                        @RequestParam(required = false) String status,
+                                                                        @RequestParam(required = false) String filter,
                                                                         @RequestParam int page )
     {
-        return ResponseEntity.ok(invoiceUseCase.getClientsInvoices(keyword, status, page));
+        return ResponseEntity.ok(invoiceUseCase.getClientsInvoices(keyword, filter, page));
     }
 
     @Operation(summary = "Mise à jour de facture client", description = "Mettre à jour une facture existante")
