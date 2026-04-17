@@ -2,7 +2,7 @@ package com.example.billingservice.application.ports.out;
 
 import com.example.billingservice.domain.enums.InvoiceCreditNoteStatus;
 import com.example.billingservice.domain.model.InvoiceCreditNote;
-import com.example.billingservice.infrastructure.out.persistance.dto.InvoiceCreditNoteDTO;
+import com.example.billingservice.infrastructure.out.persistance.dto.InvoiceCreditNoteDetailsDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.InvoiceCreditNotePageItemDTO;
 import org.springframework.data.domain.Page;
 
@@ -27,7 +27,7 @@ public interface InvoiceCreditNoteRepositoryPort {
 
     void delete(UUID idInvoiceCreditNote);
 
-    InvoiceCreditNote getByInvoiceCreditNoteNumber(String invoiceCreditNoteNumber);
+    InvoiceCreditNoteDetailsDTO getByInvoiceCreditNoteNumber(String invoiceCreditNoteNumber);
 
     boolean existsInvoiceCreditNoteEntityByInvoice(UUID idInvoice);
 

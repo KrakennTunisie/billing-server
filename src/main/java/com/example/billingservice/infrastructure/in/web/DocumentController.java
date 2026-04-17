@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/documents")
 @RequiredArgsConstructor
-@ConditionalOnProperty(name = "spring.storage.type", havingValue = "database")
 public class DocumentController {
     private final ReadDocumentService readDocumentService;
 

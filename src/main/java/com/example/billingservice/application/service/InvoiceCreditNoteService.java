@@ -57,7 +57,7 @@ public class InvoiceCreditNoteService implements InvoiceCreditNoteUseCase {
     }
 
     @Override
-    public InvoiceCreditNote getgetInvoiceCreditNoteByInvoiceCreditNoteNumber(String creditNoteNumber) {
+    public InvoiceCreditNoteDetailsDTO getInvoiceCreditNoteByInvoiceCreditNoteNumber(String creditNoteNumber) {
         if (!invoiceCreditNoteRepositoryPort.existsByInvoiceCreditNoteNumber(creditNoteNumber)) {
             throw BillingException.notFound("Facture d'avoir", String.valueOf(creditNoteNumber));
         }

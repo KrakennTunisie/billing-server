@@ -7,7 +7,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 @Service
-@ConditionalOnProperty(name = "spring.storage.type", havingValue = "database")
 public class ReadDocumentService implements GetDocumentUseCase {
     private final DocumentReaderPort documentReaderPort;
 

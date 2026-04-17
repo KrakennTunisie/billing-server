@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component;
 import java.util.UUID;
 
 @Component
-@ConditionalOnProperty(name = "spring.storage.type", havingValue = "database")
 public class DocumentReaderAdapter implements DocumentReaderPort {
     private final DocumentContentRepository documentContentRepository;
     private final DocumentContentMapper documentContentMapper;

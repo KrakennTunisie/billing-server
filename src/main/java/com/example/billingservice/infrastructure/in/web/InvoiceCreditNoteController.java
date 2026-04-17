@@ -77,10 +77,10 @@ public class InvoiceCreditNoteController {
 
     @GetMapping("/{id}")
     @Operation(summary = "get Invoice By id")
-    public ResponseEntity<InvoiceCreditNote> getInvoiceByiD(@Parameter(description = "ID du facture") @PathVariable String id)
+    public ResponseEntity<InvoiceCreditNoteDetailsDTO> getInvoiceByiD(@Parameter(description = "ID du facture") @PathVariable String id)
     {
 
-        InvoiceCreditNote invoiceDTO =  invoiceCreditNoteUseCase.getgetInvoiceCreditNoteByInvoiceCreditNoteNumber(id);
+        InvoiceCreditNoteDetailsDTO invoiceDTO =  invoiceCreditNoteUseCase.getInvoiceCreditNoteByInvoiceCreditNoteNumber(id);
         return ResponseEntity.status(201).body(invoiceDTO);
 
     }

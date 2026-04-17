@@ -5,6 +5,7 @@ import com.example.billingservice.domain.enums.InvoiceCreditNoteStatus;
 import com.example.billingservice.domain.exceptions.BillingException;
 import com.example.billingservice.domain.model.InvoiceCreditNote;
 import com.example.billingservice.infrastructure.out.persistance.dto.InvoiceCreditNoteDTO;
+import com.example.billingservice.infrastructure.out.persistance.dto.InvoiceCreditNoteDetailsDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.InvoiceCreditNotePageItemDTO;
 import com.example.billingservice.infrastructure.out.persistance.entity.InvoiceCreditNoteEntity;
 import com.example.billingservice.infrastructure.out.persistance.mapper.InvoiceCreditNoteMapper;
@@ -116,9 +117,13 @@ public class InvoiceCreditNoteRepositoryAdapter implements InvoiceCreditNoteRepo
     }
 
     @Override
-    public InvoiceCreditNote getByInvoiceCreditNoteNumber(String invoiceCreditNoteNumber) {
-        InvoiceCreditNoteEntity invoiceCreditNoteEntity = invoiceCreditNoteRepository.getInvoiceCreditNoteEntityByInvoiceCreditNoteNumber(invoiceCreditNoteNumber);
-        return invoiceCreditNoteMapper.toDomain(invoiceCreditNoteEntity);
+    public InvoiceCreditNoteDetailsDTO getByInvoiceCreditNoteNumber(String invoiceCreditNoteNumber) {
+        InvoiceCreditNoteEntity invoiceCreditNoteEntity =
+                invoiceCreditNoteRepository
+                        .getInvoiceCreditNoteEntityByInvoiceCreditNoteNumber(invoiceCreditNoteNumber);
+        InvoiceCreditNote invoiceCreditNote = invoiceCreditNoteMapper.toDomain(invoiceCreditNoteEntity);
+
+        return invoiceCreditNoteMapper.toDetailsDTO(invoiceCreditNote);
     }
 
     @Override

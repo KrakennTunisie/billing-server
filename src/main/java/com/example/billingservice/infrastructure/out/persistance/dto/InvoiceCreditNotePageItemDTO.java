@@ -17,5 +17,9 @@ public class InvoiceCreditNotePageItemDTO {
     private InvoiceCreditNoteStatus invoiceCreditNoteStatus;
     private InvoiceComplianceStatus invoiceCreditNoteComplianceStatus;
     private Double total;
+    private Double totalExclTaxEUR;
+    private Double totalInclTaxEUR;
+    private Double totalExclTaxTND;
+    private Double totalInclTaxTND;
     private InvoiceSummaryDTO invoice;
 }
