@@ -69,7 +69,7 @@ public class LocalDocumentStorageAdapter implements DocumentStoragePort {
                     StandardOpenOption.CREATE
             );
 
-            String url = publicBaseUrl + "/storage/"
+            String url = publicBaseUrl + "/api/storage/"
                     + ownerFolder + "/"
                     + ownerReference + "/"
                     + documentType.name().toLowerCase() + "/"
