@@ -2,10 +2,7 @@ package com.example.billingservice.application.ports.in;
 
 import com.example.billingservice.domain.enums.InvoiceCreditNoteStatus;
 import com.example.billingservice.domain.model.InvoiceCreditNote;
-import com.example.billingservice.infrastructure.out.persistance.dto.InvoiceCreditNoteCreateDTO;
-import com.example.billingservice.infrastructure.out.persistance.dto.InvoiceCreditNoteDTO;
-import com.example.billingservice.infrastructure.out.persistance.dto.InvoiceCreditNotePageItemDTO;
-import com.example.billingservice.infrastructure.out.persistance.dto.InvoiceDTO;
+import com.example.billingservice.infrastructure.out.persistance.dto.*;
 import org.springframework.data.domain.Page;
 
 import java.io.IOException;
@@ -18,7 +15,7 @@ public interface InvoiceCreditNoteUseCase {
 
     InvoiceCreditNote getInvoiceCreditNote(UUID idInvoiceCreditNote);
 
-    InvoiceCreditNote getgetInvoiceCreditNoteByInvoiceCreditNoteNumber(String creditNoteNumber);
+    InvoiceCreditNoteDetailsDTO getInvoiceCreditNoteByInvoiceCreditNoteNumber(String creditNoteNumber);
 
     InvoiceCreditNoteDTO create(InvoiceCreditNoteCreateDTO createDTO) throws IOException;
 

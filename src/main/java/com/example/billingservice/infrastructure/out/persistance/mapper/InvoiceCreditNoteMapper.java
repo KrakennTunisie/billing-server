@@ -2,12 +2,11 @@ package com.example.billingservice.infrastructure.out.persistance.mapper;
 
 import com.example.billingservice.domain.enums.*;
 import com.example.billingservice.domain.model.*;
-import com.example.billingservice.infrastructure.out.persistance.dto.InvoiceCreditNoteCreateDTO;
-import com.example.billingservice.infrastructure.out.persistance.dto.InvoiceCreditNoteDTO;
-import com.example.billingservice.infrastructure.out.persistance.dto.InvoiceCreditNotePageItemDTO;
+import com.example.billingservice.infrastructure.out.persistance.dto.*;
 import com.example.billingservice.infrastructure.out.persistance.entity.InvoiceCreditNoteEntity;
 import com.example.billingservice.infrastructure.out.persistance.entity.InvoiceCreditNoteEventEntity;
 import com.example.billingservice.infrastructure.out.persistance.entity.InvoiceCreditNoteItemEntity;
+import com.example.billingservice.shared.CurrencyCalculator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -179,14 +178,20 @@ public class InvoiceCreditNoteMapper {
                 ? domain.getInvoiceCreditNoteItems()
                 : List.of();
 
-        double totalInclTax = items.stream()
-                .mapToDouble(
-                        item -> item.getQuantity() != null
-                                ? item.getQuantity() * item.getInvoiceItem().getUnityPriceEXclTax() *(1+item.getInvoiceItem().getVatRate())
-                                : 0.0
-                )
+        double totalExclTax = items.stream()
+                .mapToDouble(item -> item.getInvoiceItem().getItemTotalExclTax() != null ? item.getInvoiceItem().getItemTotalExclTax() : 0.0)
                 .sum();
 
+        double totalInclTax = items.stream()
+                .mapToDouble(item -> item.getInvoiceItem().getItemTotalInclTax() != null ? item.getInvoiceItem().getItemTotalInclTax(): 0.0)
+                .sum();
+
+        CurrencyTotals totals = CurrencyCalculator.calculateTotals(
+                domain.getInvoice().getCurrency().name(),
+                totalExclTax,
+                totalInclTax,
+                domain.getInvoice().getAppliedExchangeRate()
+        );
 
 
         return InvoiceCreditNotePageItemDTO.builder()
@@ -197,6 +202,10 @@ public class InvoiceCreditNoteMapper {
                 .invoiceCreditNoteStatus(domain.getInvoiceCreditNoteStatus())
                 .invoiceCreditNoteComplianceStatus(domain.getComplianceStatus())
                 .total(totalInclTax)
+                .totalExclTaxEUR(totals.totalExclTaxEUR())
+                .totalInclTaxEUR(totals.totalInclTaxEUR())
+                .totalExclTaxTND(totals.totalExclTaxEUR())
+                .totalInclTaxTND(totals.totalInclTaxTND())
                 .invoice(
                         domain.getInvoice() != null
                                 ? invoiceMapper.toSummaryDTO(domain.getInvoice())
@@ -236,6 +245,50 @@ public class InvoiceCreditNoteMapper {
                         .invoice(invoiceMapper.toSummaryDTO(invoiceCreditNote.getInvoice()))
                         .invoiceCreditNoteEvents(invoiceCreditNoteEvents)
                         .build();
+    }
+
+    public InvoiceCreditNoteDetailsDTO toDetailsDTO(InvoiceCreditNote invoiceCreditNote){
+        if(invoiceCreditNote==null){
+            return null;
+        }
+
+        List<InvoiceCreditNoteItem> items = invoiceCreditNote.getInvoiceCreditNoteItems() != null
+                ? invoiceCreditNote.getInvoiceCreditNoteItems()
+                : List.of();
+
+        double totalExclTax = items.stream()
+                .mapToDouble(item -> item.getInvoiceItem().getItemTotalExclTax() != null ? item.getInvoiceItem().getItemTotalExclTax() : 0.0)
+                .sum();
+
+        double totalInclTax = items.stream()
+                .mapToDouble(item -> item.getInvoiceItem().getItemTotalInclTax() != null ? item.getInvoiceItem().getItemTotalInclTax(): 0.0)
+                .sum();
+
+        CurrencyTotals totals = CurrencyCalculator.calculateTotals(
+                invoiceCreditNote.getInvoice().getCurrency().name(),
+                totalExclTax,
+                totalInclTax,
+                invoiceCreditNote.getInvoice().getAppliedExchangeRate()
+        );
+
+        return InvoiceCreditNoteDetailsDTO.builder()
+                .idInvoiceCreditNote(invoiceCreditNote.getIdInvoiceCreditNote())
+                .invoiceCreditNoteNumber(invoiceCreditNote.getInvoiceCreditNoteNumber())
+                .motif(invoiceCreditNote.getMotif())
+                .description(invoiceCreditNote.getDescription())
+                .issueDate(invoiceCreditNote.getIssueDate())
+                .invoiceCreditNoteStatus(invoiceCreditNote.getInvoiceCreditNoteStatus())
+                .invoiceCreditNoteComplianceStatus(invoiceCreditNote.getComplianceStatus())
+                .total(0.0)
+                .invoice(invoiceMapper.toSummaryDTO(invoiceCreditNote.getInvoice()))
+                .invoiceCreditNoteItems(invoiceCreditNote.getInvoiceCreditNoteItems())
+                .invoiceCreditNoteEvents(invoiceCreditNote.getInvoiceCreditNoteEvents())
+                .invoiceCreditNoteDocument(invoiceCreditNote.getInvoiceCreditNoteDocument())
+                .totalExclTaxEUR(totals.totalExclTaxEUR())
+                .totalInclTaxEUR(totals.totalInclTaxEUR())
+                .totalExclTaxTND(totals.totalExclTaxEUR())
+                .totalInclTaxTND(totals.totalInclTaxTND())
+                .build();
     }
 
 
