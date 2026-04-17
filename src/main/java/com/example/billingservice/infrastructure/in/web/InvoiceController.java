@@ -98,7 +98,7 @@ public class InvoiceController {
     @PatchMapping(CLIENT_INVOICES+"/{invoiceId}/status")
     public ResponseEntity<InvoiceDTO> updateClientInvoiceStatus(
             @PathVariable String invoiceId,
-            @Valid @RequestBody UpdateInvoiceStatusRequest request
+            @Valid @ModelAttribute UpdateInvoiceStatusRequest request
     ) {
 
         InvoiceDTO updated = invoiceUseCase.updateClientInvoiceStatus(
