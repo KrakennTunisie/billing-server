@@ -18,6 +18,8 @@ public interface InvoiceCreditNoteUseCase {
 
     InvoiceCreditNote getInvoiceCreditNote(UUID idInvoiceCreditNote);
 
+    InvoiceCreditNote getgetInvoiceCreditNoteByInvoiceCreditNoteNumber(String creditNoteNumber);
+
     InvoiceCreditNoteDTO create(InvoiceCreditNoteCreateDTO createDTO) throws IOException;
 
     InvoiceCreditNoteDTO updateInvoiceCreditNoteStatus(
@@ -29,4 +31,7 @@ public interface InvoiceCreditNoteUseCase {
     boolean existsByInvoiceCreditNoteNumber(String invoiceCreditNoteNumber);
 
     boolean existsByInvoiceCreditNoteId(UUID invoiceCreditNoteId);
+
+    boolean existsInvoiceCreditNoteEntityByInvoice(UUID idInvoice);
+
 }

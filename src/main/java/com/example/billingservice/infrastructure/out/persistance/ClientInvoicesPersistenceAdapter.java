@@ -9,8 +9,10 @@ import com.example.billingservice.infrastructure.out.persistance.dto.InvoiceDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.InvoicePageItemDTO;
 import com.example.billingservice.infrastructure.out.persistance.entity.InvoiceEntity;
 import com.example.billingservice.infrastructure.out.persistance.entity.ClientInvoiceEntity;
+import com.example.billingservice.infrastructure.out.persistance.entity.InvoiceItemEntity;
 import com.example.billingservice.infrastructure.out.persistance.mapper.InvoiceMapper;
 import com.example.billingservice.infrastructure.out.persistance.repository.ClientInvoicesRepository;
+import com.example.billingservice.infrastructure.out.persistance.repository.InvoiceItemRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
@@ -29,6 +31,7 @@ import java.util.stream.Collectors;
 public class ClientInvoicesPersistenceAdapter implements ClientInvoicesRepositoryPort {
 
     private final ClientInvoicesRepository clientInvoicesRepository;
+    private final InvoiceItemRepository invoiceItemRepository;
     private final InvoiceMapper invoiceMapper;
 
     @Override
@@ -56,10 +59,11 @@ public class ClientInvoicesPersistenceAdapter implements ClientInvoicesRepositor
         ClientInvoiceEntity entity = (ClientInvoiceEntity) invoiceMapper.toEntity(invoice);
         ClientInvoiceEntity savedEntity = clientInvoicesRepository.save(entity);
         Invoice invoice1 = invoiceMapper.toDomain(savedEntity, invoice.getInvoiceType());
-      /*  entity.getInvoiceEvents().forEach(
-                invoiceEventEntity -> invoiceEventEntity.setInvoice(savedEntity)
+        List<InvoiceItemEntity> invoiceItemEntities =  entity.getInvoiceItems();
+        invoiceItemEntities.forEach(
+                invoiceItemEntity -> invoiceItemEntity.setInvoice(savedEntity)
         );
-        jpaInvoiceEventRepository.saveAll(entity.getInvoiceEvents());*/
+        invoiceItemRepository.saveAll(invoiceItemEntities);
 
 
         return  invoiceMapper.toDTO(invoice1);

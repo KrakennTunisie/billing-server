@@ -6,6 +6,8 @@ import com.example.billingservice.domain.enums.InvoiceCreditNoteStatus;
 import com.example.billingservice.domain.enums.SequenceNumberType;
 import com.example.billingservice.domain.model.InvoiceCreditNote;
 import com.example.billingservice.infrastructure.out.persistance.dto.*;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -18,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 
 @Tag(name= "API Factures d'Avoir", description = "Gestion des factures d'avoir")
@@ -28,6 +31,7 @@ public class InvoiceCreditNoteController {
 
     private final InvoiceCreditNoteUseCase invoiceCreditNoteUseCase;
     private final GenerateInvoiceNumberService generateInvoiceNumberService;
+    private final ObjectMapper objectMapper;
 
     @Operation(summary = "Numéro facture suivant", description = "Générer le numéro facture suivant")
     @GetMapping(path = "/next-number")
@@ -40,8 +44,21 @@ public class InvoiceCreditNoteController {
     }
     @Operation(summary = "Créer une facture d'avoir", description = "Ajoute une nouvelle facture d'avoir")
     @PostMapping(path = "/", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<InvoiceCreditNoteDTO> createClientInvoice (@Valid @ModelAttribute InvoiceCreditNoteCreateDTO form)
+    public ResponseEntity<InvoiceCreditNoteDTO> createClientInvoice (
+            @Valid @ModelAttribute InvoiceCreditNoteCreateDTO form,
+            @RequestParam(value = "invoiceCreditNoteItemsList", required = true) String invoiceItemsJson
+    )
             throws DataIntegrityViolationException, IOException {
+
+        List<InvoiceCreditNoteItemCreateDTO> invoiceItems = objectMapper.readValue(
+                invoiceItemsJson,
+                new TypeReference<List<InvoiceCreditNoteItemCreateDTO>>() {}
+        );
+
+        invoiceItems.forEach(System.out::println);
+
+        System.out.println(invoiceItems);
+        form.setInvoiceItems(invoiceItems);
         return ResponseEntity.status(201).body(invoiceCreditNoteUseCase.create(form));
     }
 
@@ -62,7 +79,8 @@ public class InvoiceCreditNoteController {
     @Operation(summary = "get Invoice By id")
     public ResponseEntity<InvoiceCreditNote> getInvoiceByiD(@Parameter(description = "ID du facture") @PathVariable String id)
     {
-        InvoiceCreditNote invoiceDTO =  invoiceCreditNoteUseCase.getInvoiceCreditNote(UUID.fromString(id));
+
+        InvoiceCreditNote invoiceDTO =  invoiceCreditNoteUseCase.getgetInvoiceCreditNoteByInvoiceCreditNoteNumber(id);
         return ResponseEntity.status(201).body(invoiceDTO);
 
     }

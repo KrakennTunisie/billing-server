@@ -1,5 +1,6 @@
 package com.example.billingservice.infrastructure.out.persistance.mapper;
 
+import com.example.billingservice.application.ports.in.InvoiceItemUseCase;
 import com.example.billingservice.domain.model.InvoiceCreditNoteItem;
 import com.example.billingservice.domain.model.InvoiceItem;
 import com.example.billingservice.infrastructure.out.persistance.dto.InvoiceCreditNoteItemCreateDTO;
@@ -7,12 +8,14 @@ import com.example.billingservice.infrastructure.out.persistance.entity.InvoiceC
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.UUID;
+
 @Component
 @AllArgsConstructor
 public class InvoiceCreditNoteItemMapper {
 
     private final InvoiceItemMapper invoiceItemMapper;
-
+    private final InvoiceItemUseCase invoiceItemUseCase;
     // =========================
     // ENTITY -> DOMAIN
     // =========================
@@ -38,15 +41,11 @@ public class InvoiceCreditNoteItemMapper {
 
         InvoiceCreditNoteItemEntity entity = new InvoiceCreditNoteItemEntity();
 
-        entity.setIdInvoiceCreditNoteItem(domain.getIdInvoiceCreditNoteItem());
         entity.setQuantity(domain.getQuantity());
 
-        // mapping original invoice item
-        if (domain.getInvoiceItem() != null) {
             entity.setInvoiceItem(
-                    invoiceItemMapper.invoiceItemToInvoiceEntity(domain.getInvoiceItem())
+                    invoiceItemUseCase.getInvoiceItemEntityById(domain.getInvoiceItem().getIdInvoiceItem())
             );
-        }
 
 
         return entity;
@@ -63,11 +62,7 @@ public class InvoiceCreditNoteItemMapper {
         return InvoiceCreditNoteItem.builder()
                 .quantity(dto.getQuantity())
                 // ⚠️ on ne mappe pas toute la ligne, seulement l'id
-                .invoiceItem(
-                        InvoiceItem.builder()
-                                .idInvoiceItem(dto.getOriginalInvoiceItemId())
-                                .build()
-                )
+                .invoiceItem(invoiceItemUseCase.getById(UUID.fromString(dto.getIdInvoiceItem())))
                 .build();
     }
 }

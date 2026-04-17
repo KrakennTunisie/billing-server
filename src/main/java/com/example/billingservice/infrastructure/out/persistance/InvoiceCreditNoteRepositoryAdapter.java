@@ -4,10 +4,12 @@ import com.example.billingservice.application.ports.out.InvoiceCreditNoteReposit
 import com.example.billingservice.domain.enums.InvoiceCreditNoteStatus;
 import com.example.billingservice.domain.exceptions.BillingException;
 import com.example.billingservice.domain.model.InvoiceCreditNote;
+import com.example.billingservice.infrastructure.out.persistance.dto.InvoiceCreditNoteDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.InvoiceCreditNotePageItemDTO;
 import com.example.billingservice.infrastructure.out.persistance.entity.InvoiceCreditNoteEntity;
 import com.example.billingservice.infrastructure.out.persistance.mapper.InvoiceCreditNoteMapper;
 import com.example.billingservice.infrastructure.out.persistance.repository.InvoiceCreditNoteRepository;
+import com.example.billingservice.infrastructure.out.persistance.repository.InvoiceItemCreditNoteRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
@@ -25,8 +27,9 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class InvoiceCreditNoteRepositoryAdapter implements InvoiceCreditNoteRepositoryPort {
 
-    private InvoiceCreditNoteRepository invoiceCreditNoteRepository;
-    private InvoiceCreditNoteMapper invoiceCreditNoteMapper;
+    private final InvoiceCreditNoteRepository invoiceCreditNoteRepository;
+    private final InvoiceItemCreditNoteRepository invoiceItemCreditNoteRepository;
+    private final InvoiceCreditNoteMapper invoiceCreditNoteMapper;
 
 
     @Override
@@ -52,13 +55,14 @@ public class InvoiceCreditNoteRepositoryAdapter implements InvoiceCreditNoteRepo
     }
 
     @Override
-    @Transactional
+    //@Transactional
     public InvoiceCreditNote create(InvoiceCreditNote createDTO) {
         InvoiceCreditNoteEntity entity = invoiceCreditNoteMapper.toEntity(createDTO);
         InvoiceCreditNoteEntity savedEntity = invoiceCreditNoteRepository.save(entity);
-        InvoiceCreditNote invoice1 = invoiceCreditNoteMapper.toDomain(savedEntity);/*
-        entity.getInvoiceEvents().forEach(
-                invoiceEventEntity -> invoiceEventEntity.setInvoice(savedEntity)
+        System.out.println("savedInvoiceCreditNoteEntity: "+savedEntity);
+        InvoiceCreditNote invoice1 = invoiceCreditNoteMapper.toDomain(savedEntity);
+        /*entity.getInvoiceCreditNoteEvents().forEach(
+                invoiceEventEntity -> invoiceEventEntity.setInvoiceCreditNote(savedEntity)
         );
         jpaInvoiceEventRepository.saveAll(entity.getInvoiceEvents());*/
 
@@ -96,15 +100,29 @@ public class InvoiceCreditNoteRepositoryAdapter implements InvoiceCreditNoteRepo
         InvoiceCreditNote invoiceCreditNote = getById(invoiceCreditNoteId);
         InvoiceCreditNoteEntity invoiceCreditNoteEntity = invoiceCreditNoteMapper.toEntity(invoiceCreditNote);
         if(invoiceCreditNote.getInvoiceCreditNoteStatus()==InvoiceCreditNoteStatus.DRAFT){
+            System.out.println("executing delete");
             invoiceCreditNoteRepository.delete(invoiceCreditNoteEntity);
         }
         else if(invoiceCreditNote.getInvoiceCreditNoteStatus()==InvoiceCreditNoteStatus.PENDING){
             invoiceCreditNoteEntity.setInvoiceCreditNoteStatus(InvoiceCreditNoteStatus.CANCELLED);
+            System.out.println("executing update status");
+
             invoiceCreditNoteRepository.save(invoiceCreditNoteEntity);
         }
         else {
             throw BillingException.badRequest("Impossible de supprimer une facture d'avoir dèjà traitée");
         }
 
+    }
+
+    @Override
+    public InvoiceCreditNote getByInvoiceCreditNoteNumber(String invoiceCreditNoteNumber) {
+        InvoiceCreditNoteEntity invoiceCreditNoteEntity = invoiceCreditNoteRepository.getInvoiceCreditNoteEntityByInvoiceCreditNoteNumber(invoiceCreditNoteNumber);
+        return invoiceCreditNoteMapper.toDomain(invoiceCreditNoteEntity);
+    }
+
+    @Override
+    public boolean existsInvoiceCreditNoteEntityByInvoice(UUID idInvoice) {
+        return invoiceCreditNoteRepository.existsInvoiceCreditNoteEntityByInvoice_IdInvoice(idInvoice);
     }
 }

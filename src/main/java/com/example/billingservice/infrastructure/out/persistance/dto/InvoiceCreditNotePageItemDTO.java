@@ -12,6 +12,7 @@ import java.util.UUID;
 public class InvoiceCreditNotePageItemDTO {
     private UUID idInvoiceCreditNote;
     private String invoiceCreditNoteNumber;
+    private String motif;
     private Date issueDate;
     private InvoiceCreditNoteStatus invoiceCreditNoteStatus;
     private InvoiceComplianceStatus invoiceCreditNoteComplianceStatus;

@@ -23,7 +23,7 @@ public final class StatusMapper {
 
         return switch (status) {
             case REFUNDED -> "Remboursée";
-            case UNFUNDED -> "Non remboursée";
+            case NOT_REFUNDED -> "Non remboursée";
             case PENDING -> "En attente";
             case CANCELLED -> "Annulée";
             case DRAFT -> "Brouillon";
