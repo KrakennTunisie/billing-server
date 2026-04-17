@@ -2,7 +2,7 @@ package com.example.billingservice.domain.enums;
 
 public enum InvoiceCreditNoteStatus {
     REFUNDED,
-    UNFUNDED,
+    NOT_REFUNDED,
     PENDING,
     CANCELLED,
     DRAFT,

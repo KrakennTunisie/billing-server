@@ -3,6 +3,7 @@ package com.example.billingservice.application.service;
 import com.example.billingservice.application.Utils.InvoiceStatusPassagePolicy;
 import com.example.billingservice.application.Utils.SyncInvoiceItems;
 import com.example.billingservice.application.ports.in.GenerateInvoiceNumberUseCase;
+import com.example.billingservice.application.ports.in.InvoiceCreditNoteUseCase;
 import com.example.billingservice.application.ports.in.InvoiceUseCase;
 import com.example.billingservice.application.ports.in.PartnerUseCase;
 import com.example.billingservice.application.ports.out.ClientInvoicesRepositoryPort;
@@ -34,6 +35,7 @@ public class InvoiceService implements InvoiceUseCase {
     private final PartnerUseCase partnerUseCase;
     private final ClientInvoicesRepositoryPort clientInvoicesRepositoryPort;
     private final SupplierInvoicesRepositoryPort supplierInvoicesRepositoryPort;
+    private final InvoiceCreditNoteUseCase invoiceCreditNoteUseCase;
 
     @Override
     public InvoiceDTO createInvoice(InvoiceCreateDTO createDTO) throws IOException, BillingException {
@@ -125,7 +127,11 @@ public class InvoiceService implements InvoiceUseCase {
         if(!supplierInvoicesRepositoryPort.existsByInvoiceId(invoiceId)){
             throw  BillingException.notFound("Facture Fournisseur", String.valueOf(invoiceId));
         }
-        return supplierInvoicesRepositoryPort.getById(invoiceId);
+        InvoiceDTO invoiceDTO = supplierInvoicesRepositoryPort.getById(invoiceId);
+        if(invoiceCreditNoteUseCase.existsInvoiceCreditNoteEntityByInvoice(invoiceId)){
+            invoiceDTO.setHasInvoiceCreditNotes(true);
+        }
+        return invoiceDTO;
     }
 
     @Override
@@ -133,7 +139,11 @@ public class InvoiceService implements InvoiceUseCase {
         if(!clientInvoicesRepositoryPort.existsByInvoiceId(invoiceId)){
             throw  BillingException.notFound("Facture Client", String.valueOf(invoiceId));
         }
-        return clientInvoicesRepositoryPort.getById(invoiceId);
+        InvoiceDTO invoiceDTO = clientInvoicesRepositoryPort.getById(invoiceId);
+        if(invoiceCreditNoteUseCase.existsInvoiceCreditNoteEntityByInvoice(invoiceId)){
+            invoiceDTO.setHasInvoiceCreditNotes(true);
+        }
+        return invoiceDTO;
     }
 
     @Override

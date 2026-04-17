@@ -16,7 +16,7 @@ public class InvoiceItemEntity extends BaseItemEntity{
     private UUID idInvoiceItem;
 
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "invoice_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "invoice_id", nullable = true)
     private InvoiceEntity invoice;
 }

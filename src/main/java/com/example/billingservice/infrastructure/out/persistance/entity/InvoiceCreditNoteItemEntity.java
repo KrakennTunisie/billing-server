@@ -19,10 +19,9 @@ public class InvoiceCreditNoteItemEntity {
     // Quantity can be decimal (ex: 1.5 kg, 2.25 hours)
     private Integer quantity;
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "invoice_item_id", referencedColumnName = "idInvoiceItem")
     private InvoiceItemEntity invoiceItem;
-
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "invoice_credit_note_id", nullable = false)

@@ -23,7 +23,7 @@ public interface InvoiceCreditNoteRepository extends JpaRepository<InvoiceCredit
             )
         AND
             (
-                :status IS NULL OR cn.invoice.invoiceStatus = :status
+                :status IS NULL OR cn.invoiceCreditNoteStatus = :status
             )
         """)
     Page<InvoiceCreditNoteEntity> getCreditNotesByInvoiceId(
@@ -37,5 +37,11 @@ public interface InvoiceCreditNoteRepository extends JpaRepository<InvoiceCredit
     boolean existsById(UUID uuid);
 
     boolean existsByInvoiceCreditNoteNumber(String invoiceCreditNoteNumber);
+
+
+    InvoiceCreditNoteEntity getInvoiceCreditNoteEntityByInvoiceCreditNoteNumber(String invoiceCreditNoteNumber);
+
+
+    boolean existsInvoiceCreditNoteEntityByInvoice_IdInvoice(UUID invoiceIdInvoice);
 
 }

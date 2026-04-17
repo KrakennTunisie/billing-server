@@ -57,6 +57,14 @@ public class InvoiceCreditNoteService implements InvoiceCreditNoteUseCase {
     }
 
     @Override
+    public InvoiceCreditNote getgetInvoiceCreditNoteByInvoiceCreditNoteNumber(String creditNoteNumber) {
+        if (!invoiceCreditNoteRepositoryPort.existsByInvoiceCreditNoteNumber(creditNoteNumber)) {
+            throw BillingException.notFound("Facture d'avoir", String.valueOf(creditNoteNumber));
+        }
+        return invoiceCreditNoteRepositoryPort.getByInvoiceCreditNoteNumber(creditNoteNumber);
+    }
+
+    @Override
     public InvoiceCreditNoteDTO create(InvoiceCreditNoteCreateDTO createDTO) throws IOException {
         Invoice invoice ;
 
@@ -106,6 +114,7 @@ public class InvoiceCreditNoteService implements InvoiceCreditNoteUseCase {
 
         InvoiceCreditNote invoiceCreditNote = invoiceCreditNoteMapper.toDomain(createDTO, invoiceDocument, invoice);
 
+        System.out.println("InvoiceCreditNote: "+invoiceCreditNote);
 /*
         SyncInvoiceItems.syncInvoiceItems(
                 invoice,
@@ -115,6 +124,7 @@ public class InvoiceCreditNoteService implements InvoiceCreditNoteUseCase {
         //System.out.println("createdInvoice:"+invoiceCreditNote);
 
         InvoiceCreditNote savedInvoiceCreditNote = invoiceCreditNoteRepositoryPort.create(invoiceCreditNote);
+        System.out.println("savedInvoiceCreditNote: "+savedInvoiceCreditNote);
 
 
         generateInvoiceNumberUseCase.validateNextSequence(SequenceNumberType.CREDIT_NOTE, invoiceNumber);
@@ -179,6 +189,11 @@ public class InvoiceCreditNoteService implements InvoiceCreditNoteUseCase {
     @Override
     public boolean existsByInvoiceCreditNoteId(UUID invoiceCreditNoteId) {
         return invoiceCreditNoteRepositoryPort.existsByInvoiceCreditNoteId(invoiceCreditNoteId);
+    }
+
+    @Override
+    public boolean existsInvoiceCreditNoteEntityByInvoice(UUID idInvoice) {
+        return invoiceCreditNoteRepositoryPort.existsInvoiceCreditNoteEntityByInvoice(idInvoice);
     }
 
 

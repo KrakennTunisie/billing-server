@@ -92,16 +92,13 @@ public class InvoiceCreditNoteMapper {
             entity.setInvoice(invoiceMapper.toEntity(domain.getInvoice()));
         }
 
-        if (domain.getInvoiceCreditNoteItems() != null) {
-            List<InvoiceCreditNoteItemEntity> itemEntities = domain.getInvoiceCreditNoteItems().stream()
+        List<InvoiceCreditNoteItemEntity> itemEntities = domain.getInvoiceCreditNoteItems().stream()
                     .map(invoiceCreditNoteItemMapper::toEntity)
                     .toList();
 
-            itemEntities.forEach(item -> item.setInvoiceCreditNote(entity));
-            entity.setInvoiceCreditNoteItems(itemEntities);
-        } else {
-            entity.setInvoiceCreditNoteItems(new ArrayList<>());
-        }
+        itemEntities.forEach(item -> item.setInvoiceCreditNote(entity));
+        entity.setInvoiceCreditNoteItems(itemEntities);
+
 
         entity.setInvoiceCreditNoteDocument(
                 documentMapper.toEntity(domain.getInvoiceCreditNoteDocument(), DocumentType.INVOICE)
@@ -131,6 +128,8 @@ public class InvoiceCreditNoteMapper {
         if (dto == null) {
             return null;
         }
+
+
 
          InvoiceCreditNote invoiceCreditNote = InvoiceCreditNote.builder()
                 .motif(dto.getMotif())
@@ -167,6 +166,7 @@ public class InvoiceCreditNoteMapper {
 
         invoiceCreditNote.setInvoiceCreditNoteEvents(invoiceCreditNoteEvents);
 
+
         return invoiceCreditNote;
     }
 
@@ -192,6 +192,7 @@ public class InvoiceCreditNoteMapper {
         return InvoiceCreditNotePageItemDTO.builder()
                 .idInvoiceCreditNote(domain.getIdInvoiceCreditNote())
                 .invoiceCreditNoteNumber(domain.getInvoiceCreditNoteNumber())
+                .motif(domain.getMotif())
                 .issueDate(domain.getIssueDate())
                 .invoiceCreditNoteStatus(domain.getInvoiceCreditNoteStatus())
                 .invoiceCreditNoteComplianceStatus(domain.getComplianceStatus())
