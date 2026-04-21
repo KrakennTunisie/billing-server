@@ -11,3 +11,7 @@ spring:
     local:
       root-path: ./target/test-storage
       public-base-url: http://billing-service:8081 #Docker :billing-service
+  exchange-rate:
+    api:
+      base-url: https://api.exchangerate.host
+      key: "test-key"
