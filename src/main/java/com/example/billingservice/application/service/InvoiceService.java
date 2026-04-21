@@ -10,9 +10,7 @@ import com.example.billingservice.application.ports.out.ClientInvoicesRepository
 import com.example.billingservice.application.ports.out.SupplierInvoicesRepositoryPort;
 import com.example.billingservice.domain.enums.*;
 import com.example.billingservice.domain.exceptions.BillingException;
-import com.example.billingservice.domain.model.Document;
-import com.example.billingservice.domain.model.Invoice;
-import com.example.billingservice.domain.model.InvoiceItem;
+import com.example.billingservice.domain.model.*;
 import com.example.billingservice.infrastructure.out.persistance.dto.*;
 import com.example.billingservice.infrastructure.out.persistance.mapper.InvoiceMapper;
 import com.example.billingservice.shared.ParseEnum;
@@ -105,6 +103,25 @@ public class InvoiceService implements InvoiceUseCase {
 
         InvoiceStatusPassagePolicy.checkTransition(invoiceDTO.getInvoiceStatus(), invoiceStatus);
 
+        List<InvoiceEvent> invoiceEvents = invoiceDTO.getInvoiceEvents() != null
+                ? invoiceDTO.getInvoiceEvents()
+                : List.of();
+
+        InvoiceEvent invoiceEvent = InvoiceEvent.builder()
+                .invoiceEventType(InvoiceEventType.UPDATED)
+                .eventDate(new Date())
+                .description("Mise à jour de satut facture : "+InvoiceEventTrigger.USER.name())
+                .eventTrigger(InvoiceEventTrigger.USER)
+                .triggeredBy("user: wassef")
+                .build();
+
+
+        List<InvoiceEvent> updatedEvents = new ArrayList<>(invoiceEvents);
+
+        updatedEvents.add(invoiceEvent);
+
+        invoiceDTO.setInvoiceEvents(updatedEvents);
+
         return supplierInvoicesRepositoryPort.updateStatus(invoiceId, invoiceStatus);
     }
 
@@ -118,6 +135,25 @@ public class InvoiceService implements InvoiceUseCase {
         InvoiceDTO invoiceDTO = clientInvoicesRepositoryPort.getById(invoiceId);
 
         InvoiceStatusPassagePolicy.checkTransition(invoiceDTO.getInvoiceStatus(), invoiceStatus);
+
+        List<InvoiceEvent> invoiceEvents = invoiceDTO.getInvoiceEvents() != null
+                ? invoiceDTO.getInvoiceEvents()
+                : List.of();
+
+        InvoiceEvent invoiceEvent = InvoiceEvent.builder()
+                .invoiceEventType(InvoiceEventType.UPDATED)
+                .eventDate(new Date())
+                .description("Mise à jour de satut facture : "+InvoiceEventTrigger.USER.name())
+                .eventTrigger(InvoiceEventTrigger.USER)
+                .triggeredBy("user: wassef")
+                .build();
+
+
+        List<InvoiceEvent> updatedEvents = new ArrayList<>(invoiceEvents);
+
+        updatedEvents.add(invoiceEvent);
+
+        invoiceDTO.setInvoiceEvents(updatedEvents);
 
         return clientInvoicesRepositoryPort.updateStatus(invoiceId, invoiceStatus);
     }

@@ -27,7 +27,7 @@ public interface InvoiceCreditNoteRepositoryPort {
 
     void delete(UUID idInvoiceCreditNote);
 
-    InvoiceCreditNoteDetailsDTO getByInvoiceCreditNoteNumber(String invoiceCreditNoteNumber);
+    InvoiceCreditNote getByInvoiceCreditNoteNumber(String invoiceCreditNoteNumber);
 
     boolean existsInvoiceCreditNoteEntityByInvoice(UUID idInvoice);
 

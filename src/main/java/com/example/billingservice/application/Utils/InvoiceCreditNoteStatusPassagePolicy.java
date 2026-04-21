@@ -7,8 +7,8 @@ import java.util.Set;
 
 public final class InvoiceCreditNoteStatusPassagePolicy {
     private static final Map<InvoiceCreditNoteStatus, Set<InvoiceCreditNoteStatus>> ALLOWED_TRANSITIONS = Map.of(
-            InvoiceCreditNoteStatus.DRAFT, Set.of(InvoiceCreditNoteStatus.PENDING, InvoiceCreditNoteStatus.CANCELLED),
-            InvoiceCreditNoteStatus.PENDING, Set.of(InvoiceCreditNoteStatus.NOT_REFUNDED,InvoiceCreditNoteStatus.REFUNDED, InvoiceCreditNoteStatus.CANCELLED),
+            InvoiceCreditNoteStatus.DRAFT, Set.of(InvoiceCreditNoteStatus.IN_PROGRESS, InvoiceCreditNoteStatus.CANCELLED),
+            InvoiceCreditNoteStatus.IN_PROGRESS, Set.of(InvoiceCreditNoteStatus.NOT_REFUNDED,InvoiceCreditNoteStatus.REFUNDED, InvoiceCreditNoteStatus.CANCELLED),
             InvoiceCreditNoteStatus.NOT_REFUNDED, Set.of(),
             InvoiceCreditNoteStatus.REFUNDED, Set.of(),
             InvoiceCreditNoteStatus.CANCELLED, Set.of()

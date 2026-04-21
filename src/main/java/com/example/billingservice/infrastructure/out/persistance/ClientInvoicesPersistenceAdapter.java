@@ -10,6 +10,7 @@ import com.example.billingservice.infrastructure.out.persistance.dto.InvoicePage
 import com.example.billingservice.infrastructure.out.persistance.entity.InvoiceEntity;
 import com.example.billingservice.infrastructure.out.persistance.entity.ClientInvoiceEntity;
 import com.example.billingservice.infrastructure.out.persistance.entity.InvoiceItemEntity;
+import com.example.billingservice.infrastructure.out.persistance.mapper.InvoiceEventMapper;
 import com.example.billingservice.infrastructure.out.persistance.mapper.InvoiceMapper;
 import com.example.billingservice.infrastructure.out.persistance.repository.ClientInvoicesRepository;
 import com.example.billingservice.infrastructure.out.persistance.repository.InvoiceItemRepository;
@@ -33,6 +34,7 @@ public class ClientInvoicesPersistenceAdapter implements ClientInvoicesRepositor
     private final ClientInvoicesRepository clientInvoicesRepository;
     private final InvoiceItemRepository invoiceItemRepository;
     private final InvoiceMapper invoiceMapper;
+    private final InvoiceEventMapper invoiceEventMapper;
 
     @Override
     public Page<InvoicePageItemDTO> findAllInvoices(String keyword, InvoiceStatus status, int page, InvoiceType type) {
