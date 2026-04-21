@@ -61,7 +61,8 @@ public class InvoiceCreditNoteService implements InvoiceCreditNoteUseCase {
         if (!invoiceCreditNoteRepositoryPort.existsByInvoiceCreditNoteNumber(creditNoteNumber)) {
             throw BillingException.notFound("Facture d'avoir", String.valueOf(creditNoteNumber));
         }
-        return invoiceCreditNoteRepositoryPort.getByInvoiceCreditNoteNumber(creditNoteNumber);
+        InvoiceCreditNote invoiceCreditNote = invoiceCreditNoteRepositoryPort.getByInvoiceCreditNoteNumber(creditNoteNumber);
+        return invoiceCreditNoteMapper.toDetailsDTO(invoiceCreditNote);
     }
 
     @Override
@@ -134,13 +135,13 @@ public class InvoiceCreditNoteService implements InvoiceCreditNoteUseCase {
     }
 
     @Override
-    public InvoiceCreditNoteDTO updateInvoiceCreditNoteStatus(UUID idInvoiceCreditNote, InvoiceCreditNoteStatus invoiceCreditNoteStatus) {
+    public InvoiceCreditNoteDetailsDTO updateInvoiceCreditNoteStatus(String creditNoteNumber, InvoiceCreditNoteStatus invoiceCreditNoteStatus) {
 
-        if(!invoiceCreditNoteRepositoryPort.existsByInvoiceCreditNoteId(idInvoiceCreditNote)){
-            throw   BillingException.notFound("Facture", String.valueOf(idInvoiceCreditNote));
+        if(!invoiceCreditNoteRepositoryPort.existsByInvoiceCreditNoteNumber(creditNoteNumber)){
+            throw   BillingException.notFound("Facture", String.valueOf(creditNoteNumber));
         }
 
-        InvoiceCreditNote invoiceCreditNote = getInvoiceCreditNote(idInvoiceCreditNote);
+        InvoiceCreditNote invoiceCreditNote = invoiceCreditNoteRepositoryPort.getByInvoiceCreditNoteNumber(creditNoteNumber);
 
         InvoiceCreditNoteStatusPassagePolicy.checkTransition(
                 invoiceCreditNote.getInvoiceCreditNoteStatus(), invoiceCreditNoteStatus);
@@ -168,7 +169,7 @@ public class InvoiceCreditNoteService implements InvoiceCreditNoteUseCase {
 
 
 
-        return invoiceCreditNoteMapper.toDTO(updatedInvoiceCreditNote);
+        return invoiceCreditNoteMapper.toDetailsDTO(updatedInvoiceCreditNote);
     }
 
     @Override

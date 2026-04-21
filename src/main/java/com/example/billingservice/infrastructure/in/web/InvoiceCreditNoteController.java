@@ -75,24 +75,25 @@ public class InvoiceCreditNoteController {
     }
 
 
-    @GetMapping("/{id}")
-    @Operation(summary = "get Invoice By id")
-    public ResponseEntity<InvoiceCreditNoteDetailsDTO> getInvoiceByiD(@Parameter(description = "ID du facture") @PathVariable String id)
+    @GetMapping("/{invoiceCreditNoteNumber}")
+    @Operation(summary = "get Invoice By invoiceCreditNoteNumber")
+    public ResponseEntity<InvoiceCreditNoteDetailsDTO> getInvoiceByiD(@Parameter(description = "référence du facture") @PathVariable String invoiceCreditNoteNumber)
     {
 
-        InvoiceCreditNoteDetailsDTO invoiceDTO =  invoiceCreditNoteUseCase.getInvoiceCreditNoteByInvoiceCreditNoteNumber(id);
+        InvoiceCreditNoteDetailsDTO invoiceDTO =
+                invoiceCreditNoteUseCase.getInvoiceCreditNoteByInvoiceCreditNoteNumber(invoiceCreditNoteNumber);
         return ResponseEntity.status(201).body(invoiceDTO);
 
     }
 
-    @PatchMapping("/{id}/status")
-    public ResponseEntity<InvoiceCreditNoteDTO> updateStatus(
-            @PathVariable String id,
-            @Valid @RequestBody UpdateInvoiceCreditNoteStatusRequest request
+    @PatchMapping("/{invoiceCreditNoteNumber}/status")
+    public ResponseEntity<InvoiceCreditNoteDetailsDTO> updateStatus(
+            @PathVariable String invoiceCreditNoteNumber,
+            @Valid @ModelAttribute UpdateInvoiceCreditNoteStatusRequest request
     ) {
 
-        InvoiceCreditNoteDTO updated = invoiceCreditNoteUseCase.updateInvoiceCreditNoteStatus(
-                UUID.fromString(id),
+        InvoiceCreditNoteDetailsDTO updated = invoiceCreditNoteUseCase.updateInvoiceCreditNoteStatus(
+                invoiceCreditNoteNumber,
                 InvoiceCreditNoteStatus.valueOf(request.getStatus())
         );
 

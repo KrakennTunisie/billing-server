@@ -283,7 +283,7 @@ public class InvoiceCreditNoteMapper {
                 .invoice(invoiceMapper.toSummaryDTO(invoiceCreditNote.getInvoice()))
                 .invoiceCreditNoteItems(invoiceCreditNote.getInvoiceCreditNoteItems())
                 .invoiceCreditNoteEvents(invoiceCreditNote.getInvoiceCreditNoteEvents())
-                .invoiceCreditNoteDocument(invoiceCreditNote.getInvoiceCreditNoteDocument())
+                .invoiceCreditNoteDocument(documentMapper.toDocumentSummary(invoiceCreditNote.getInvoiceCreditNoteDocument()))
                 .totalExclTaxEUR(totals.totalExclTaxEUR())
                 .totalInclTaxEUR(totals.totalInclTaxEUR())
                 .totalExclTaxTND(totals.totalExclTaxEUR())

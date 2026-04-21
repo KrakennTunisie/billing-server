@@ -2,7 +2,6 @@ package com.example.billingservice.infrastructure.out.persistance.dto;
 
 import com.example.billingservice.domain.enums.InvoiceComplianceStatus;
 import com.example.billingservice.domain.enums.InvoiceCreditNoteStatus;
-import com.example.billingservice.domain.model.Document;
 import com.example.billingservice.domain.model.InvoiceCreditNoteEvent;
 import com.example.billingservice.domain.model.InvoiceCreditNoteItem;
 import lombok.Builder;
@@ -31,7 +30,7 @@ public class InvoiceCreditNoteDetailsDTO {
 
     private InvoiceSummaryDTO invoice;
 
-    private Document invoiceCreditNoteDocument;
+    private DocumentSummaryDTO invoiceCreditNoteDocument;
 
     private Double totalExclTaxEUR;
     private Double totalInclTaxEUR;
