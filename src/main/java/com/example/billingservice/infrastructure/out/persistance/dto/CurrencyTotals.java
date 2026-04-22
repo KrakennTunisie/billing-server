@@ -4,5 +4,7 @@ public record CurrencyTotals(
         Double totalExclTaxEUR,
         Double totalInclTaxEUR,
         Double totalExclTaxTND,
-        Double totalInclTaxTND) {
+        Double totalInclTaxTND,
+        Double totalExclTaxUSD,
+        Double totalInclTaxUSD) {
 }

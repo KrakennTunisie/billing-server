@@ -1,7 +1,6 @@
 package com.example.billingservice.application.service;
 
 import com.example.billingservice.application.Utils.InvoiceStatusPassagePolicy;
-import com.example.billingservice.application.Utils.SyncInvoiceItems;
 import com.example.billingservice.application.ports.in.GenerateInvoiceNumberUseCase;
 import com.example.billingservice.application.ports.in.InvoiceCreditNoteUseCase;
 import com.example.billingservice.application.ports.in.InvoiceUseCase;
