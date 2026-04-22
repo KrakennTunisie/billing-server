@@ -25,6 +25,8 @@ public class BaseCommercialDocument {
     private Double totalInclTaxEUR;
     private Double totalExclTaxTND;
     private Double totalInclTaxTND;
+    private Double totalExclTaxUSD;
+    private Double totalInclTaxUSD;
     private Double vatRate;
     private Date exchangeRateReferenceDate;
     private Double appliedExchangeRate;

@@ -37,6 +37,10 @@ public class InvoiceCreditNoteDetailsDTO {
     private Double totalExclTaxTND;
     private Double totalInclTaxTND;
 
+
+    private Double totalExclTaxUSD;
+    private Double totalInclTaxUSD;
+
     private List<InvoiceCreditNoteItem> invoiceCreditNoteItems;
 
     private List<InvoiceCreditNoteEvent> invoiceCreditNoteEvents;

@@ -24,6 +24,7 @@ public class PurchaseOrderMapper {
     private final PartnerMapper partnerMapper;
     private final PartnerUseCase partnerUseCase;
     private final DocumentMapper documentMapper;
+    private final CurrencyCalculator currencyCalculator;
 
     // =========================
     // ENTITY -> DOMAIN
@@ -48,7 +49,7 @@ public class PurchaseOrderMapper {
                 .mapToDouble(item -> item.getItemTotalInclTax() != null ? item.getItemTotalInclTax() : 0.0)
                 .sum();
 
-        CurrencyTotals totals = CurrencyCalculator.calculateTotals(
+        CurrencyTotals totals = currencyCalculator.calculateTotals(
                 entity.getCurrency().name(),
                 totalExclTax,
                 totalInclTax,
@@ -66,6 +67,8 @@ public class PurchaseOrderMapper {
                 .totalInclTaxEUR(totals.totalInclTaxEUR())
                 .totalExclTaxTND(totals.totalExclTaxTND())
                 .totalInclTaxTND(totals.totalInclTaxTND())
+                .totalExclTaxUSD(totals.totalExclTaxUSD())
+                .totalInclTaxUSD(totals.totalInclTaxUSD())
                 .vatRate(entity.getVatRate())
                 .partner(partnerMapper.toDomain(entity.getPartner(), PartnerType.CLIENT))
                 .exchangeRateReferenceDate(entity.getExchangeRateReferenceDate())
@@ -154,7 +157,7 @@ public class PurchaseOrderMapper {
                     .mapToDouble(item -> item.getItemTotalInclTax() != null ? item.getItemTotalInclTax() : 0.0)
                     .sum();
 
-            CurrencyTotals totals = CurrencyCalculator.calculateTotals(
+            CurrencyTotals totals = currencyCalculator.calculateTotals(
                     purchaseOrderCreateDTO.getPurchaseCurrency(),
                     totalExclTax,
                     totalInclTax,
@@ -166,7 +169,8 @@ public class PurchaseOrderMapper {
             purchaseOrder.setTotalInclTaxEUR(totals.totalInclTaxEUR());
             purchaseOrder.setTotalExclTaxTND(totals.totalExclTaxTND());
             purchaseOrder.setTotalInclTaxTND(totals.totalExclTaxTND());
-
+            purchaseOrder.setTotalExclTaxUSD(totals.totalExclTaxUSD());
+            purchaseOrder.setTotalInclTaxUSD(totals.totalInclTaxUSD());
             return purchaseOrder;
         }
         catch (Exception exception){
@@ -187,6 +191,8 @@ public class PurchaseOrderMapper {
                 .totalInclTaxEUR(purchaseOrder.getTotalInclTaxEUR())
                 .totalExclTaxTND(purchaseOrder.getTotalExclTaxTND())
                 .totalInclTaxTND(purchaseOrder.getTotalInclTaxTND())
+                .totalExclTaxUSD(purchaseOrder.getTotalExclTaxUSD())
+                .totalInclTaxUSD(purchaseOrder.getTotalInclTaxUSD())
                 .vatRate(purchaseOrder.getVatRate())
                 .paymentMethod(purchaseOrder.getPaymentMethod())
                 .partner(partnerMapper.toSummaryDTO(purchaseOrder.getPartner()))
@@ -214,7 +220,8 @@ public class PurchaseOrderMapper {
                 .totalInclTaxEUR(purchaseOrder.getTotalInclTaxEUR())
                 .totalExclTaxTND(purchaseOrder.getTotalExclTaxTND())
                 .totalInclTaxTND(purchaseOrder.getTotalInclTaxTND())
-
+                .totalExclTaxUSD(purchaseOrder.getTotalExclTaxUSD())
+                .totalInclTaxUSD(purchaseOrder.getTotalInclTaxUSD())
                 .vatRate(purchaseOrder.getVatRate())
                 .appliedExchangeRate(purchaseOrder.getAppliedExchangeRate())
 
@@ -269,7 +276,7 @@ public class PurchaseOrderMapper {
                     .mapToDouble(item -> item.getItemTotalInclTax() != null ? item.getItemTotalInclTax() : 0.0)
                     .sum();
 
-            CurrencyTotals totals = CurrencyCalculator.calculateTotals(
+            CurrencyTotals totals = currencyCalculator.calculateTotals(
                     String.valueOf(purchaseOrder1.getCurrency()),
                     totalExclTax,
                     totalInclTax,
@@ -281,6 +288,8 @@ public class PurchaseOrderMapper {
             purchaseOrder1.setTotalInclTaxEUR(totals.totalInclTaxEUR());
             purchaseOrder1.setTotalExclTaxTND(totals.totalExclTaxTND());
             purchaseOrder1.setTotalInclTaxTND(totals.totalExclTaxTND());
+            purchaseOrder1.setTotalExclTaxUSD(totals.totalExclTaxUSD());
+            purchaseOrder1.setTotalInclTaxUSD(totals.totalInclTaxUSD());
 
             return purchaseOrder1;
 

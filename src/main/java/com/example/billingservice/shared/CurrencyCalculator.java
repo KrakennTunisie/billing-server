@@ -1,21 +1,26 @@
 package com.example.billingservice.shared;
 
+import com.example.billingservice.application.ports.in.CurrencyConversionUseCase;
 import com.example.billingservice.domain.enums.InvoiceCurrency;
 import com.example.billingservice.domain.model.Invoice;
 import com.example.billingservice.infrastructure.out.persistance.dto.CurrencyTotals;
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 
+@Component
+@AllArgsConstructor
 public class CurrencyCalculator {
 
     private static final int DIVISION_SCALE = 6;
     private static final int MONEY_SCALE = 3;
+    private final CurrencyConversionUseCase currencyConversionUseCase;
 
-    private CurrencyCalculator() {
-    }
 
-    public static CurrencyTotals calculateTotals(
+    public CurrencyTotals calculateTotals(
             String currency,
             Double totalExclTax,
             Double totalInclTax,
@@ -23,14 +28,20 @@ public class CurrencyCalculator {
     ) {
         validateInputs(currency, totalExclTax, totalInclTax, exchangeRate);
 
+        BigDecimal eurToTndRate = currencyConversionUseCase
+                .convert(BigDecimal.valueOf(1), InvoiceCurrency.EUR.name(), InvoiceCurrency.TND.name(), LocalDate.now()).getQuote();
+        BigDecimal usdToTndRate = currencyConversionUseCase
+                .convert(BigDecimal.valueOf(1), InvoiceCurrency.USD.name(), InvoiceCurrency.TND.name(), LocalDate.now()).getQuote();
+
         BigDecimal excl = BigDecimal.valueOf(totalExclTax);
         BigDecimal incl = BigDecimal.valueOf(totalInclTax);
         BigDecimal rate = BigDecimal.valueOf(exchangeRate);
 
         boolean isEUR = InvoiceCurrency.EUR.name().equalsIgnoreCase(currency);
         boolean isTND = InvoiceCurrency.TND.name().equalsIgnoreCase(currency);
+        boolean isUSD = InvoiceCurrency.USD.name().equalsIgnoreCase(currency);
 
-        if (!isEUR && !isTND) {
+        if (!isEUR && !isTND && !isUSD) {
             throw new IllegalArgumentException("Devise inconnue: " + currency);
         }
 
@@ -38,24 +49,42 @@ public class CurrencyCalculator {
         BigDecimal totalInclTaxEUR;
         BigDecimal totalExclTaxTND;
         BigDecimal totalInclTaxTND;
+        BigDecimal totalExclTaxUSD;
+        BigDecimal totalInclTaxUSD;
 
         if (isEUR) {
             totalExclTaxEUR = excl;
             totalInclTaxEUR = incl;
             totalExclTaxTND = excl.multiply(rate);
             totalInclTaxTND = incl.multiply(rate);
+            totalExclTaxUSD = totalExclTaxTND.divide(usdToTndRate, DIVISION_SCALE, RoundingMode.HALF_UP);
+            totalInclTaxUSD = totalInclTaxTND.divide(usdToTndRate, DIVISION_SCALE, RoundingMode.HALF_UP);
+
+        } else if (isUSD) {
+            totalExclTaxUSD = excl;
+            totalInclTaxUSD = incl;
+
+            totalExclTaxTND = excl.multiply(usdToTndRate);
+            totalInclTaxTND = incl.multiply(usdToTndRate);
+
+            totalExclTaxEUR = totalExclTaxTND.divide(eurToTndRate, DIVISION_SCALE, RoundingMode.HALF_UP);
+            totalInclTaxEUR = totalInclTaxTND.divide(eurToTndRate, DIVISION_SCALE, RoundingMode.HALF_UP);
         } else {
             totalExclTaxTND = excl;
             totalInclTaxTND = incl;
             totalExclTaxEUR = excl.divide(rate, DIVISION_SCALE, RoundingMode.HALF_UP);
             totalInclTaxEUR = incl.divide(rate, DIVISION_SCALE, RoundingMode.HALF_UP);
+            totalExclTaxUSD = excl.divide(usdToTndRate, DIVISION_SCALE, RoundingMode.HALF_UP);
+            totalInclTaxUSD = incl.divide(usdToTndRate, DIVISION_SCALE, RoundingMode.HALF_UP);
         }
 
         return new CurrencyTotals(
                 scaleMoney(totalExclTaxEUR).doubleValue(),
                 scaleMoney(totalInclTaxEUR).doubleValue(),
                 scaleMoney(totalExclTaxTND).doubleValue(),
-                scaleMoney(totalInclTaxTND).doubleValue()
+                scaleMoney(totalInclTaxTND).doubleValue(),
+                scaleMoney(totalExclTaxUSD).doubleValue(),
+                scaleMoney(totalInclTaxUSD).doubleValue()
         );
     }
 
@@ -92,41 +121,43 @@ public class CurrencyCalculator {
 
     public static Double getTotalExclTaxEUR(Invoice invoice) {
         if (invoice.getCurrency() == InvoiceCurrency.EUR) {
-            return invoice.getTotalInclTaxEUR();
+            return invoice.getTotalExclTaxEUR();
         }
-        if (invoice.getCurrency() == InvoiceCurrency.TND && invoice.getAppliedExchangeRate() != null) {
-            return invoice.getTotalExclTaxEUR() / invoice.getAppliedExchangeRate();
-        }
-        return 0.0;
+        return invoice.getTotalExclTaxEUR() != null ? invoice.getTotalExclTaxEUR() : 0.0;
     }
 
     public static Double getTotalInclTaxEUR(Invoice invoice) {
         if (invoice.getCurrency() == InvoiceCurrency.EUR) {
             return invoice.getTotalInclTaxEUR();
         }
-        if (invoice.getCurrency() == InvoiceCurrency.TND && invoice.getAppliedExchangeRate() != null) {
-            return invoice.getTotalInclTaxEUR() / invoice.getAppliedExchangeRate();
-        }
-        return 0.0;
+        return invoice.getTotalInclTaxEUR() != null ? invoice.getTotalInclTaxEUR() : 0.0;
     }
 
     public static Double getTotalExclTaxTND(Invoice invoice) {
         if (invoice.getCurrency() == InvoiceCurrency.TND) {
             return invoice.getTotalExclTaxTND();
         }
-        if (invoice.getCurrency() == InvoiceCurrency.EUR && invoice.getAppliedExchangeRate() != null) {
-            return invoice.getTotalExclTaxEUR() * invoice.getAppliedExchangeRate();
-        }
-        return 0.0;
+        return invoice.getTotalExclTaxTND() != null ? invoice.getTotalExclTaxTND() : 0.0;
     }
 
     public static Double getTotalInclTaxTND(Invoice invoice) {
         if (invoice.getCurrency() == InvoiceCurrency.TND) {
             return invoice.getTotalInclTaxTND();
         }
-        if (invoice.getCurrency() == InvoiceCurrency.EUR && invoice.getAppliedExchangeRate() != null) {
-            return invoice.getTotalInclTaxEUR() * invoice.getAppliedExchangeRate();
+        return invoice.getTotalInclTaxTND() != null ? invoice.getTotalInclTaxTND() : 0.0;
+    }
+
+    public static Double getTotalExclTaxUSD(Invoice invoice) {
+        if (invoice.getCurrency() == InvoiceCurrency.USD) {
+            return invoice.getTotalExclTaxUSD();
         }
-        return 0.0;
+        return invoice.getTotalExclTaxUSD() != null ? invoice.getTotalExclTaxUSD() : 0.0;
+    }
+
+    public static Double getTotalInclTaxUSD(Invoice invoice) {
+        if (invoice.getCurrency() == InvoiceCurrency.USD) {
+            return invoice.getTotalInclTaxUSD();
+        }
+        return invoice.getTotalInclTaxUSD() != null ? invoice.getTotalInclTaxUSD() : 0.0;
     }
 }
