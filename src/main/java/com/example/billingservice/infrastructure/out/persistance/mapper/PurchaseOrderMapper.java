@@ -48,6 +48,8 @@ public class PurchaseOrderMapper {
                 .mapToDouble(item -> item.getItemTotalInclTax() != null ? item.getItemTotalInclTax() : 0.0)
                 .sum();
 
+        double vatAmount = totalInclTax - totalExclTax;
+
         CurrencyTotals totals = CurrencyCalculator.calculateTotals(
                 entity.getCurrency().name(),
                 totalExclTax,
@@ -60,13 +62,15 @@ public class PurchaseOrderMapper {
                 .idPurchaseOrder(entity.getIdPurchaseOrder())
                 .reference(entity.getReference())
                 .issueDate(entity.getIssueDate())
+                .purchaseOrderStatus(entity.getPurchaseOrderStatus())
                 .currency(entity.getCurrency())
                 .paymentMethod(entity.getPaymentMethod())
+                .paymentCondition(entity.getPaymentCondition())
                 .totalExclTaxEUR(totals.totalExclTaxEUR())
                 .totalInclTaxEUR(totals.totalInclTaxEUR())
                 .totalExclTaxTND(totals.totalExclTaxTND())
                 .totalInclTaxTND(totals.totalInclTaxTND())
-                .vatRate(entity.getVatRate())
+                .vatRate(vatAmount)
                 .partner(partnerMapper.toDomain(entity.getPartner(), PartnerType.CLIENT))
                 .exchangeRateReferenceDate(entity.getExchangeRateReferenceDate())
                 .appliedExchangeRate(entity.getAppliedExchangeRate())
@@ -74,8 +78,7 @@ public class PurchaseOrderMapper {
                 .purchaseOrderItems(items)
                 .purchaseOrderDocument(documentMapper.toDomain(entity.getPurchaseOrderDocument()))
                 .build();
-                //.totalAmountExclTax(entity.getTotalAmountExclTax())
-               // .totalAmountInclTax(entity.getTotalAmountInclTax())
+
     }
 
     // =========================
@@ -85,31 +88,31 @@ public class PurchaseOrderMapper {
         if (domain == null) {
             return null;
         }
-        List<PurchaseOrderItemEntity> items = domain.getPurchaseOrderItems() != null
-                ? domain.getPurchaseOrderItems()
-                .stream()
-                .map(purchaseOrderItemMapper::purchaseOrderItemtoEntity)
-                .toList()
-                : List.of();
-
-
         PurchaseOrderEntity entity = new PurchaseOrderEntity();
 
         entity.setIdPurchaseOrder(domain.getIdPurchaseOrder());
         entity.setReference(domain.getReference());
         entity.setIssueDate(domain.getIssueDate());
+        entity.setPurchaseOrderStatus(domain.getPurchaseOrderStatus());
         entity.setCurrency(domain.getCurrency());
         entity.setAppliedExchangeRate(domain.getAppliedExchangeRate());
         entity.setVatRate(domain.getVatRate());
         entity.setExchangeRateSource(domain.getExchangeRateSource());
         entity.setPurchaseOrderDocument(documentMapper.toEntity(domain.getPurchaseOrderDocument(), DocumentType.PURCHASE_ORDER));
         entity.setPaymentMethod(domain.getPaymentMethod());
+        entity.setPaymentCondition(domain.getPaymentCondition());
         entity.setPartner(partnerMapper.toEntity(domain.getPartner()));
+        // map items AFTER entity is created, then set back-reference
+        List<PurchaseOrderItemEntity> items = domain.getPurchaseOrderItems() != null
+                ? domain.getPurchaseOrderItems()
+                .stream()
+                .map(purchaseOrderItemMapper::purchaseOrderItemtoEntity)
+                .peek(item -> item.setPurchaseOrder(entity))
+                .toList()
+                : List.of();
         entity.setPurchaseOrderItems(items);
         //entity.setTotalAmountExclTax(domain.getTotalAmountExclTax());
        // entity.setTotalAmountInclTax(domain.getTotalAmountInclTax());
-
-
         return entity;
     }
 
@@ -122,11 +125,13 @@ public class PurchaseOrderMapper {
             PurchaseOrder purchaseOrder =  PurchaseOrder.builder()
                     .reference(purchaseOrderCreateDTO.getPurchaseOrderNumber())
                     .issueDate(purchaseOrderCreateDTO.getIssueDate())
+                    .purchaseOrderStatus(purchaseOrderCreateDTO.getPurchaseOrderStatus())
                     .currency(InvoiceCurrency.valueOf(purchaseOrderCreateDTO.getPurchaseCurrency()))
                     .vatRate(purchaseOrderCreateDTO.getVatRate())
                     .appliedExchangeRate(purchaseOrderCreateDTO.getAppliedExchangeRate())
                     .purchaseOrderDocument(document)
                     .paymentMethod(PaymentMethod.valueOf(purchaseOrderCreateDTO.getPaymentMethod()))
+                    .paymentCondition(purchaseOrderCreateDTO.getPaymentCondition())
                     .exchangeRateReferenceDate(purchaseOrderCreateDTO.getExchangeRateReferenceDate())
                     .exchangeRateSource(ExchangeRateSource.valueOf(purchaseOrderCreateDTO.getExchangeRateSource()))
                     .build();
@@ -182,6 +187,7 @@ public class PurchaseOrderMapper {
                 .idPurchaseOrder(purchaseOrder.getIdPurchaseOrder())
                 .purchaseOrderNumber(purchaseOrder.getReference())
                 .issueDate(purchaseOrder.getIssueDate())
+                .purchaseOrderStatus(purchaseOrder.getPurchaseOrderStatus())
                 .purchaseCurrency(purchaseOrder.getCurrency())
                 .totalExclTaxEUR(purchaseOrder.getTotalExclTaxEUR())
                 .totalInclTaxEUR(purchaseOrder.getTotalInclTaxEUR())
@@ -189,6 +195,7 @@ public class PurchaseOrderMapper {
                 .totalInclTaxTND(purchaseOrder.getTotalInclTaxTND())
                 .vatRate(purchaseOrder.getVatRate())
                 .paymentMethod(purchaseOrder.getPaymentMethod())
+                .paymentCondition(purchaseOrder.getPaymentCondition())
                 .partner(partnerMapper.toSummaryDTO(purchaseOrder.getPartner()))
                 .purchaseOrderItemsItems(purchaseOrder.getPurchaseOrderItems())
                 .purchaseOrderDocument(documentMapper.toDocumentSummary(purchaseOrder.getPurchaseOrderDocument()))
@@ -207,6 +214,7 @@ public class PurchaseOrderMapper {
                 .idPurchaseOrder(purchaseOrder.getIdPurchaseOrder())
                 .purchaseOrderNumber(purchaseOrder.getReference())
                 .issueDate(purchaseOrder.getIssueDate())
+                .purchaseOrderStatus(purchaseOrder.getPurchaseOrderStatus())
                 .purchaseCurrency(purchaseOrder.getCurrency())
 
                 // 💰 Currency split
@@ -235,11 +243,13 @@ public class PurchaseOrderMapper {
                     .idPurchaseOrder(purchaseOrder.getIdPurchaseOrder())
                     .reference(purchaseOrder.getReference())
                     .issueDate(purchaseOrderUpdateDTO.getIssueDate())
+                    .purchaseOrderStatus(purchaseOrderUpdateDTO.getPurchaseOrderStatus())
                     .currency(InvoiceCurrency.valueOf(purchaseOrderUpdateDTO.getPurchaseCurrency()))
                     .vatRate(purchaseOrderUpdateDTO.getVatRate())
                     .appliedExchangeRate(purchaseOrderUpdateDTO.getAppliedExchangeRate())
                     .purchaseOrderDocument(document)
                     .paymentMethod(PaymentMethod.valueOf(purchaseOrderUpdateDTO.getPaymentMethod()))
+                    .paymentCondition(PaymentCondition.valueOf(purchaseOrderUpdateDTO.getPaymentCondition()))
                     .exchangeRateReferenceDate(purchaseOrderUpdateDTO.getExchangeRateReferenceDate())
                     .exchangeRateSource(ExchangeRateSource.valueOf(purchaseOrderUpdateDTO.getExchangeRateSource()))
                     .build();
@@ -298,6 +308,7 @@ public class PurchaseOrderMapper {
                 .idPurchaseOrder(po.getIdPurchaseOrder())
                 .purchaseOrderNumber(po.getReference())
                 .issueDate(po.getIssueDate())
+                .purchaseOrderStatus(po.getPurchaseOrderStatus())
                 .purchaseCurrency(po.getCurrency())
                 .build();
     }

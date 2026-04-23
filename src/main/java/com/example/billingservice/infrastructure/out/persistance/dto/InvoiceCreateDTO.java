@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Builder
@@ -47,6 +48,10 @@ public class InvoiceCreateDTO {
     @ValidEnum(enumClass = PaymentMethod.class, message = "Mode de paiement invalide")
     private String paymentMethod;
 
+    @NotNull(message = "La condition de paiment est obligatoire")
+    @ValidEnum(enumClass = PaymentCondition.class, message = "Condition de paiement invalide invalide")
+    private String paymentCondition;
+
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date exchangeRateReferenceDate;
 
@@ -58,7 +63,7 @@ public class InvoiceCreateDTO {
     @NotNull(message = "Le partenaire est obligatoire")
     private String partner;
 
-    private String purchaseOrder;
+    private UUID purchaseOrder;
 
     @Setter
     //@NotEmpty(message = "Au moins une ligne de facture est obligatoire")

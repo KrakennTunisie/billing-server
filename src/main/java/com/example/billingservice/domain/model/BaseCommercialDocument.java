@@ -21,6 +21,7 @@ public class BaseCommercialDocument {
     private Date issueDate;
     private InvoiceCurrency currency;
     private PaymentMethod paymentMethod;
+    private PaymentCondition paymentCondition;
     private Double totalExclTaxEUR;
     private Double totalInclTaxEUR;
     private Double totalExclTaxTND;

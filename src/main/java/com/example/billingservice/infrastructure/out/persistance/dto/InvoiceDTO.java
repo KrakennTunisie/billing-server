@@ -28,6 +28,7 @@ public class InvoiceDTO {
     private Double totalExclTaxTND;
     private Double totalInclTaxTND;
     private Double vatRate;
+    private PaymentCondition paymentCondition;
     private PaymentMethod paymentMethod;
     private Date exchangeRateReferenceDate;
     private Double appliedExchangeRate;

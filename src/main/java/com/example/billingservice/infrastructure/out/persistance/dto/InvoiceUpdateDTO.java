@@ -32,6 +32,10 @@ public class InvoiceUpdateDTO {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date dueDate;
 
+    @NotNull(message = "La date d'échéance est obligatoire")
+    @ValidEnum(enumClass = PaymentCondition.class, message = "Condition de paiement invalide invalide")
+    private String paymentCondition;
+
     @NotNull(message = "Le type de facture est obligatoire")
     @ValidEnum(enumClass = InvoiceType.class, message = "Type de facture invalide")
     private String invoiceType;

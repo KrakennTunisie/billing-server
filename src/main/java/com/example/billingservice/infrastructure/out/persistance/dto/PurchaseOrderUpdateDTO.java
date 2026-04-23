@@ -29,6 +29,8 @@ public class PurchaseOrderUpdateDTO {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date issueDate;
 
+    @NotNull(message = "La status de bon commande est obligatoire")
+    private PurchaseOrderStatus purchaseOrderStatus;
 
     @NotNull(message = "Le devise est obligatoire")
     @ValidEnum(enumClass = InvoiceCurrency.class, message = "Devise invalide")
@@ -44,6 +46,10 @@ public class PurchaseOrderUpdateDTO {
     @ValidEnum(enumClass = PaymentMethod.class, message = "Mode de paiement invalide")
     private String paymentMethod;
 
+    @NotNull(message = "La condition de paiement est obligatoire")
+    @ValidEnum(enumClass = PaymentCondition.class, message = "Condition de paiement invalide")
+    private String paymentCondition;
+
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date exchangeRateReferenceDate;
 
@@ -58,6 +64,7 @@ public class PurchaseOrderUpdateDTO {
 
     //@Valid
     //@NotEmpty(message = "Au moins une ligne de facture est obligatoire")
+    @Setter
     private List<PurchaseOrderItemCreateDTO> purchaseOrderItems;
 
     // 👉 Document (like rne/patente)
