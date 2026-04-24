@@ -4,9 +4,7 @@ import com.example.billingservice.domain.enums.*;
 import com.example.billingservice.infrastructure.out.persistance.validators.ValidEnum;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,6 +14,9 @@ import java.util.UUID;
 
 @Getter
 @Builder
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class InvoiceCreateDTO {
 
     //@NotBlank(message = "Le numéro de facture est obligatoire")

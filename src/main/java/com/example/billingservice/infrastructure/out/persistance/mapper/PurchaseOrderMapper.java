@@ -225,7 +225,7 @@ public class PurchaseOrderMapper {
                 .purchaseOrderStatus(purchaseOrder.getPurchaseOrderStatus())
                 .purchaseCurrency(purchaseOrder.getCurrency())
 
-                // 💰 Currency split
+                // currency split
                 .totalExclTaxEUR(purchaseOrder.getTotalExclTaxEUR())
                 .totalInclTaxEUR(purchaseOrder.getTotalInclTaxEUR())
                 .totalExclTaxTND(purchaseOrder.getTotalExclTaxTND())
@@ -258,6 +258,7 @@ public class PurchaseOrderMapper {
                     .appliedExchangeRate(purchaseOrderUpdateDTO.getAppliedExchangeRate())
                     .purchaseOrderDocument(document)
                     .paymentMethod(PaymentMethod.valueOf(purchaseOrderUpdateDTO.getPaymentMethod()))
+                    .paymentCondition(PaymentCondition.valueOf(purchaseOrderUpdateDTO.getPaymentCondition()))
                     .exchangeRateReferenceDate(purchaseOrderUpdateDTO.getExchangeRateReferenceDate())
                     .exchangeRateSource(ExchangeRateSource.valueOf(purchaseOrderUpdateDTO.getExchangeRateSource()))
                     .build();

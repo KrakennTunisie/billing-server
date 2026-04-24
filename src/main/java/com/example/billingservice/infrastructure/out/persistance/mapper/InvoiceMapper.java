@@ -59,6 +59,7 @@ public class InvoiceMapper {
         invoice.setInvoiceDocument(documentMapper.toEntity(dto.getInvoiceDocument(), DocumentType.INVOICE));
         invoice.setPurchaseOrder(purchaseOrderMapper.toEntity(dto.getPurchaseOrder()));
         invoice.setPartner(partnerMapper.toEntity(dto.getPartner()));
+        invoice.setPurchaseOrder(purchaseOrderMapper.toEntity(dto.getPurchaseOrder()));
         invoice.setCurrency(dto.getCurrency());
 
         List<InvoiceItemEntity> items = dto.getInvoiceItems() != null
@@ -112,6 +113,7 @@ public class InvoiceMapper {
                 .exchangeRateSource(entity.getExchangeRateSource())
                 .complianceQRcode(entity.getComplianceQRcode())
                 .partner(partnerMapper.toDomain(entity.getPartner(), partnerType))
+                .purchaseOrder(purchaseOrderMapper.toDomain(entity.getPurchaseOrder()))
                 .invoiceDocument(documentMapper.toDomain(entity.getInvoiceDocument()))
                 .build();
 
