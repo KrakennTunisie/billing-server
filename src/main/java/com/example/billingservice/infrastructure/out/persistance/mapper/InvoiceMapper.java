@@ -1,6 +1,7 @@
 package com.example.billingservice.infrastructure.out.persistance.mapper;
 
 import com.example.billingservice.application.ports.in.PartnerUseCase;
+import com.example.billingservice.application.ports.in.PurchaseOrderUseCase;
 import com.example.billingservice.domain.enums.*;
 import com.example.billingservice.domain.exceptions.BillingException;
 import com.example.billingservice.domain.model.*;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -23,6 +25,7 @@ public class InvoiceMapper {
     private final PartnerMapper partnerMapper;
     private final PurchaseOrderMapper purchaseOrderMapper;
     private final PartnerUseCase partnerUseCase;
+    private final PurchaseOrderUseCase purchaseOrderUseCase;
     private final InvoiceEventMapper invoiceEventMapper;
     private final CurrencyCalculator currencyCalculator;
     public InvoiceEntity toEntity(Invoice dto) {
@@ -44,6 +47,7 @@ public class InvoiceMapper {
         );
         invoice.setVatRate(dto.getVatRate());
         invoice.setPaymentMethod(dto.getPaymentMethod());
+        invoice.setPaymentCondition(dto.getPaymentCondition());
         invoice.setExchangeRateReferenceDate(dto.getExchangeRateReferenceDate());
         invoice.setAppliedExchangeRate(dto.getAppliedExchangeRate());
         invoice.setExchangeRateSource(
@@ -55,6 +59,7 @@ public class InvoiceMapper {
         invoice.setInvoiceDocument(documentMapper.toEntity(dto.getInvoiceDocument(), DocumentType.INVOICE));
         invoice.setPurchaseOrder(purchaseOrderMapper.toEntity(dto.getPurchaseOrder()));
         invoice.setPartner(partnerMapper.toEntity(dto.getPartner()));
+        invoice.setPurchaseOrder(purchaseOrderMapper.toEntity(dto.getPurchaseOrder()));
         invoice.setCurrency(dto.getCurrency());
 
         List<InvoiceItemEntity> items = dto.getInvoiceItems() != null
@@ -102,11 +107,13 @@ public class InvoiceMapper {
                 .currency(entity.getCurrency())
                 .vatRate(entity.getVatRate())
                 .paymentMethod(entity.getPaymentMethod())
+                .paymentCondition(entity.getPaymentCondition())
                 .exchangeRateReferenceDate(entity.getExchangeRateReferenceDate())
                 .appliedExchangeRate(entity.getAppliedExchangeRate())
                 .exchangeRateSource(entity.getExchangeRateSource())
                 .complianceQRcode(entity.getComplianceQRcode())
                 .partner(partnerMapper.toDomain(entity.getPartner(), partnerType))
+                .purchaseOrder(purchaseOrderMapper.toDomain(entity.getPurchaseOrder()))
                 .invoiceDocument(documentMapper.toDomain(entity.getInvoiceDocument()))
                 .build();
 
@@ -206,15 +213,19 @@ public class InvoiceMapper {
                     .appliedExchangeRate(invoiceCreateDTO.getAppliedExchangeRate())
                     .invoiceDocument(document)
                     .paymentMethod(PaymentMethod.valueOf(invoiceCreateDTO.getPaymentMethod()))
+                    .paymentCondition(PaymentCondition.valueOf(invoiceCreateDTO.getPaymentCondition()))
                     .exchangeRateReferenceDate(invoiceCreateDTO.getExchangeRateReferenceDate())
                     .exchangeRateSource(ExchangeRateSource.valueOf(invoiceCreateDTO.getExchangeRateSource()))
                     .complianceQRcode(null)
 
 
-                    // 🔗 relations (light mapping)
+                    //  relations (light mapping)
                     // .purchaseOrder()
 
                     .build();
+            PurchaseOrder purchaseorder = getPurchaseOrder(invoiceCreateDTO.getPurchaseOrder());
+            invoice.setPurchaseOrder(purchaseorder);
+
             Partner partner = getPartner(InvoiceType.valueOf(invoiceCreateDTO.getInvoiceType()), invoiceCreateDTO.getPartner());
 
             invoice.setPartner(partner);
@@ -299,6 +310,7 @@ public class InvoiceMapper {
                 .totalInclTaxUSD(invoice.getTotalInclTaxUSD())
                 .vatRate(invoice.getVatRate())
                 .paymentMethod(invoice.getPaymentMethod())
+                .paymentCondition(invoice.getPaymentCondition())
                 .exchangeRateReferenceDate(invoice.getExchangeRateReferenceDate())
                 .appliedExchangeRate(invoice.getAppliedExchangeRate())
                 .exchangeRateSource(invoice.getExchangeRateSource())
@@ -345,6 +357,7 @@ public class InvoiceMapper {
                     .appliedExchangeRate(invoiceUpdateDTO.getAppliedExchangeRate())
                     .invoiceDocument(document)
                     .paymentMethod(PaymentMethod.valueOf(invoiceUpdateDTO.getPaymentMethod()))
+                    .paymentCondition(PaymentCondition.valueOf(invoiceUpdateDTO.getPaymentCondition()))
                     .exchangeRateReferenceDate(invoiceUpdateDTO.getExchangeRateReferenceDate())
                     .exchangeRateSource(ExchangeRateSource.valueOf(invoiceUpdateDTO.getExchangeRateSource()))
                     .complianceQRcode(invoiceDTO.getComplianceQRcode())
@@ -447,6 +460,9 @@ public class InvoiceMapper {
         else {
             throw BillingException.notFound("Partner ", idPartner);
         }
+    }
+    public PurchaseOrder getPurchaseOrder( UUID idPurchaseOrder){
+        return purchaseOrderUseCase.getById(idPurchaseOrder);
     }
 
     private InvoiceEntity createEntityByInvoiceType(InvoiceType invoiceType) {

@@ -1,6 +1,8 @@
 package com.example.billingservice.infrastructure.out.persistance.entity;
 
+import com.example.billingservice.domain.enums.PurchaseOrderStatus;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -22,6 +24,11 @@ public class PurchaseOrderEntity extends BaseCommercialDocumentEntity{
 
     @OneToMany(mappedBy = "purchaseOrder")
     private List<InvoiceEntity> invoices;
+
+    @Enumerated(EnumType.STRING)
+    @NotNull(message = "La status de bon commande est obligatoire")
+    private PurchaseOrderStatus purchaseOrderStatus;
+
 
     @OneToMany(mappedBy = "purchaseOrder", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PurchaseOrderItemEntity> purchaseOrderItems;

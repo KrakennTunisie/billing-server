@@ -5,17 +5,21 @@ import com.example.billingservice.application.ports.in.PartnerUseCase;
 import com.example.billingservice.application.ports.in.PurchaseOrderUseCase;
 import com.example.billingservice.application.ports.out.PurchaseOrderRepoistoryPort;
 import com.example.billingservice.domain.enums.DocumentType;
+import com.example.billingservice.domain.enums.InvoiceStatus;
+import com.example.billingservice.domain.enums.PurchaseOrderStatus;
 import com.example.billingservice.domain.enums.SequenceNumberType;
 import com.example.billingservice.domain.exceptions.BillingException;
 import com.example.billingservice.domain.model.Document;
 import com.example.billingservice.domain.model.PurchaseOrder;
 import com.example.billingservice.infrastructure.out.persistance.dto.*;
 import com.example.billingservice.infrastructure.out.persistance.mapper.PurchaseOrderMapper;
+import com.example.billingservice.shared.ParseEnum;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -29,8 +33,9 @@ public class PurchaseOrderService implements PurchaseOrderUseCase {
     private final PurchaseOrderMapper purchaseOrderMapper;
 
     @Override
-    public Page<PurchaseOrderPageItemDTO> getPurchaseOrders(String keyword, int page) {
-        return  purchaseOrderRepoistoryPort.findAllPurchaseOrders(keyword, page);
+    public Page<PurchaseOrderPageItemDTO> getPurchaseOrders(String keyword, String filtre, int page) {
+        PurchaseOrderStatus status = ParseEnum.parseEnum(filtre, PurchaseOrderStatus.class);
+        return  purchaseOrderRepoistoryPort.findAllPurchaseOrders(keyword,status, page);
     }
 
     @Override
@@ -92,6 +97,11 @@ public class PurchaseOrderService implements PurchaseOrderUseCase {
     }
 
     @Override
+    public List<PurchaseOrderSummaryDTO> getPurchaseOrderSummary() {
+        return purchaseOrderRepoistoryPort.getPurchaseOrderSummary();
+    }
+
+    @Override
     public void deletePurchaseOrder(UUID idPurchaseOrder) {
         if(!purchaseOrderRepoistoryPort.existsByPurchaseOrderId(idPurchaseOrder)){
             throw BillingException.notFound("PurchaseOrder", String.valueOf(idPurchaseOrder));
@@ -135,6 +145,11 @@ public class PurchaseOrderService implements PurchaseOrderUseCase {
 
 
         return purchaseOrderRepoistoryPort.update(purchaseOrder1);
+    }
+
+    @Override
+    public PurchaseOrderDTO updatePurchaseOrderStatus(UUID invoiceId, PurchaseOrderStatus purchaseOrderStatus) {
+        return purchaseOrderRepoistoryPort.updateStatus(invoiceId,purchaseOrderStatus);
     }
 
     @Override
