@@ -22,6 +22,8 @@ public class InvoicePageItemDTO {
     private Double totalInclTaxEUR;
     private Double totalExclTaxTND;
     private Double totalInclTaxTND;
+    private Double totalExclTaxUSD;
+    private Double totalInclTaxUSD;
     private Double vatRate;
     private Double appliedExchangeRate;
     private PurchaseOrderSummaryDTO purchaseOrder;

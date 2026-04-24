@@ -19,8 +19,8 @@ public interface InvoiceCreditNoteUseCase {
 
     InvoiceCreditNoteDTO create(InvoiceCreditNoteCreateDTO createDTO) throws IOException;
 
-    InvoiceCreditNoteDTO updateInvoiceCreditNoteStatus(
-            UUID idInvoiceCreditNote, InvoiceCreditNoteStatus invoiceCreditNoteStatus);
+    InvoiceCreditNoteDetailsDTO updateInvoiceCreditNoteStatus(
+            String creditNoteNumber, InvoiceCreditNoteStatus invoiceCreditNoteStatus);
 
 
     void deleteInvoiceCreditNote(UUID invoiceCreditNoteId);

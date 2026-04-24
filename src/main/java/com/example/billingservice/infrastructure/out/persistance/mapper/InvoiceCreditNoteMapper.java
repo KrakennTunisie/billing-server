@@ -21,6 +21,7 @@ public class InvoiceCreditNoteMapper {
     private final InvoiceCreditNoteItemMapper invoiceCreditNoteItemMapper;
     private final InvoiceCreditNoteEventMapper invoiceCreditNoteEventMapper;
     private final DocumentMapper documentMapper;
+    private final CurrencyCalculator currencyCalculator;
 
     // =========================
     // ENTITY -> DOMAIN
@@ -186,7 +187,7 @@ public class InvoiceCreditNoteMapper {
                 .mapToDouble(item -> item.getInvoiceItem().getItemTotalInclTax() != null ? item.getInvoiceItem().getItemTotalInclTax(): 0.0)
                 .sum();
 
-        CurrencyTotals totals = CurrencyCalculator.calculateTotals(
+        CurrencyTotals totals = currencyCalculator.calculateTotals(
                 domain.getInvoice().getCurrency().name(),
                 totalExclTax,
                 totalInclTax,
@@ -206,6 +207,8 @@ public class InvoiceCreditNoteMapper {
                 .totalInclTaxEUR(totals.totalInclTaxEUR())
                 .totalExclTaxTND(totals.totalExclTaxEUR())
                 .totalInclTaxTND(totals.totalInclTaxTND())
+                .totalExclTaxUSD(totals.totalExclTaxUSD())
+                .totalInclTaxUSD(totals.totalInclTaxUSD())
                 .invoice(
                         domain.getInvoice() != null
                                 ? invoiceMapper.toSummaryDTO(domain.getInvoice())
@@ -264,7 +267,7 @@ public class InvoiceCreditNoteMapper {
                 .mapToDouble(item -> item.getInvoiceItem().getItemTotalInclTax() != null ? item.getInvoiceItem().getItemTotalInclTax(): 0.0)
                 .sum();
 
-        CurrencyTotals totals = CurrencyCalculator.calculateTotals(
+        CurrencyTotals totals = currencyCalculator.calculateTotals(
                 invoiceCreditNote.getInvoice().getCurrency().name(),
                 totalExclTax,
                 totalInclTax,
@@ -283,11 +286,13 @@ public class InvoiceCreditNoteMapper {
                 .invoice(invoiceMapper.toSummaryDTO(invoiceCreditNote.getInvoice()))
                 .invoiceCreditNoteItems(invoiceCreditNote.getInvoiceCreditNoteItems())
                 .invoiceCreditNoteEvents(invoiceCreditNote.getInvoiceCreditNoteEvents())
-                .invoiceCreditNoteDocument(invoiceCreditNote.getInvoiceCreditNoteDocument())
+                .invoiceCreditNoteDocument(documentMapper.toDocumentSummary(invoiceCreditNote.getInvoiceCreditNoteDocument()))
                 .totalExclTaxEUR(totals.totalExclTaxEUR())
                 .totalInclTaxEUR(totals.totalInclTaxEUR())
                 .totalExclTaxTND(totals.totalExclTaxEUR())
                 .totalInclTaxTND(totals.totalInclTaxTND())
+                .totalExclTaxUSD(totals.totalExclTaxUSD())
+                .totalInclTaxUSD(totals.totalInclTaxUSD())
                 .build();
     }
 

@@ -104,7 +104,7 @@ public class InvoiceCreditNoteRepositoryAdapter implements InvoiceCreditNoteRepo
             System.out.println("executing delete");
             invoiceCreditNoteRepository.delete(invoiceCreditNoteEntity);
         }
-        else if(invoiceCreditNote.getInvoiceCreditNoteStatus()==InvoiceCreditNoteStatus.PENDING){
+        else if(invoiceCreditNote.getInvoiceCreditNoteStatus()==InvoiceCreditNoteStatus.IN_PROGRESS){
             invoiceCreditNoteEntity.setInvoiceCreditNoteStatus(InvoiceCreditNoteStatus.CANCELLED);
             System.out.println("executing update status");
 
@@ -117,13 +117,12 @@ public class InvoiceCreditNoteRepositoryAdapter implements InvoiceCreditNoteRepo
     }
 
     @Override
-    public InvoiceCreditNoteDetailsDTO getByInvoiceCreditNoteNumber(String invoiceCreditNoteNumber) {
+    public InvoiceCreditNote getByInvoiceCreditNoteNumber(String invoiceCreditNoteNumber) {
         InvoiceCreditNoteEntity invoiceCreditNoteEntity =
                 invoiceCreditNoteRepository
                         .getInvoiceCreditNoteEntityByInvoiceCreditNoteNumber(invoiceCreditNoteNumber);
-        InvoiceCreditNote invoiceCreditNote = invoiceCreditNoteMapper.toDomain(invoiceCreditNoteEntity);
 
-        return invoiceCreditNoteMapper.toDetailsDTO(invoiceCreditNote);
+        return invoiceCreditNoteMapper.toDomain(invoiceCreditNoteEntity);
     }
 
     @Override
