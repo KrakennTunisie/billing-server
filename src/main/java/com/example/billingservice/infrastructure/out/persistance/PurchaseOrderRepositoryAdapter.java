@@ -1,4 +1,4 @@
-package com.example.billingservice.infrastructure.out.persistance;
+/*package com.example.billingservice.infrastructure.out.persistance;
 
 import com.example.billingservice.application.ports.out.PurchaseOrderRepoistoryPort;
 import com.example.billingservice.domain.enums.InvoiceStatus;
@@ -57,7 +57,7 @@ public class PurchaseOrderRepositoryAdapter implements PurchaseOrderRepoistoryPo
         entity.getInvoiceEvents().forEach(
                 invoiceEventEntity -> invoiceEventEntity.setInvoice(savedEntity)
         );
-        jpaInvoiceEventRepository.saveAll(entity.getInvoiceEvents());*/
+        jpaInvoiceEventRepository.saveAll(entity.getInvoiceEvents());
 
 
         return  savedPurchaseOrder;
@@ -78,7 +78,7 @@ public class PurchaseOrderRepositoryAdapter implements PurchaseOrderRepoistoryPo
         entity.getInvoiceEvents().forEach(
                 invoiceEventEntity -> invoiceEventEntity.setInvoice(savedEntity)
         );
-        jpaInvoiceEventRepository.saveAll(entity.getInvoiceEvents());*/
+        jpaInvoiceEventRepository.saveAll(entity.getInvoiceEvents());
 
         return  purchaseOrderMapper.domainToPurchaseOrderDTO(purchaseOrder1);
     }
@@ -118,4 +118,4 @@ public class PurchaseOrderRepositoryAdapter implements PurchaseOrderRepoistoryPo
 
     }
 
-}
+}**/

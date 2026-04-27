@@ -32,6 +32,9 @@ public class PurchaseOrderUpdateDTO {
     @NotNull(message = "La status de bon commande est obligatoire")
     private PurchaseOrderStatus purchaseOrderStatus;
 
+    @NotNull(message = "Le type  de bon commande est obligatoire")
+    private PurchaseOrderType purchaseOrderType;
+
     @NotNull(message = "Le devise est obligatoire")
     @ValidEnum(enumClass = InvoiceCurrency.class, message = "Devise invalide")
     private String purchaseCurrency;

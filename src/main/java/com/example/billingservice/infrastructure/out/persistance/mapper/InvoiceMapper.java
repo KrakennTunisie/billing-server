@@ -113,7 +113,7 @@ public class InvoiceMapper {
                 .exchangeRateSource(entity.getExchangeRateSource())
                 .complianceQRcode(entity.getComplianceQRcode())
                 .partner(partnerMapper.toDomain(entity.getPartner(), partnerType))
-                .purchaseOrder(purchaseOrderMapper.toDomain(entity.getPurchaseOrder()))
+                .purchaseOrder(purchaseOrderMapper.toDomain(entity.getPurchaseOrder(),PurchaseOrderType.SALE))
                 .invoiceDocument(documentMapper.toDomain(entity.getInvoiceDocument()))
                 .build();
 
@@ -223,9 +223,10 @@ public class InvoiceMapper {
                     // .purchaseOrder()
 
                     .build();
-            PurchaseOrder purchaseorder = getPurchaseOrder(invoiceCreateDTO.getPurchaseOrder());
-            invoice.setPurchaseOrder(purchaseorder);
-
+            if(invoiceCreateDTO.getPurchaseOrder()!= null) {
+                PurchaseOrder purchaseorder = getPurchaseOrder(invoiceCreateDTO.getPurchaseOrder());
+                invoice.setPurchaseOrder(purchaseorder);
+            }
             Partner partner = getPartner(InvoiceType.valueOf(invoiceCreateDTO.getInvoiceType()), invoiceCreateDTO.getPartner());
 
             invoice.setPartner(partner);
@@ -461,8 +462,9 @@ public class InvoiceMapper {
             throw BillingException.notFound("Partner ", idPartner);
         }
     }
+    /** a reformuler ça dépend la status*/
     public PurchaseOrder getPurchaseOrder( UUID idPurchaseOrder){
-        return purchaseOrderUseCase.getById(idPurchaseOrder);
+        return purchaseOrderUseCase.getClientPurchaseOrderById(idPurchaseOrder);
     }
 
     private InvoiceEntity createEntityByInvoiceType(InvoiceType invoiceType) {

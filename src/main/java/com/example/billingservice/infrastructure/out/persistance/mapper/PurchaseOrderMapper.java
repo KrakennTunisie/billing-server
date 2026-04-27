@@ -8,8 +8,7 @@ import com.example.billingservice.domain.model.Partner;
 import com.example.billingservice.domain.model.PurchaseOrder;
 import com.example.billingservice.domain.model.PurchaseOrderItem;
 import com.example.billingservice.infrastructure.out.persistance.dto.*;
-import com.example.billingservice.infrastructure.out.persistance.entity.PurchaseOrderEntity;
-import com.example.billingservice.infrastructure.out.persistance.entity.PurchaseOrderItemEntity;
+import com.example.billingservice.infrastructure.out.persistance.entity.*;
 import com.example.billingservice.shared.CurrencyCalculator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -29,7 +28,7 @@ public class PurchaseOrderMapper {
     // =========================
     // ENTITY -> DOMAIN
     // =========================
-    public PurchaseOrder toDomain(PurchaseOrderEntity entity) {
+    public PurchaseOrder toDomain(PurchaseOrderEntity entity , PurchaseOrderType purchaseOrderType) {
         if (entity == null) {
             return null;
         }
@@ -65,6 +64,7 @@ public class PurchaseOrderMapper {
                 .reference(entity.getReference())
                 .issueDate(entity.getIssueDate())
                 .purchaseOrderStatus(entity.getPurchaseOrderStatus())
+                .purchaseOrderType(purchaseOrderType)
                 .currency(entity.getCurrency())
                 .paymentMethod(entity.getPaymentMethod())
                 .paymentCondition(entity.getPaymentCondition())
@@ -93,7 +93,7 @@ public class PurchaseOrderMapper {
         if (domain == null) {
             return null;
         }
-        PurchaseOrderEntity entity = new PurchaseOrderEntity();
+        PurchaseOrderEntity entity = createEntityByPurchaseOrderType(domain.getPurchaseOrderType());
 
         entity.setIdPurchaseOrder(domain.getIdPurchaseOrder());
         entity.setReference(domain.getReference());
@@ -131,6 +131,7 @@ public class PurchaseOrderMapper {
                     .reference(purchaseOrderCreateDTO.getPurchaseOrderNumber())
                     .issueDate(purchaseOrderCreateDTO.getIssueDate())
                     .purchaseOrderStatus(purchaseOrderCreateDTO.getPurchaseOrderStatus())
+                    .purchaseOrderType(purchaseOrderCreateDTO.getPurchaseOrderType())
                     .currency(InvoiceCurrency.valueOf(purchaseOrderCreateDTO.getPurchaseCurrency()))
                     .vatRate(purchaseOrderCreateDTO.getVatRate())
                     .appliedExchangeRate(purchaseOrderCreateDTO.getAppliedExchangeRate())
@@ -253,6 +254,7 @@ public class PurchaseOrderMapper {
                     .reference(purchaseOrder.getReference())
                     .issueDate(purchaseOrderUpdateDTO.getIssueDate())
                     .purchaseOrderStatus(purchaseOrderUpdateDTO.getPurchaseOrderStatus())
+                    .purchaseOrderType(purchaseOrderUpdateDTO.getPurchaseOrderType())
                     .currency(InvoiceCurrency.valueOf(purchaseOrderUpdateDTO.getPurchaseCurrency()))
                     .vatRate(purchaseOrderUpdateDTO.getVatRate())
                     .appliedExchangeRate(purchaseOrderUpdateDTO.getAppliedExchangeRate())
@@ -334,6 +336,17 @@ public class PurchaseOrderMapper {
         else {
             throw BillingException.notFound("Partner ", idPartner);
         }
+    }
+
+    private PurchaseOrderEntity createEntityByPurchaseOrderType(PurchaseOrderType purchaseOrderType) {
+        if (purchaseOrderType == null) {
+            throw new IllegalArgumentException("purchaseOrderType must not be null");
+        }
+
+        return switch (purchaseOrderType) {
+            case SALE -> new ClientPurchaseOrderEntity();
+            case PURCHASE -> new SupplierPurchaseOrderEntity();
+        };
     }
 
 }
