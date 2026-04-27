@@ -11,21 +11,41 @@ import java.util.List;
 import java.util.UUID;
 
 public interface PurchaseOrderUseCase {
-        Page<PurchaseOrderPageItemDTO> getPurchaseOrders(String keyword , String filtre, int page);
 
-        PurchaseOrderDTO createPurchaseOrder(PurchaseOrderCreateDTO purchaseOrderCreateDTO) throws IOException;
+        /***Client **/
+        Page<PurchaseOrderPageItemDTO> getClientPurchaseOrders(String keyword , String filtre, int page);
 
-        PurchaseOrder getById(UUID idPurchaseOrder);
-        List<PurchaseOrderSummaryDTO> getPurchaseOrderSummary();
+        PurchaseOrderDTO createClientPurchaseOrder(PurchaseOrderCreateDTO purchaseOrderCreateDTO) throws IOException;
 
-        void deletePurchaseOrder(UUID idPurchaseOrder);
+        PurchaseOrder getClientPurchaseOrderById(UUID idPurchaseOrder);
+        List<PurchaseOrderSummaryDTO> getClientPurchaseOrderSummary();
+
+        void deleteClientPurchaseOrder(UUID idPurchaseOrder);
 
 
-        PurchaseOrderDTO updatePurchaseOrder(PurchaseOrderUpdateDTO purchaseOrderUpdateDTO) throws IOException;
-        PurchaseOrderDTO updatePurchaseOrderStatus(UUID invoiceId, PurchaseOrderStatus purchaseOrderStatus);
+        PurchaseOrderDTO updateClientPurchaseOrder(PurchaseOrderUpdateDTO purchaseOrderUpdateDTO) throws IOException;
+        PurchaseOrderDTO updateClientPurchaseOrderStatus(UUID invoiceId, PurchaseOrderStatus purchaseOrderStatus);
 
         boolean existsByPurchaseOrderNumber(String purchaseOrderNumber);
 
-        boolean existsByPurchaseOrderId(UUID purchaseOrderId);
+        boolean existsByClientPurchaseOrderId(UUID purchaseOrderId);
+
+        /** Supplier**/
+        Page<PurchaseOrderPageItemDTO> getSupplierPurchaseOrders(String keyword , String filtre, int page);
+
+        PurchaseOrderDTO createSupplierPurchaseOrder(PurchaseOrderCreateDTO purchaseOrderCreateDTO) throws IOException;
+
+        PurchaseOrder getSupplierPurchaseOrderById(UUID idPurchaseOrder);
+        List<PurchaseOrderSummaryDTO> getSupplierPurchaseOrderSummary();
+
+        void deleteSupplierPurchaseOrder(UUID idPurchaseOrder);
+
+
+        PurchaseOrderDTO updateSupplierPurchaseOrder(PurchaseOrderUpdateDTO purchaseOrderUpdateDTO) throws IOException;
+        PurchaseOrderDTO updateSupplierPurchaseOrderStatus(UUID invoiceId, PurchaseOrderStatus purchaseOrderStatus);
+
+        boolean existsBySupplierPurchaseOrderNumber(String purchaseOrderNumber);
+
+        boolean existsBySupplierPurchaseOrderId(UUID purchaseOrderId);
 
 }

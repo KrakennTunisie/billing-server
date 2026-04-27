@@ -2,6 +2,9 @@ package com.example.billingservice.infrastructure.out.persistance.dto;
 
 import com.example.billingservice.domain.enums.*;
 import com.example.billingservice.infrastructure.out.persistance.validators.ValidEnum;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotEmpty;
@@ -32,6 +35,9 @@ public class PurchaseOrderCreateDTO {
 
     @NotNull(message = "La condition de paiment est obligatoire")
     private PaymentCondition paymentCondition;
+
+    @NotNull(message = "Le type de bon de commande est obligatoire")
+    private PurchaseOrderType purchaseOrderType;
 
 
     @NotNull(message = "Le devise est obligatoire")
@@ -66,5 +72,8 @@ public class PurchaseOrderCreateDTO {
     // 👉 Document (like rne/patente)
     @NotNull(message = "Le document de bon de commande est obligatoire")
     private MultipartFile purchaseOrderDocument;
+
+
+
 
 }

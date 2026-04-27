@@ -13,6 +13,7 @@ import java.util.UUID;
 @Table(name = "purchase_orders")
 @Getter
 @Setter
+@DiscriminatorColumn(name = "purchaseOrder_type",discriminatorType = DiscriminatorType.STRING)
 public class PurchaseOrderEntity extends BaseCommercialDocumentEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

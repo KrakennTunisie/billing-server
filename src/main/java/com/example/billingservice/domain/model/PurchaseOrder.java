@@ -1,6 +1,8 @@
 package com.example.billingservice.domain.model;
 
+import com.example.billingservice.domain.enums.InvoiceType;
 import com.example.billingservice.domain.enums.PurchaseOrderStatus;
+import com.example.billingservice.domain.enums.PurchaseOrderType;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
@@ -15,6 +17,7 @@ public class PurchaseOrder extends BaseCommercialDocument{
 
     private UUID idPurchaseOrder;
     private List<Invoice> invoices;
+    private PurchaseOrderType purchaseOrderType;
     private PurchaseOrderStatus purchaseOrderStatus;
     private List<PurchaseOrderItem> purchaseOrderItems;
     private Document purchaseOrderDocument;

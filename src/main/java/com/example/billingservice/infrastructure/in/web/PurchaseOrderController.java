@@ -54,7 +54,7 @@ public class PurchaseOrderController {
         );
         System.out.println(purchaseOrderItems);
         form.setPurchaseOrderItems(purchaseOrderItems);
-        return ResponseEntity.status(201).body(purchaseOrderUseCase.createPurchaseOrder(form));
+        return ResponseEntity.status(201).body(purchaseOrderUseCase.createClientPurchaseOrder(form));
     }
 
     @Operation(summary = "Liste des bons de commande")
@@ -62,7 +62,7 @@ public class PurchaseOrderController {
     public ResponseEntity <Page<PurchaseOrderPageItemDTO>> getPurchaseOrders(@RequestParam(required = false) String keyword, @RequestParam(required = false) String filter,
                                                                              @RequestParam int page )
     {
-        return ResponseEntity.ok(purchaseOrderUseCase.getPurchaseOrders(keyword,filter, page));
+        return ResponseEntity.ok(purchaseOrderUseCase.getClientPurchaseOrders(keyword,filter, page));
     }
 
 
@@ -70,14 +70,14 @@ public class PurchaseOrderController {
     @Operation(summary = "Détails d'un bon de commande")
     public ResponseEntity<PurchaseOrder> getPurchaseOrderById(@Parameter(description = "ID du bon de commande") @PathVariable String id)
     {
-        PurchaseOrder purchaseOrder =  purchaseOrderUseCase.getById(UUID.fromString(id));
+        PurchaseOrder purchaseOrder =  purchaseOrderUseCase.getClientPurchaseOrderById(UUID.fromString(id));
         return ResponseEntity.status(201).body(purchaseOrder);
 
     }
 
     @GetMapping("/summary")
     public ResponseEntity <List<PurchaseOrderSummaryDTO>> getPurchaseOrderSummary(){
-        return ResponseEntity.ok(purchaseOrderUseCase.getPurchaseOrderSummary());
+        return ResponseEntity.ok(purchaseOrderUseCase.getClientPurchaseOrderSummary());
     }
 
     @Operation(summary = "Mise à jour de Bon de commande", description = "Mettre à jour un Bon de commande existant")
@@ -91,7 +91,7 @@ public class PurchaseOrderController {
         );
         System.out.println(purchaseOrderItems);
         form.setPurchaseOrderItems(purchaseOrderItems);
-        return ResponseEntity.status(201).body(purchaseOrderUseCase.updatePurchaseOrder(form));
+        return ResponseEntity.status(201).body(purchaseOrderUseCase.updateClientPurchaseOrder(form));
     }
 
     @PatchMapping("/{purchaseOrderId}/status")
@@ -100,7 +100,7 @@ public class PurchaseOrderController {
             @Valid @ModelAttribute UpdatePurchaseOrderStatusRequest request
     ) {
 
-        PurchaseOrderDTO updated = purchaseOrderUseCase.updatePurchaseOrderStatus(
+        PurchaseOrderDTO updated = purchaseOrderUseCase.updateClientPurchaseOrderStatus(
                 UUID.fromString(purchaseOrderId),
                 PurchaseOrderStatus.valueOf(request.getStatus())
         );
@@ -112,7 +112,78 @@ public class PurchaseOrderController {
     @Operation(summary = "Suppression d'un bon de commande")
     public ResponseEntity<Void> deletePurchaseOrder(@Parameter(description = "ID du bon de commande") @PathVariable String id)
     {
-        purchaseOrderUseCase.deletePurchaseOrder(UUID.fromString(id));
+        purchaseOrderUseCase.deleteClientPurchaseOrder(UUID.fromString(id));
+        return ResponseEntity.noContent().build();
+    }
+
+    /************ SUPPLIER ************/
+
+    @Operation(summary = "Créer un bon de commande", description = "Ajoute un nouveau bon de commande")
+    @PostMapping(path = "/supplier", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<PurchaseOrderDTO> createSupplierPurchaseOrder ( @ModelAttribute PurchaseOrderCreateDTO form,
+                                                                  @RequestParam(value = "purchaseOrderItemsList", required = true) String purchaseOrderItemsJson)
+            throws DataIntegrityViolationException, IOException {
+        List<PurchaseOrderItemCreateDTO> purchaseOrderItems = objectMapper.readValue(
+                purchaseOrderItemsJson,
+                new TypeReference<List<PurchaseOrderItemCreateDTO>>() {}
+        );
+        System.out.println(purchaseOrderItems);
+        form.setPurchaseOrderItems(purchaseOrderItems);
+        return ResponseEntity.status(201).body(purchaseOrderUseCase.createSupplierPurchaseOrder(form));
+    }
+    @Operation(summary = "Liste des bons de commande")
+    @GetMapping("/supplier")
+    public ResponseEntity <Page<PurchaseOrderPageItemDTO>> getSupplierPurchaseOrders(@RequestParam(required = false) String keyword, @RequestParam(required = false) String filter,
+                                                                             @RequestParam int page )
+    {
+        return ResponseEntity.ok(purchaseOrderUseCase.getSupplierPurchaseOrders(keyword,filter, page));
+    }
+
+
+    @GetMapping("/supplier/{id}")
+    @Operation(summary = "Détails d'un bon de commande")
+    public ResponseEntity<PurchaseOrder> getSupplierPurchaseOrderById(@Parameter(description = "ID du bon de commande") @PathVariable String id)
+    {
+        PurchaseOrder purchaseOrder =  purchaseOrderUseCase.getSupplierPurchaseOrderById(UUID.fromString(id));
+        return ResponseEntity.status(201).body(purchaseOrder);
+    }
+    @GetMapping("/supplier/summary")
+    public ResponseEntity <List<PurchaseOrderSummaryDTO>> getSupplierPurchaseOrderSummary(){
+        return ResponseEntity.ok(purchaseOrderUseCase.getSupplierPurchaseOrderSummary());
+    }
+
+    @Operation(summary = "Mise à jour de Bon de commande", description = "Mettre à jour un Bon de commande existant")
+    @PatchMapping(path = "/supplier", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<PurchaseOrderDTO> updateSupplierPurchaseOrder (@Valid @ModelAttribute PurchaseOrderUpdateDTO form
+            ,@RequestParam(value = "purchaseOrderItemsList", required = true) String purchaseOrderItemsJson)
+            throws DataIntegrityViolationException, IOException {
+        List<PurchaseOrderItemCreateDTO> purchaseOrderItems = objectMapper.readValue(
+                purchaseOrderItemsJson,
+                new TypeReference<List<PurchaseOrderItemCreateDTO>>() {}
+        );
+        System.out.println(purchaseOrderItems);
+        form.setPurchaseOrderItems(purchaseOrderItems);
+        return ResponseEntity.status(201).body(purchaseOrderUseCase.updateSupplierPurchaseOrder(form));
+    }
+    @PatchMapping("/supplier/{purchaseOrderId}/status")
+    public ResponseEntity<PurchaseOrderDTO> updateSupplierPurchaseOrderStatus(
+            @PathVariable String purchaseOrderId,
+            @Valid @ModelAttribute UpdatePurchaseOrderStatusRequest request
+    ) {
+
+        PurchaseOrderDTO updated = purchaseOrderUseCase.updateSupplierPurchaseOrderStatus(
+                UUID.fromString(purchaseOrderId),
+                PurchaseOrderStatus.valueOf(request.getStatus())
+        );
+
+        return ResponseEntity.ok(updated);
+    }
+
+    @DeleteMapping("/supplier/{id}")
+    @Operation(summary = "Suppression d'un bon de commande")
+    public ResponseEntity<Void> deleteSupplierPurchaseOrder(@Parameter(description = "ID du bon de commande") @PathVariable String id)
+    {
+        purchaseOrderUseCase.deleteSupplierPurchaseOrder(UUID.fromString(id));
         return ResponseEntity.noContent().build();
     }
 }
