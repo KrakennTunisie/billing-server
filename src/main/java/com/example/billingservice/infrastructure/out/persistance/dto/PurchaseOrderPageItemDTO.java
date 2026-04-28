@@ -1,6 +1,8 @@
 package com.example.billingservice.infrastructure.out.persistance.dto;
 
 import com.example.billingservice.domain.enums.InvoiceCurrency;
+import com.example.billingservice.domain.enums.PurchaseOrderStatus;
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -14,6 +16,7 @@ public class PurchaseOrderPageItemDTO {
     private UUID idPurchaseOrder;
     private String purchaseOrderNumber;
     private Date issueDate;
+    private PurchaseOrderStatus purchaseOrderStatus;
     private InvoiceCurrency purchaseCurrency;
     private Double totalExclTaxEUR;
     private Double totalInclTaxEUR;

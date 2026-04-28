@@ -2,6 +2,7 @@ package com.example.billingservice.infrastructure.out.persistance.entity;
 
 import com.example.billingservice.domain.enums.ExchangeRateSource;
 import com.example.billingservice.domain.enums.InvoiceCurrency;
+import com.example.billingservice.domain.enums.PaymentCondition;
 import com.example.billingservice.domain.enums.PaymentMethod;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -24,6 +25,9 @@ public abstract class BaseCommercialDocumentEntity {
 
     @Enumerated(EnumType.STRING)
     private PaymentMethod paymentMethod;
+
+    @Enumerated(EnumType.STRING)
+    private PaymentCondition paymentCondition;
 
 
     @Enumerated(EnumType.STRING)

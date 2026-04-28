@@ -1,26 +1,51 @@
 package com.example.billingservice.application.ports.in;
 
+import com.example.billingservice.domain.enums.InvoiceStatus;
+import com.example.billingservice.domain.enums.PurchaseOrderStatus;
 import com.example.billingservice.domain.model.PurchaseOrder;
 import com.example.billingservice.infrastructure.out.persistance.dto.*;
 import org.springframework.data.domain.Page;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 
 public interface PurchaseOrderUseCase {
-        Page<PurchaseOrderPageItemDTO> getPurchaseOrders(String keyword , int page);
 
-        PurchaseOrderDTO createPurchaseOrder(PurchaseOrderCreateDTO purchaseOrderCreateDTO) throws IOException;
+        /***Client **/
+        Page<PurchaseOrderPageItemDTO> getClientPurchaseOrders(String keyword , String filtre, int page);
 
-        PurchaseOrder getById(UUID idPurchaseOrder);
+        PurchaseOrderDTO createClientPurchaseOrder(PurchaseOrderCreateDTO purchaseOrderCreateDTO) throws IOException;
 
-        void deletePurchaseOrder(UUID idPurchaseOrder);
+        PurchaseOrder getClientPurchaseOrderById(UUID idPurchaseOrder);
+        List<PurchaseOrderSummaryDTO> getClientPurchaseOrderSummary();
+
+        void deleteClientPurchaseOrder(UUID idPurchaseOrder);
 
 
-        PurchaseOrderDTO updatePurchaseOrder(PurchaseOrderUpdateDTO purchaseOrderUpdateDTO) throws IOException;
+        PurchaseOrderDTO updateClientPurchaseOrder(PurchaseOrderUpdateDTO purchaseOrderUpdateDTO) throws IOException;
+        PurchaseOrderDTO updateClientPurchaseOrderStatus(UUID invoiceId, PurchaseOrderStatus purchaseOrderStatus);
 
         boolean existsByPurchaseOrderNumber(String purchaseOrderNumber);
 
-        boolean existsByPurchaseOrderId(UUID purchaseOrderId);
+        boolean existsByClientPurchaseOrderId(UUID purchaseOrderId);
+
+        /** Supplier**/
+        Page<PurchaseOrderPageItemDTO> getSupplierPurchaseOrders(String keyword , String filtre, int page);
+
+        PurchaseOrderDTO createSupplierPurchaseOrder(PurchaseOrderCreateDTO purchaseOrderCreateDTO) throws IOException;
+
+        PurchaseOrder getSupplierPurchaseOrderById(UUID idPurchaseOrder);
+        List<PurchaseOrderSummaryDTO> getSupplierPurchaseOrderSummary();
+
+        void deleteSupplierPurchaseOrder(UUID idPurchaseOrder);
+
+
+        PurchaseOrderDTO updateSupplierPurchaseOrder(PurchaseOrderUpdateDTO purchaseOrderUpdateDTO) throws IOException;
+        PurchaseOrderDTO updateSupplierPurchaseOrderStatus(UUID invoiceId, PurchaseOrderStatus purchaseOrderStatus);
+
+        boolean existsBySupplierPurchaseOrderNumber(String purchaseOrderNumber);
+
+        boolean existsBySupplierPurchaseOrderId(UUID purchaseOrderId);
 
 }

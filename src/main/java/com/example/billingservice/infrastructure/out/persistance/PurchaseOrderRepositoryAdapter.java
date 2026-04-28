@@ -1,10 +1,19 @@
-package com.example.billingservice.infrastructure.out.persistance;
+/*package com.example.billingservice.infrastructure.out.persistance;
 
 import com.example.billingservice.application.ports.out.PurchaseOrderRepoistoryPort;
+import com.example.billingservice.domain.enums.InvoiceStatus;
+import com.example.billingservice.domain.enums.InvoiceType;
+import com.example.billingservice.domain.enums.PartnerType;
+import com.example.billingservice.domain.enums.PurchaseOrderStatus;
+import com.example.billingservice.domain.model.Invoice;
 import com.example.billingservice.domain.model.PurchaseOrder;
+import com.example.billingservice.infrastructure.out.persistance.dto.PartnerSummaryDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.PurchaseOrderDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.PurchaseOrderPageItemDTO;
+import com.example.billingservice.infrastructure.out.persistance.dto.PurchaseOrderSummaryDTO;
+import com.example.billingservice.infrastructure.out.persistance.entity.CustomerEntity;
 import com.example.billingservice.infrastructure.out.persistance.entity.PurchaseOrderEntity;
+import com.example.billingservice.infrastructure.out.persistance.entity.SupplierInvoiceEntity;
 import com.example.billingservice.infrastructure.out.persistance.mapper.PurchaseOrderMapper;
 import com.example.billingservice.infrastructure.out.persistance.repository.PurchaseOrderRepository;
 import lombok.RequiredArgsConstructor;
@@ -26,9 +35,9 @@ public class PurchaseOrderRepositoryAdapter implements PurchaseOrderRepoistoryPo
     private final PurchaseOrderMapper purchaseOrderMapper;
 
     @Override
-    public Page<PurchaseOrderPageItemDTO> findAllPurchaseOrders(String keyword, int page) {
+    public Page<PurchaseOrderPageItemDTO> findAllPurchaseOrders(String keyword, PurchaseOrderStatus status, int page) {
         PageRequest pageRequest = PageRequest.of(page, 10, Sort.by("issueDate").descending());
-        Page<PurchaseOrderEntity> entities = purchaseOrderRepository.getPurchaseOrders(keyword, pageRequest);
+        Page<PurchaseOrderEntity> entities = purchaseOrderRepository.getPurchaseOrders(keyword, status,pageRequest);
 
         List<PurchaseOrderPageItemDTO> invoices = entities.getContent()
                 .stream()
@@ -42,12 +51,13 @@ public class PurchaseOrderRepositoryAdapter implements PurchaseOrderRepoistoryPo
     @Override
     public PurchaseOrder createPurchaseOrder(PurchaseOrder purchaseOrder) {
         PurchaseOrderEntity entity = purchaseOrderMapper.toEntity(purchaseOrder);
+
         PurchaseOrderEntity savedEntity = purchaseOrderRepository.save(entity);
         PurchaseOrder savedPurchaseOrder = purchaseOrderMapper.toDomain(savedEntity);/*
         entity.getInvoiceEvents().forEach(
                 invoiceEventEntity -> invoiceEventEntity.setInvoice(savedEntity)
         );
-        jpaInvoiceEventRepository.saveAll(entity.getInvoiceEvents());*/
+        jpaInvoiceEventRepository.saveAll(entity.getInvoiceEvents());
 
 
         return  savedPurchaseOrder;
@@ -68,9 +78,18 @@ public class PurchaseOrderRepositoryAdapter implements PurchaseOrderRepoistoryPo
         entity.getInvoiceEvents().forEach(
                 invoiceEventEntity -> invoiceEventEntity.setInvoice(savedEntity)
         );
-        jpaInvoiceEventRepository.saveAll(entity.getInvoiceEvents());*/
+        jpaInvoiceEventRepository.saveAll(entity.getInvoiceEvents());
 
         return  purchaseOrderMapper.domainToPurchaseOrderDTO(purchaseOrder1);
+    }
+
+    @Override
+    public PurchaseOrderDTO updateStatus(UUID purchaseOrderId, PurchaseOrderStatus newStatus) {
+        PurchaseOrderEntity entity = purchaseOrderRepository.getReferenceById(purchaseOrderId);
+        entity.setPurchaseOrderStatus(newStatus);
+        PurchaseOrder purchaseOrder = purchaseOrderMapper.toDomain(purchaseOrderRepository.save(entity));
+
+        return  purchaseOrderMapper.domainToPurchaseOrderDTO(purchaseOrder);
     }
 
     @Override
@@ -88,4 +107,15 @@ public class PurchaseOrderRepositoryAdapter implements PurchaseOrderRepoistoryPo
     public boolean existsByPurchaseOrderId(UUID purchaseOrderId) {
         return purchaseOrderRepository.existsByIdPurchaseOrder(purchaseOrderId);
     }
-}
+
+    @Override
+    public List<PurchaseOrderSummaryDTO> getPurchaseOrderSummary() {
+            List<PurchaseOrderEntity>  purchaseOrderEntities= purchaseOrderRepository.getPurchaseOrdersByStatus(List.of(PurchaseOrderStatus.DRAFT, PurchaseOrderStatus.IN_DELIVERY));
+            return purchaseOrderEntities.stream()
+                    .map(entity->purchaseOrderMapper.toDomain(entity))
+                    .map(purchaseOrderMapper::toSummaryDTO)
+                    .toList();
+
+    }
+
+}**/

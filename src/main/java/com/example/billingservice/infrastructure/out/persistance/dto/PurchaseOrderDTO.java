@@ -2,6 +2,7 @@ package com.example.billingservice.infrastructure.out.persistance.dto;
 
 import com.example.billingservice.domain.enums.*;
 import com.example.billingservice.domain.model.PurchaseOrderItem;
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,7 +18,7 @@ public class PurchaseOrderDTO {
 
     private UUID idPurchaseOrder;
     private String purchaseOrderNumber;
-
+    private PurchaseOrderStatus purchaseOrderStatus;
     private Date issueDate;
     private InvoiceCurrency purchaseCurrency;
     private Double totalExclTaxEUR;
@@ -30,7 +31,7 @@ public class PurchaseOrderDTO {
 
     private Double vatRate;
     private PaymentMethod paymentMethod;
-
+    private PaymentCondition paymentCondition;
     private PartnerSummaryDTO partner;
 
     private List<InvoiceSummaryDTO> invoices;

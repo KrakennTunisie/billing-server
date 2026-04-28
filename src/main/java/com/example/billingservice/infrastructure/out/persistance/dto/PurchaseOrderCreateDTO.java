@@ -1,11 +1,13 @@
 package com.example.billingservice.infrastructure.out.persistance.dto;
 
-import com.example.billingservice.domain.enums.ExchangeRateSource;
-import com.example.billingservice.domain.enums.InvoiceCurrency;
-import com.example.billingservice.domain.enums.PaymentMethod;
+import com.example.billingservice.domain.enums.*;
 import com.example.billingservice.infrastructure.out.persistance.validators.ValidEnum;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
@@ -27,6 +29,15 @@ public class PurchaseOrderCreateDTO {
     @NotNull(message = "La date d'émission est obligatoire")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date issueDate;
+
+    @NotNull(message = "La status de bon commande est obligatoire")
+    private PurchaseOrderStatus purchaseOrderStatus;
+
+    @NotNull(message = "La condition de paiment est obligatoire")
+    private PaymentCondition paymentCondition;
+
+    @NotNull(message = "Le type de bon de commande est obligatoire")
+    private PurchaseOrderType purchaseOrderType;
 
 
     @NotNull(message = "Le devise est obligatoire")
@@ -54,12 +65,15 @@ public class PurchaseOrderCreateDTO {
     @NotNull(message = "Le partenaire est obligatoire")
     private String partner;
 
-    //@Valid
-    //@NotEmpty(message = "Au moins une ligne de facture est obligatoire")
+    @Setter
+    @NotEmpty(message = "Au moins une ligne de facture est obligatoire")
     private List<PurchaseOrderItemCreateDTO> purchaseOrderItems;
 
     // 👉 Document (like rne/patente)
     @NotNull(message = "Le document de bon de commande est obligatoire")
     private MultipartFile purchaseOrderDocument;
+
+
+
 
 }
