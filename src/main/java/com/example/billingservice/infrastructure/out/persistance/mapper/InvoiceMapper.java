@@ -465,7 +465,7 @@ public class InvoiceMapper {
     }
     /** a reformuler ça dépend la status*/
     public PurchaseOrder getPurchaseOrder( UUID idPurchaseOrder){
-        return purchaseOrderUseCase.getClientPurchaseOrderById(idPurchaseOrder);
+        return purchaseOrderUseCase.getDomainePurchaseOrderById(idPurchaseOrder);
     }
 
     private InvoiceEntity createEntityByInvoiceType(InvoiceType invoiceType) {
