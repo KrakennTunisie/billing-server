@@ -1,10 +1,7 @@
 package com.example.billingservice.application.service;
 
 import com.example.billingservice.application.Utils.InvoiceStatusPassagePolicy;
-import com.example.billingservice.application.ports.in.GenerateInvoiceNumberUseCase;
-import com.example.billingservice.application.ports.in.InvoiceCreditNoteUseCase;
-import com.example.billingservice.application.ports.in.InvoiceUseCase;
-import com.example.billingservice.application.ports.in.PartnerUseCase;
+import com.example.billingservice.application.ports.in.*;
 import com.example.billingservice.application.ports.out.ClientInvoicesRepositoryPort;
 import com.example.billingservice.application.ports.out.SupplierInvoicesRepositoryPort;
 import com.example.billingservice.domain.enums.*;
@@ -19,12 +16,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.util.*;
 
 
 @Service
 @AllArgsConstructor
-public class InvoiceService implements InvoiceUseCase {
+public class InvoiceService implements InvoiceUseCase, InvoiceStatsUseCase {
 
     private final InvoiceMapper invoiceMapper;
     private final UploadDocumentService uploadDocumentService;
@@ -33,6 +33,7 @@ public class InvoiceService implements InvoiceUseCase {
     private final ClientInvoicesRepositoryPort clientInvoicesRepositoryPort;
     private final SupplierInvoicesRepositoryPort supplierInvoicesRepositoryPort;
     private final InvoiceCreditNoteUseCase invoiceCreditNoteUseCase;
+    private final CurrencyConversionUseCase currencyConversionUseCase;
 
     @Override
     public InvoiceDTO createInvoice(InvoiceCreateDTO createDTO) throws IOException, BillingException {
@@ -249,13 +250,6 @@ public class InvoiceService implements InvoiceUseCase {
     }
 
 
-    private void mapItemFields(InvoiceItem source, InvoiceItem target) {
-        target.setDescription(source.getDescription());
-        target.setQuantity(source.getQuantity());
-        target.setUnityPriceEXclTax(source.getUnityPriceEXclTax());
-        target.setVatRate(source.getVatRate());
-    }
-
     private InvoiceDTO createBaseInvoice(InvoiceCreateDTO createDTO) throws IOException {
 
 
@@ -266,7 +260,8 @@ public class InvoiceService implements InvoiceUseCase {
             UploadedFile document = new UploadedFile(
                     createDTO.getInvoiceDocument().getOriginalFilename(),
                     createDTO.getInvoiceDocument().getContentType(),
-                    createDTO.getInvoiceDocument().getBytes()
+                    createDTO.getInvoiceDocument().getInputStream(),
+                    createDTO.getInvoiceDocument().getSize()
             );
 
             invoiceDocument = uploadDocumentService.upload(
@@ -277,14 +272,6 @@ public class InvoiceService implements InvoiceUseCase {
         }
 
         Invoice invoice = invoiceMapper.invoiceCreateDTOtoDomain(createDTO, invoiceDocument, invoiceNumber);
-
-/*
-        SyncInvoiceItems.syncInvoiceItems(
-                invoice,
-                createDTO.getInvoiceItems() != null ? createDTO.getInvoiceItems() : List.of()
-        );
-*/
-        //System.out.println("createdInvoice:"+invoice.getInvoiceType());
 
         InvoiceDTO savedInvoice =
                 invoice.getInvoiceType() == InvoiceType.PURCHASE
@@ -315,7 +302,8 @@ public class InvoiceService implements InvoiceUseCase {
         UploadedFile document = new UploadedFile(
                 invoiceUpdateDTO.getInvoiceDocument().getOriginalFilename(),
                 invoiceUpdateDTO.getInvoiceDocument().getContentType(),
-                invoiceUpdateDTO.getInvoiceDocument().getBytes()
+                invoiceUpdateDTO.getInvoiceDocument().getInputStream(),
+                invoiceUpdateDTO.getInvoiceDocument().getSize()
         );
 
 
@@ -327,13 +315,49 @@ public class InvoiceService implements InvoiceUseCase {
 
         Invoice invoice = invoiceMapper.updateDTOtoDomain(invoiceUpdateDTO, invoiceDTO, invoiceDocument);
 
-
-/*        SyncInvoiceItems.syncInvoiceItems(
-                invoice,
-                invoiceUpdateDTO.getInvoiceItems() != null ? invoiceUpdateDTO.getInvoiceItems() : List.of()
-        );*/
-
         return invoice;
+    }
+
+
+    @Override
+    public InvoicesStatsResponse getClientsInvoicesStats(int year) {
+        return clientInvoicesRepositoryPort.getClientsInvoicesStats(year);
+    }
+
+    @Override
+    public InvoicesStatsResponse getSuppliersInvoicesStats(int year) {
+        return supplierInvoicesRepositoryPort.getSuppliersInvoicesStats(year);
+    }
+
+    @Override
+    public ConvertedInvoiceStats getClientInvoiceStats(UUID idPartner) {
+        if(!partnerUseCase.customerExistsByIdPartner(idPartner)){
+            throw BillingException.notFound("Client", String.valueOf(idPartner));
+        }
+        return clientInvoicesRepositoryPort.getClientInvoiceStats(idPartner);
+
+    }
+
+    @Override
+    public PartnerInvoiceStatsResponse getSupplierInvoiceStats(UUID idPartner) {
+        return supplierInvoicesRepositoryPort.getSupplierInvoicesStats(idPartner);
+    }
+
+    @Override
+    public List<ClientInvoiceDashboardStatsMultiCurrencyDTO> getClientInvoicesDashboardStats(int year) {
+
+        return clientInvoicesRepositoryPort.getClientInvoicesDashboardStats(year);
+
+    }
+
+    @Override
+    public List<ClientInvoiceDashboardStatsMultiCurrencyDTO> getSuppliersInvoicesDashboardStats(int year) {
+        return List.of();
+    }
+
+    @Override
+    public ConvertedInvoiceStats getALLClientInvoiceStats() {
+        return clientInvoicesRepositoryPort.getAllClientInvoiceCountStats(InvoiceStatus.TO_COLLECT);
     }
 
 

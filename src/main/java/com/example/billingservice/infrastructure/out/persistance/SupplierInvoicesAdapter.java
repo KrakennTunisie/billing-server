@@ -7,6 +7,8 @@ import com.example.billingservice.domain.exceptions.BillingException;
 import com.example.billingservice.domain.model.Invoice;
 import com.example.billingservice.infrastructure.out.persistance.dto.InvoiceDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.InvoicePageItemDTO;
+import com.example.billingservice.infrastructure.out.persistance.dto.InvoicesStatsResponse;
+import com.example.billingservice.infrastructure.out.persistance.dto.PartnerInvoiceStatsResponse;
 import com.example.billingservice.infrastructure.out.persistance.entity.InvoiceEntity;
 import com.example.billingservice.infrastructure.out.persistance.entity.SupplierInvoiceEntity;
 import com.example.billingservice.infrastructure.out.persistance.mapper.InvoiceMapper;
@@ -96,6 +98,16 @@ public class SupplierInvoicesAdapter implements SupplierInvoicesRepositoryPort {
     public Invoice getInvoice(UUID idInvoice) {
         SupplierInvoiceEntity entity = supplierInvoicesRepository.getSupplierInvoiceEntityByIdInvoice(idInvoice);
         return invoiceMapper.toDomain(entity, InvoiceType.PURCHASE);
+    }
+
+    @Override
+    public InvoicesStatsResponse getSuppliersInvoicesStats(int year) {
+        return null;
+    }
+
+    @Override
+    public PartnerInvoiceStatsResponse getSupplierInvoicesStats(UUID idPartner) {
+        return null;
     }
 
     @Override

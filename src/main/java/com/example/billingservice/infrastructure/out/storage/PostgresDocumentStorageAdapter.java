@@ -43,19 +43,20 @@ public class PostgresDocumentStorageAdapter implements DocumentStoragePort {
         DocumentUtils.validateFile(file);
 
         try {
-            Document document = documentMapper.fromUploadedFile(file, documentType);
-            document.setStorageMode(DocumentStorageMode.DATABASE);
 
+            byte[] content = file.content().readAllBytes();
             DocumentContentEntity documentContentEntity = DocumentContentEntity.builder()
                     .idDocument(UUID.randomUUID())
                     .fileName(file.originalFileName())
                     .mimeType(file.mimeType())
-                    .fileContent(file.content())
-                    .fileSize((long) file.content().length)
+                    .fileContent(content)
+                    .fileSize((long) content.length)
                     .build();
 
             DocumentContent documentContent = documentContentMapper.toDomain(documentContentEntity);
             String downloadUrl = apiBaseUrl + downloadPrefix + documentContent.getIdDocumentContent()+ "/content";
+            Document document = documentMapper.fromUploadedFile(file, documentType);
+            document.setStorageMode(DocumentStorageMode.DATABASE);
             document.setStorageURL(downloadUrl);
             document.setContent(documentContent);
             return document;

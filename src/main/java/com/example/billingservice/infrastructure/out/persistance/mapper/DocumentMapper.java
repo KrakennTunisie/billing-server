@@ -11,6 +11,7 @@ import com.example.billingservice.shared.HashUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 
 @Component
@@ -55,18 +56,23 @@ public class DocumentMapper {
     }
 
 
-    public Document fromUploadedFile(UploadedFile uploadedFile, DocumentType documentType) {
+    public Document fromUploadedFile(UploadedFile uploadedFile, DocumentType documentType) throws IOException {
         if (uploadedFile == null) {
             return null;
         }
+        try {
 
-        return Document.builder()
-                .fileName(safe(uploadedFile.originalFileName()))
-                .mimeType(safe(uploadedFile.mimeType()))
-                .uploadedAt(LocalDateTime.now())
-                .documentType(documentType)
-                .hash(HashUtils.sha256(uploadedFile.content()))
-                .build();
+            return Document.builder()
+                    .fileName(safe(uploadedFile.originalFileName()))
+                    .mimeType(safe(uploadedFile.mimeType()))
+                    .uploadedAt(LocalDateTime.now())
+                    .documentType(documentType)
+                    .hash(HashUtils.sha256(uploadedFile.content().readAllBytes()))
+                    .build();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
 

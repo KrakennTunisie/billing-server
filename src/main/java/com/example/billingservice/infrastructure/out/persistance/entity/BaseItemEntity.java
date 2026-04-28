@@ -8,6 +8,8 @@ import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+
 @MappedSuperclass
 @Getter
 @Setter
@@ -25,4 +27,6 @@ public abstract class BaseItemEntity {
 
     @Enumerated(EnumType.STRING)
     private OperationCategory operationCategory;
+
+    private Double totalPriceIncTax;
 }

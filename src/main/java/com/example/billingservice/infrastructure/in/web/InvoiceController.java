@@ -1,5 +1,6 @@
 package com.example.billingservice.infrastructure.in.web;
 
+import com.example.billingservice.application.ports.in.InvoiceStatsUseCase;
 import com.example.billingservice.application.ports.in.InvoiceUseCase;
 import com.example.billingservice.application.service.GenerateInvoiceNumberService;
 import com.example.billingservice.domain.enums.InvoiceStatus;
@@ -30,6 +31,7 @@ import java.util.UUID;
 public class InvoiceController {
 
     private final InvoiceUseCase invoiceUseCase;
+    private final InvoiceStatsUseCase invoiceStatsUseCase;
     private final GenerateInvoiceNumberService generateInvoiceNumberService;
     private final ObjectMapper objectMapper;
 
@@ -174,4 +176,22 @@ public class InvoiceController {
         invoiceUseCase.deleteInvoice(UUID.fromString(id));
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping(CLIENT_INVOICES+"/stats")
+    @Operation(summary = "Détails d'une facture client")
+    public ResponseEntity<ConvertedInvoiceStats> getClientsInvoicesStats()
+    {
+        ConvertedInvoiceStats convertedInvoiceStats =  invoiceStatsUseCase.getALLClientInvoiceStats();
+        return ResponseEntity.status(200).body(convertedInvoiceStats);
+    }
+
+    @GetMapping(CLIENT_INVOICES+"/stats/{id}")
+    @Operation(summary = "Détails d'une facture client")
+    public ResponseEntity<ConvertedInvoiceStats> getClientInvoicesStats(@Parameter(description = "ID du facture") @PathVariable String id)
+    {
+        ConvertedInvoiceStats convertedInvoiceStats =  invoiceStatsUseCase.getClientInvoiceStats(UUID.fromString(id));
+        return ResponseEntity.status(200).body(convertedInvoiceStats);
+    }
+
+
 }

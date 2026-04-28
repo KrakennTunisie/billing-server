@@ -20,6 +20,8 @@ public interface CustomerRepository extends JpaRepository<CustomerEntity, UUID> 
 
     boolean existsByTaxRegistrationNumber(String taxRegistrationNumber);
 
+    boolean existsByName(String name);
+
     boolean existsByEmail(String email);
 
     boolean existsByIban(String email);

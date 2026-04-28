@@ -54,7 +54,8 @@ public class PurchaseOrderService implements PurchaseOrderUseCase {
             UploadedFile document = new UploadedFile(
                     purchaseOrderCreateDTO.getPurchaseOrderDocument().getOriginalFilename(),
                     purchaseOrderCreateDTO.getPurchaseOrderDocument().getContentType(),
-                    purchaseOrderCreateDTO.getPurchaseOrderDocument().getBytes()
+                    purchaseOrderCreateDTO.getPurchaseOrderDocument().getInputStream(),
+                    purchaseOrderCreateDTO.getPurchaseOrderDocument().getSize()
             );
 
             purchaseOrderDocument = uploadDocumentService.upload(
@@ -115,7 +116,8 @@ public class PurchaseOrderService implements PurchaseOrderUseCase {
         UploadedFile document = new UploadedFile(
                 purchaseOrderUpdateDTO.getPurchaseOrderDocument().getOriginalFilename(),
                 purchaseOrderUpdateDTO.getPurchaseOrderDocument().getContentType(),
-                purchaseOrderUpdateDTO.getPurchaseOrderDocument().getBytes()
+                purchaseOrderUpdateDTO.getPurchaseOrderDocument().getInputStream(),
+                purchaseOrderUpdateDTO.getPurchaseOrderDocument().getSize()
         );
 
 
