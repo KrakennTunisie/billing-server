@@ -4,6 +4,9 @@ import com.example.billingservice.domain.model.ExchangeRate;
 import com.example.billingservice.infrastructure.out.persistance.entity.ExchangeRateEntity;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 @Component
 public class ExchangeRateMapper {
 
@@ -40,4 +43,22 @@ public class ExchangeRateMapper {
         entity.setSource(domain.getSource());
         return entity;
     }
+
+    public ExchangeRateEntity toInvertedEntity(ExchangeRate domain) {
+        if (domain == null) {
+            return null;
+        }
+
+        ExchangeRateEntity entity = new ExchangeRateEntity();
+        entity.setIdExchangeRate(domain.getIdExchangeRate());
+        entity.setFromCurrency(domain.getToCurrency());
+        entity.setToCurrency(domain.getFromCurrency());
+        entity.setQuote(BigDecimal.ONE.divide(domain.getQuote(), RoundingMode.HALF_UP));
+        entity.setRateDate(domain.getRateDate());
+        entity.setFetchedAt(domain.getFetchedAt());
+        entity.setSource(domain.getSource());
+        return entity;
+    }
+
+
 }

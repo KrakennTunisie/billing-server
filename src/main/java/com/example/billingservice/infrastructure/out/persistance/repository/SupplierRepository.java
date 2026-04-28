@@ -16,6 +16,8 @@ public interface SupplierRepository extends JpaRepository<SupplierEntity, UUID> 
 
     boolean existsByIdPartner(UUID idPartner);
 
+    boolean existsByName(String name);
+
     boolean existsByTaxRegistrationNumber(String taxRegistrationNumber);
 
     boolean existsByEmail(String email);

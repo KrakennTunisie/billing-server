@@ -11,6 +11,7 @@ import com.example.billingservice.shared.CurrencyCalculator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -38,7 +39,7 @@ public class InvoiceMapper {
         invoice.setReference(dto.getReference());
         invoice.setIssueDate(dto.getIssueDate());
         invoice.setDueDate(dto.getDueDate());
-       // invoice.setInvoiceType(dto.getInvoiceType());
+        invoice.setTotalInclTaxTND(BigDecimal.valueOf(dto.getTotalInclTaxTND()));
         invoice.setInvoiceStatus(dto.getInvoiceStatus() != null ? dto.getInvoiceStatus() : InvoiceStatus.DRAFT);
         invoice.setInvoiceComplianceStatus(
                 dto.getInvoiceComplianceStatus() != null
@@ -235,7 +236,7 @@ public class InvoiceMapper {
             List<InvoiceItem> items = invoiceCreateDTO.getInvoiceItems() != null
                     ? invoiceCreateDTO.getInvoiceItems()
                     .stream()
-                    .map(invoiceItemMapper::invoiceItemCreateDTOtoDomain)
+                    .map( i-> invoiceItemMapper.invoiceItemCreateDTOtoDomain(i, invoiceCreateDTO.getAppliedExchangeRate()))
                     .toList()
                     : List.of();
             List<InvoiceItem> invoiceItems= new ArrayList<>(items);
@@ -392,7 +393,7 @@ public class InvoiceMapper {
             List<InvoiceItem> items = invoiceUpdateDTO.getInvoiceItems() != null
                     ? invoiceUpdateDTO.getInvoiceItems()
                     .stream()
-                    .map(invoiceItemMapper::invoiceItemCreateDTOtoDomain)
+                    .map(i-> invoiceItemMapper.invoiceItemCreateDTOtoDomain(i, invoiceUpdateDTO.getAppliedExchangeRate()))
                     .toList()
                     : List.of();
 

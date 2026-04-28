@@ -21,6 +21,9 @@ public interface CustomerRepositoryPort {
 
     boolean existsByIban(String iban);
 
+    boolean existsByName(String name);
+
+
     Page<PartnerItemDTO> findAllCustomers(String keyword , String Country , int page);
 
     List<PartnerSummaryDTO> getSummaryClients(String keyword , String Country);

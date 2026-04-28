@@ -40,6 +40,13 @@ public class PartnerService implements PartnerUseCase  {
             throw BillingException
                     .badRequest("Le Type est inadéquat");
         }
+        if (this.supplierRepositoryPort.existsByName(partner.getName())){
+            throw BillingException
+                    .alreadyExists(
+                            "Fournisseur",
+                            "Nom",
+                            partner.getName());
+        }
         if (this.supplierExistsByRegistrationNumber(partner.getTaxRegistrationNumber())){
             throw BillingException
                     .alreadyExists(
@@ -67,19 +74,22 @@ public class PartnerService implements PartnerUseCase  {
         UploadedFile rne = new UploadedFile(
                 partner.getRne().getOriginalFilename(),
                 partner.getRne().getContentType(),
-                partner.getRne().getBytes()
+                partner.getRne().getInputStream(),
+                partner.getRne().getSize()
         );
 
         UploadedFile contract = new UploadedFile(
                 partner.getContract().getOriginalFilename(),
                 partner.getContract().getContentType(),
-                partner.getContract().getBytes()
+                partner.getContract().getInputStream(),
+                partner.getContract().getSize()
         );
 
         UploadedFile patente = new UploadedFile(
                 partner.getPatente().getOriginalFilename(),
                 partner.getPatente().getContentType(),
-                partner.getPatente().getBytes()
+                partner.getPatente().getInputStream(),
+                partner.getPatente().getSize()
         );
 
          Document uploadedRne = uploadDocumentService.upload(partner.getTaxRegistrationNumber(), DocumentType.RNE, rne);
@@ -151,6 +161,13 @@ public class PartnerService implements PartnerUseCase  {
             throw BillingException
                     .badRequest("Le Type est inadéquat");
         }
+        if (customerRepositoryPort.existsByName(partner.getName())){
+            throw BillingException
+                    .alreadyExists(
+                            "Client",
+                            "Nom",
+                            partner.getName());
+        }
         if (this.customerExistsByRegistrationNumber(partner.getTaxRegistrationNumber())){
             throw BillingException
                     .alreadyExists(
@@ -158,6 +175,7 @@ public class PartnerService implements PartnerUseCase  {
                             "Tax Registration Number",
                             partner.getTaxRegistrationNumber());
         }
+
         if (this.customerExistsByEmail(partner.getEmail())){
             throw BillingException
                     .alreadyExists(
@@ -175,19 +193,22 @@ public class PartnerService implements PartnerUseCase  {
         UploadedFile rne = new UploadedFile(
                 partner.getRne().getOriginalFilename(),
                 partner.getRne().getContentType(),
-                partner.getRne().getBytes()
+                partner.getRne().getInputStream(),
+                partner.getPatente().getSize()
         );
 
         UploadedFile contract = new UploadedFile(
                 partner.getContract().getOriginalFilename(),
                 partner.getContract().getContentType(),
-                partner.getContract().getBytes()
+                partner.getContract().getInputStream(),
+                partner.getContract().getSize()
         );
 
         UploadedFile patente = new UploadedFile(
                 partner.getPatente().getOriginalFilename(),
                 partner.getPatente().getContentType(),
-                partner.getPatente().getBytes()
+                partner.getPatente().getInputStream(),
+                partner.getPatente().getSize()
         );
 
         Document uploadedRne = uploadDocumentService.upload(partner.getTaxRegistrationNumber(), DocumentType.RNE, rne);

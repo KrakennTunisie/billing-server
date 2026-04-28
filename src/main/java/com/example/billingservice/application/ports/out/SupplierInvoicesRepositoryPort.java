@@ -5,6 +5,8 @@ import com.example.billingservice.domain.enums.InvoiceType;
 import com.example.billingservice.domain.model.Invoice;
 import com.example.billingservice.infrastructure.out.persistance.dto.InvoiceDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.InvoicePageItemDTO;
+import com.example.billingservice.infrastructure.out.persistance.dto.InvoicesStatsResponse;
+import com.example.billingservice.infrastructure.out.persistance.dto.PartnerInvoiceStatsResponse;
 import org.springframework.data.domain.Page;
 
 import java.util.UUID;
@@ -22,6 +24,11 @@ public interface SupplierInvoicesRepositoryPort {
     InvoiceDTO getById(UUID idInvoice);
 
     Invoice getInvoice(UUID idInvoice);
+
+    InvoicesStatsResponse getSuppliersInvoicesStats(int year);
+
+    PartnerInvoiceStatsResponse getSupplierInvoicesStats(UUID idPartner);
+
 
     void delete(UUID idInvoice);
 

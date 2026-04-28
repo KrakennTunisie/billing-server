@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -62,7 +63,7 @@ public class ExchangeRateApiAdapter implements ExchangeRatePort {
         return ExchangeRate.builder()
                 .fromCurrency(InvoiceCurrency.valueOf(fromCurrency))
                 .toCurrency(InvoiceCurrency.valueOf(toCurrency))
-                .quote(quote)
+                .quote(quote.setScale(2, RoundingMode.HALF_UP))
                 .rateDate(date)
                 .fetchedAt(fetchedAt)
                 .source("currencylayer")

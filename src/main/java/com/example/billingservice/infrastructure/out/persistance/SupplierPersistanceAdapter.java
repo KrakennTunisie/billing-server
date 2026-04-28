@@ -68,6 +68,11 @@ public class SupplierPersistanceAdapter implements SupplierRepositoryPort {
     }
 
     @Override
+    public boolean existsByName(String name) {
+        return supplierRepository.existsByName(name);
+    }
+
+    @Override
     public boolean existsByIban(String iban) {
         return supplierRepository.existsByIban(iban);
     }
@@ -78,7 +83,7 @@ public class SupplierPersistanceAdapter implements SupplierRepositoryPort {
     public Page<PartnerItemDTO> findAllSuppliers(String keyword, String Country, int page) {
         try {
 
-            PageRequest pageRequest = PageRequest.of(page, 10, Sort.by("name").ascending());
+            PageRequest pageRequest = PageRequest.of(page, 5, Sort.by("name").ascending());
             Page<SupplierEntity> entities = supplierRepository.findSuppliers(keyword,Country,pageRequest);
 
             List<PartnerItemDTO> partners = entities.getContent()

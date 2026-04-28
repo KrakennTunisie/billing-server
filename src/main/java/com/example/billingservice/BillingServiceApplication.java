@@ -2,8 +2,10 @@ package com.example.billingservice;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication(scanBasePackages = "com.example.billingservice")
+@EnableScheduling
 public class   BillingServiceApplication {
 
     public static void main(String[] args) {

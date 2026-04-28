@@ -26,7 +26,7 @@ public class ExchangeRateController {
 
 
         ExchangeRate exchangeRate = currencyConversionUseCase
-                .convert(BigDecimal.valueOf(1), fromCurrency, toCurrency, LocalDate.now());
+                .convert( fromCurrency, toCurrency, LocalDate.now());
 
         return ResponseEntity.ok()
                 .body(exchangeRate);
