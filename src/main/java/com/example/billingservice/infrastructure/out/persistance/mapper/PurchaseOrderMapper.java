@@ -48,7 +48,6 @@ public class PurchaseOrderMapper {
                 .mapToDouble(item -> item.getItemTotalInclTax() != null ? item.getItemTotalInclTax() : 0.0)
                 .sum();
 
-        double vatAmount = totalInclTax - totalExclTax;
 
 
         CurrencyTotals totals = currencyCalculator.calculateTotals(
@@ -75,7 +74,6 @@ public class PurchaseOrderMapper {
                 .totalExclTaxUSD(totals.totalExclTaxUSD())
                 .totalInclTaxUSD(totals.totalInclTaxUSD())
                 .vatRate(entity.getVatRate())
-                .vatRate(vatAmount)
                 .partner(partnerMapper.toDomain(entity.getPartner(), PartnerType.CLIENT))
                 .exchangeRateReferenceDate(entity.getExchangeRateReferenceDate())
                 .appliedExchangeRate(entity.getAppliedExchangeRate())
@@ -205,8 +203,9 @@ public class PurchaseOrderMapper {
                 .vatRate(purchaseOrder.getVatRate())
                 .paymentMethod(purchaseOrder.getPaymentMethod())
                 .paymentCondition(purchaseOrder.getPaymentCondition())
+                .purchaseOrderType(purchaseOrder.getPurchaseOrderType())
                 .partner(partnerMapper.toSummaryDTO(purchaseOrder.getPartner()))
-                .purchaseOrderItemsItems(purchaseOrder.getPurchaseOrderItems())
+                .purchaseOrderItems(purchaseOrder.getPurchaseOrderItems())
                 .purchaseOrderDocument(documentMapper.toDocumentSummary(purchaseOrder.getPurchaseOrderDocument()))
                 .build();
 

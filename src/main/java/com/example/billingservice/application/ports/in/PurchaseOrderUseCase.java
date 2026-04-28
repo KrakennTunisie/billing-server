@@ -17,7 +17,9 @@ public interface PurchaseOrderUseCase {
 
         PurchaseOrderDTO createClientPurchaseOrder(PurchaseOrderCreateDTO purchaseOrderCreateDTO) throws IOException;
 
-        PurchaseOrder getClientPurchaseOrderById(UUID idPurchaseOrder);
+        PurchaseOrderDTO getClientPurchaseOrderById(UUID idPurchaseOrder);
+
+        PurchaseOrder getDomainePurchaseOrderById(UUID idPurchaseOrder);
         List<PurchaseOrderSummaryDTO> getClientPurchaseOrderSummary();
 
         void deleteClientPurchaseOrder(UUID idPurchaseOrder);

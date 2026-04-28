@@ -96,11 +96,16 @@ public class PurchaseOrderService implements PurchaseOrderUseCase {
     }
 
     @Override
-    public PurchaseOrder getClientPurchaseOrderById(UUID idPurchaseOrder) {
+    public PurchaseOrderDTO getClientPurchaseOrderById(UUID idPurchaseOrder) {
         if(!clientPurchaseOrderPort.existsByPurchaseOrderId(idPurchaseOrder)){
             throw BillingException.notFound("PurchaseOrder", String.valueOf(idPurchaseOrder));
         }
         return clientPurchaseOrderPort.getById(idPurchaseOrder);
+    }
+
+    @Override
+    public PurchaseOrder getDomainePurchaseOrderById(UUID idPurchaseOrder) {
+        return clientPurchaseOrderPort.getDomainePurchaseOrderById(idPurchaseOrder);
     }
 
     @Override
@@ -122,7 +127,7 @@ public class PurchaseOrderService implements PurchaseOrderUseCase {
             throw BillingException.notFound("Bon de commande", String.valueOf(purchaseOrderUpdateDTO.getIdPurchaseOrder()));
         }
 
-        PurchaseOrder purchaseOrder = getClientPurchaseOrderById(purchaseOrderUpdateDTO.getIdPurchaseOrder());
+        PurchaseOrder purchaseOrder = getDomainePurchaseOrderById(purchaseOrderUpdateDTO.getIdPurchaseOrder());
 
         if(purchaseOrderUpdateDTO.getPurchaseOrderNumber() != null
                 && !purchaseOrderUpdateDTO.getPurchaseOrderNumber().equals(purchaseOrder.getReference())){
