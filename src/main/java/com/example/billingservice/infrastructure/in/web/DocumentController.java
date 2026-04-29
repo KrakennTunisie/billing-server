@@ -1,5 +1,6 @@
 package com.example.billingservice.infrastructure.in.web;
 
+import com.example.billingservice.application.ports.in.GetDocumentUseCase;
 import com.example.billingservice.application.service.ReadDocumentService;
 import com.example.billingservice.domain.model.DocumentContent;
 import lombok.RequiredArgsConstructor;
@@ -16,12 +17,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/documents")
 @RequiredArgsConstructor
 public class DocumentController {
-    private final ReadDocumentService readDocumentService;
+    private final GetDocumentUseCase getDocumentUseCase;
 
     @GetMapping("/{id}/content")
     public ResponseEntity<byte[]> getDocument(@PathVariable String id) {
 
-        DocumentContent doc = readDocumentService.getDocument(id);
+        DocumentContent doc = getDocumentUseCase.getDocument(id);
 
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(doc.getMimeType()))
