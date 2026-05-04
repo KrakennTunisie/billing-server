@@ -48,4 +48,5 @@ public interface PurchaseOrderUseCase {
 
         boolean existsBySupplierPurchaseOrderId(UUID purchaseOrderId);
 
+
 }
