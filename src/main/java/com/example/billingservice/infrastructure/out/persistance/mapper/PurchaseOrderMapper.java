@@ -140,7 +140,7 @@ public class PurchaseOrderMapper {
                     .exchangeRateSource(ExchangeRateSource.valueOf(purchaseOrderCreateDTO.getExchangeRateSource()))
                     .build();
 
-            Partner partner = getPartner(InvoiceType.SALE, purchaseOrderCreateDTO.getPartner());
+            Partner partner = getPartner(purchaseOrderCreateDTO.getPurchaseOrderType(), purchaseOrderCreateDTO.getPartner());
 
             purchaseOrder.setPartner(partner);
 
@@ -266,7 +266,7 @@ public class PurchaseOrderMapper {
 
 
             String idPartner = String.valueOf(purchaseOrderUpdateDTO.getPartner());
-            Partner partner = getPartner(InvoiceType.SALE, idPartner);
+            Partner partner = getPartner(PurchaseOrderType.SALE, idPartner);
             purchaseOrder1.setPartner(partner);
 
 
@@ -325,15 +325,16 @@ public class PurchaseOrderMapper {
                 .build();
     }
 
-    public Partner getPartner(InvoiceType invoiceType, String idPartner){
-        if(invoiceType == InvoiceType.PURCHASE){
-            return partnerUseCase.getSupplierById(idPartner).get();
+    public Partner getPartner(PurchaseOrderType invoiceType, String partner){
+        if(invoiceType == PurchaseOrderType.PURCHASE){
+
+            return partnerUseCase.getSupplierByName(partner).get();
         }
-        if (invoiceType == InvoiceType.SALE){
-            return partnerUseCase.findCustomerById(idPartner).get();
+        if (invoiceType == PurchaseOrderType.PURCHASE){
+            return partnerUseCase.findCustomerById(partner).get();
         }
         else {
-            throw BillingException.notFound("Partner ", idPartner);
+            throw BillingException.notFound("Partner ", partner);
         }
     }
 

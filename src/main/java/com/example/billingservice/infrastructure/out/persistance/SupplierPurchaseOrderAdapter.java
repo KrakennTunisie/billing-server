@@ -87,6 +87,8 @@ public class SupplierPurchaseOrderAdapter implements SupplierPurchaseOrderPort {
         return supplierPurchaseOrderRepository.existsByIdPurchaseOrder(purchaseOrderId);
     }
 
+
+
     @Override
     public List<PurchaseOrderSummaryDTO> getPurchaseOrderSummary() {
         List<SupplierPurchaseOrderEntity>  purchaseOrderEntities= supplierPurchaseOrderRepository.getPurchaseOrdersByStatus(List.of(PurchaseOrderStatus.DRAFT, PurchaseOrderStatus.IN_DELIVERY));

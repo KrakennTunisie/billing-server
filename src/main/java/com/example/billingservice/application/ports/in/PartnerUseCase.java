@@ -25,9 +25,10 @@ public interface PartnerUseCase {
     boolean supplierExistsByRegistrationNumber(String taxRegistrationNumber);
     boolean supplierExistsByEmail(String email);
     boolean supplierExistsByIban(String iban);
+    Optional<Partner> getSupplierByName(String name);
 
     Page<PartnerItemDTO> getAllSuppliers(String keyword , String Country , int page);
-
+    boolean existsBySupplierName(String name);
 
     Partner updateSupplier (String id , UpdatePartnerDTO command) throws DataIntegrityViolationException;
 

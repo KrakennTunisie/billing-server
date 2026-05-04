@@ -5,13 +5,8 @@ import com.example.billingservice.infrastructure.out.persistance.validators.Vali
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.validation.constraints.DecimalMax;
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.validation.constraints.*;
+import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -22,7 +17,7 @@ import java.util.List;
 @Builder
 public class PurchaseOrderCreateDTO {
 
-    //@NotBlank(message = "Le numéro de facture est obligatoire")
+    @NotBlank(message = "Le numéro de facture est obligatoire")
     @Setter
     private String purchaseOrderNumber;
 
@@ -69,7 +64,6 @@ public class PurchaseOrderCreateDTO {
     @NotEmpty(message = "Au moins une ligne de facture est obligatoire")
     private List<PurchaseOrderItemCreateDTO> purchaseOrderItems;
 
-    // 👉 Document (like rne/patente)
     @NotNull(message = "Le document de bon de commande est obligatoire")
     private MultipartFile purchaseOrderDocument;
 

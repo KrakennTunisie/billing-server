@@ -17,6 +17,7 @@ public interface SupplierPurchaseOrderRepository extends JpaRepository<SupplierP
 
     boolean existsByReference(String reference);
 
+
     @Query("""
         SELECT p FROM SupplierPurchaseOrderEntity p
         WHERE
