@@ -100,10 +100,12 @@ public class InvoiceCreditNoteService implements InvoiceCreditNoteUseCase {
 
         Document invoiceDocument = null;
         if (createDTO.getInvoiceDocument() != null && !createDTO.getInvoiceDocument().isEmpty()) {
+
             UploadedFile document = new UploadedFile(
                     createDTO.getInvoiceDocument().getOriginalFilename(),
                     createDTO.getInvoiceDocument().getContentType(),
-                    createDTO.getInvoiceDocument().getBytes()
+                    createDTO.getInvoiceDocument().getInputStream(),
+                    createDTO.getInvoiceDocument().getSize()
             );
 
             invoiceDocument = uploadDocumentService.upload(

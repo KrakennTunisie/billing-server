@@ -70,8 +70,13 @@ public class CustomerPersistanceAdapter implements CustomerRepositoryPort {
     }
 
     @Override
+    public boolean existsByName(String name) {
+        return customerRepository.existsByName(name);
+    }
+
+    @Override
     public Page<PartnerItemDTO> findAllCustomers(String keyword , String Country ,int page) {
-        PageRequest pageRequest = PageRequest.of(page, 10, Sort.by("name").ascending());
+        PageRequest pageRequest = PageRequest.of(page, 5, Sort.by("name").ascending());
         Page<CustomerEntity> entities = customerRepository.findCustomers(keyword,Country,pageRequest);
 
         List<PartnerItemDTO> partners = entities.getContent()

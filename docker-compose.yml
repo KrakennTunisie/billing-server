@@ -6,7 +6,10 @@ services:
     ports:
       - "8081:8081"
     depends_on:
-      - billing-db
+      billing-db:
+        condition: service_started
+      rabbitmq:
+          condition: service_healthy
     restart: unless-stopped
     volumes:
       - billing_storage:/app/storage
@@ -14,6 +17,10 @@ services:
       - ms-net
     environment:
       SPRING_CONFIG_IMPORT: configserver:http://config-server:8888
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: guest
+      SPRING_RABBITMQ_PASSWORD: guest
 
   billing-db:
     image: postgres:18
@@ -27,6 +34,25 @@ services:
     restart: unless-stopped
     networks:
       - ms-net
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"     # AMQP
+      - "15672:15672"   # UI
+    restart: unless-stopped
+    networks:
+      - ms-net
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
 volumes:
   billing_db_data:

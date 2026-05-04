@@ -32,11 +32,13 @@ public class PurchaseOrderDTO {
     private Double vatRate;
     private PaymentMethod paymentMethod;
     private PaymentCondition paymentCondition;
+    private Double appliedExchangeRate;
+    private PurchaseOrderType purchaseOrderType;
     private PartnerSummaryDTO partner;
 
     private List<InvoiceSummaryDTO> invoices;
 
-    private List<PurchaseOrderItem> purchaseOrderItemsItems;
+    private List<PurchaseOrderItem> purchaseOrderItems;
 
     private DocumentSummaryDTO purchaseOrderDocument;
 }

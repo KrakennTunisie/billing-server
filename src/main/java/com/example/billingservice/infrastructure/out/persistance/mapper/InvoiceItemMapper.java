@@ -1,5 +1,6 @@
 package com.example.billingservice.infrastructure.out.persistance.mapper;
 
+import com.example.billingservice.domain.enums.InvoiceCurrency;
 import com.example.billingservice.domain.enums.OperationCategory;
 import com.example.billingservice.domain.model.InvoiceItem;
 import com.example.billingservice.infrastructure.out.persistance.dto.InvoiceItemCreateDTO;
@@ -12,14 +13,14 @@ public class InvoiceItemMapper {
 
 
 
-    public InvoiceItem invoiceItemCreateDTOtoDomain(InvoiceItemCreateDTO dto) {
+    public InvoiceItem invoiceItemCreateDTOtoDomain(InvoiceItemCreateDTO dto, Double appliedExchangeRate) {
         if (dto == null) {
             return null;
         }
 
         Double totalExclTax = dto.getQuantity() * dto.getUnityPriceEXclTax();
         Double taxAmount = totalExclTax * dto.getVatRate() / 100;
-        Double totalInclTax = totalExclTax + taxAmount;
+        Double totalInclTax = (totalExclTax + taxAmount) / appliedExchangeRate;
 
         InvoiceItem invoiceItem =
                 InvoiceItem.builder()
@@ -136,6 +137,7 @@ public class InvoiceItemMapper {
         entity.setUnityPriceEXclTax(invoiceItem.getUnityPriceEXclTax());
         entity.setVatRate(invoiceItem.getVatRate());
         entity.setOperationCategory(invoiceItem.getOperationCategory());
+        entity.setTotalPriceIncTax(invoiceItem.getItemTotalInclTax());
 
         return entity;
     }

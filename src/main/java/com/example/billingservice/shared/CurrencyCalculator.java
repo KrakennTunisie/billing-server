@@ -29,9 +29,9 @@ public class CurrencyCalculator {
         validateInputs(currency, totalExclTax, totalInclTax, exchangeRate);
 
         BigDecimal eurToTndRate = currencyConversionUseCase
-                .convert(BigDecimal.valueOf(1), InvoiceCurrency.EUR.name(), InvoiceCurrency.TND.name(), LocalDate.now()).getQuote();
+                .convert( InvoiceCurrency.EUR.name(), InvoiceCurrency.TND.name(), LocalDate.now()).getQuote();
         BigDecimal usdToTndRate = currencyConversionUseCase
-                .convert(BigDecimal.valueOf(1), InvoiceCurrency.USD.name(), InvoiceCurrency.TND.name(), LocalDate.now()).getQuote();
+                .convert( InvoiceCurrency.USD.name(), InvoiceCurrency.TND.name(), LocalDate.now()).getQuote();
 
         BigDecimal excl = BigDecimal.valueOf(totalExclTax);
         BigDecimal incl = BigDecimal.valueOf(totalInclTax);
@@ -55,8 +55,8 @@ public class CurrencyCalculator {
         if (isEUR) {
             totalExclTaxEUR = excl;
             totalInclTaxEUR = incl;
-            totalExclTaxTND = excl.multiply(rate);
-            totalInclTaxTND = incl.multiply(rate);
+            totalExclTaxTND = excl.divide(rate, DIVISION_SCALE, RoundingMode.HALF_UP);
+            totalInclTaxTND = incl.divide(rate, DIVISION_SCALE, RoundingMode.HALF_UP);
             totalExclTaxUSD = totalExclTaxTND.divide(usdToTndRate, DIVISION_SCALE, RoundingMode.HALF_UP);
             totalInclTaxUSD = totalInclTaxTND.divide(usdToTndRate, DIVISION_SCALE, RoundingMode.HALF_UP);
 
@@ -64,8 +64,8 @@ public class CurrencyCalculator {
             totalExclTaxUSD = excl;
             totalInclTaxUSD = incl;
 
-            totalExclTaxTND = excl.multiply(usdToTndRate);
-            totalInclTaxTND = incl.multiply(usdToTndRate);
+            totalExclTaxTND = excl.divide(usdToTndRate,  DIVISION_SCALE, RoundingMode.HALF_UP);
+            totalInclTaxTND = incl.divide(usdToTndRate,  DIVISION_SCALE, RoundingMode.HALF_UP);
 
             totalExclTaxEUR = totalExclTaxTND.divide(eurToTndRate, DIVISION_SCALE, RoundingMode.HALF_UP);
             totalInclTaxEUR = totalInclTaxTND.divide(eurToTndRate, DIVISION_SCALE, RoundingMode.HALF_UP);

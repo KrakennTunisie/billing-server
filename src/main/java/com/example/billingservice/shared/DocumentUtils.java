@@ -12,7 +12,7 @@ public final class DocumentUtils {
         if (file == null) {
             throw new IllegalArgumentException("Uploaded file must not be null");
         }
-        if (file.content() == null || file.content().length == 0) {
+        if (file.content() == null ) {
             throw new IllegalArgumentException("Uploaded file content must not be empty");
         }
         if (file.originalFileName() == null || file.originalFileName().isBlank()) {

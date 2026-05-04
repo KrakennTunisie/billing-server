@@ -37,7 +37,7 @@ public class CloudDocumentStorageAdapter implements DocumentStoragePort {
 
             CloudStoredObject storedObject = cloudObjectStorageClient.upload(
                     objectKey,
-                    file.content(),
+                    file.content().readAllBytes(),
                     file.mimeType()
             );
             DocumentEntity documentEntity = jpaDocumentRepository.save(new DocumentEntity());

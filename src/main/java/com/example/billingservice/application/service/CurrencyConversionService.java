@@ -21,7 +21,6 @@ public class CurrencyConversionService implements CurrencyConversionUseCase {
 
     @Override
     public ExchangeRate convert(
-            BigDecimal amount,
             String fromCurrency,
             String toCurrency,
             LocalDate date

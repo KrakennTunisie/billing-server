@@ -24,6 +24,11 @@ public class ExchangeRateStoreAdapter implements ExchangeRateStorePort {
         ExchangeRateEntity saved = exchangeRateRepository.save(
                 exchangeRateMapper.toEntity(exchangeRate)
         );
+
+        ExchangeRateEntity savedInversion = exchangeRateRepository.save(
+                exchangeRateMapper.toInvertedEntity(exchangeRate)
+        );
+
         return exchangeRateMapper.toDomain(saved);
     }
 

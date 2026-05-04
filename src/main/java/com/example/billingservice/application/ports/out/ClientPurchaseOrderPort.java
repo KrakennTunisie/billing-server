@@ -16,7 +16,9 @@ public interface ClientPurchaseOrderPort {
 
     PurchaseOrder createPurchaseOrder(PurchaseOrder purchaseOrder);
 
-    PurchaseOrder getById(UUID idPurchaseOrder);
+    PurchaseOrderDTO getById(UUID idPurchaseOrder);
+
+    PurchaseOrder getDomainePurchaseOrderById(UUID idPurchaseOrder);
 
     PurchaseOrderDTO update(PurchaseOrder purchaseOrder);
 

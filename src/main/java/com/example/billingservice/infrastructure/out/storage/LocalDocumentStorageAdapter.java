@@ -44,10 +44,6 @@ public class LocalDocumentStorageAdapter implements DocumentStoragePort {
         DocumentUtils.validateFile(file);
 
         try {
-            Document document = documentMapper.fromUploadedFile(file, documentType);
-            document.setStorageMode(DocumentStorageMode.FILESYSTEM);
-
-            DocumentEntity documentEntity = documentMapper.toEntity(document, documentType);
 
             String ownerFolder = DocumentUtils.resolveOwnerFolder(documentType);
 
@@ -63,10 +59,10 @@ public class LocalDocumentStorageAdapter implements DocumentStoragePort {
 
             Path target = folder.resolve(generatedName);
 
-            Files.write(
-                    target,
+            Files.copy(
                     file.content(),
-                    StandardOpenOption.CREATE
+                    target,
+                    StandardCopyOption.REPLACE_EXISTING
             );
 
             String url = publicBaseUrl + "/api/storage/"
@@ -74,6 +70,12 @@ public class LocalDocumentStorageAdapter implements DocumentStoragePort {
                     + ownerReference + "/"
                     + documentType.name().toLowerCase() + "/"
                     + generatedName;
+
+
+            Document document = documentMapper.fromUploadedFile(file, documentType);
+            document.setStorageMode(DocumentStorageMode.FILESYSTEM);
+
+            DocumentEntity documentEntity = documentMapper.toEntity(document, documentType);
             documentEntity.setStorageURL(url);
 
             return documentMapper.toDomain(documentEntity);

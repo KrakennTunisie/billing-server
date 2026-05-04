@@ -50,7 +50,14 @@ public class ClientPurchaseOrderAdapter implements ClientPurchaseOrderPort {
     }
 
     @Override
-    public PurchaseOrder getById(UUID idPurchaseOrder) {
+    public PurchaseOrderDTO getById(UUID idPurchaseOrder) {
+        ClientPurchaseOrderEntity purchaseOrderEntity = clientPurchaseOrderRepository.getReferenceById(idPurchaseOrder);
+        PurchaseOrder purchaseOrder =  purchaseOrderMapper.toDomain(purchaseOrderEntity,PurchaseOrderType.SALE);
+        return purchaseOrderMapper.domainToPurchaseOrderDTO(purchaseOrder);
+    }
+
+    @Override
+    public PurchaseOrder getDomainePurchaseOrderById(UUID idPurchaseOrder) {
         ClientPurchaseOrderEntity purchaseOrderEntity = clientPurchaseOrderRepository.getReferenceById(idPurchaseOrder);
         return purchaseOrderMapper.toDomain(purchaseOrderEntity,PurchaseOrderType.SALE);
     }
