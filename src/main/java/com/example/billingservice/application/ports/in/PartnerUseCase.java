@@ -23,10 +23,12 @@ public interface PartnerUseCase {
     boolean supplierExistsByIdPartner(UUID idPartner);
     boolean supplierExistsByRegistrationNumber(String taxRegistrationNumber);
     boolean supplierExistsByEmail(String email);
+    Optional<Partner> findSupplierExistsByEmail(String email);
     boolean supplierExistsByIban(String iban);
+    Optional<Partner> getSupplierByName(String name);
 
     Page<PartnerItemDTO> getAllSuppliers(String keyword , String Country , int page);
-
+    boolean existsBySupplierName(String name);
 
     Partner updateSupplier (String id , UpdatePartnerDTO command) throws DataIntegrityViolationException;
 

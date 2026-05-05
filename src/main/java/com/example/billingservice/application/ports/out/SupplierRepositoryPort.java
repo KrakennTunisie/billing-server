@@ -24,6 +24,9 @@ public interface SupplierRepositoryPort {
 
     boolean existsByName(String name);
 
+    Optional<Partner> findSupplierByName(String name);
+    Optional<Partner> findSupplierByEmail(String email);
+
     boolean existsByIban(String email);
     Page<PartnerItemDTO> findAllSuppliers(String keyword , String Country , int page);
     Partner updateSupplier (Partner partner) throws DataIntegrityViolationException;

@@ -191,7 +191,8 @@ public class PurchaseOrderService implements PurchaseOrderUseCase {
             );
         }
 
-        if(!partnerUseCase.customerExistsByIdPartner(UUID.fromString(purchaseOrderCreateDTO.getPartner()))) {
+        System.out.println(purchaseOrderCreateDTO.getPartner());
+        if(!partnerUseCase.supplierExistsByIdPartner(UUID.fromString(purchaseOrderCreateDTO.getPartner()))){
             throw BillingException.notFound("Partner", purchaseOrderCreateDTO.getPartner());
         }
 
@@ -227,11 +228,19 @@ public class PurchaseOrderService implements PurchaseOrderUseCase {
     }
 
     @Override
-    public PurchaseOrder getSupplierPurchaseOrderById(UUID idPurchaseOrder) {
+    public PurchaseOrderDTO getSupplierPurchaseOrderById(UUID idPurchaseOrder) {
         if(!supplierPurchaseOrderPort.existsByPurchaseOrderId(idPurchaseOrder)){
             throw BillingException.notFound("PurchaseOrder", String.valueOf(idPurchaseOrder));
         }
         return supplierPurchaseOrderPort.getById(idPurchaseOrder);
+    }
+
+    @Override
+    public PurchaseOrder getSuppPurchaseOrderById(UUID idPurchaseOrder) {
+        if(!supplierPurchaseOrderPort.existsByPurchaseOrderId(idPurchaseOrder)){
+            throw BillingException.notFound("PurchaseOrder", String.valueOf(idPurchaseOrder));
+        }
+        return supplierPurchaseOrderPort.getSupplierById(idPurchaseOrder);
     }
 
     @Override
@@ -253,7 +262,7 @@ public class PurchaseOrderService implements PurchaseOrderUseCase {
             throw BillingException.notFound("Bon de commande", String.valueOf(purchaseOrderUpdateDTO.getIdPurchaseOrder()));
         }
 
-        PurchaseOrder purchaseOrder = getSupplierPurchaseOrderById(purchaseOrderUpdateDTO.getIdPurchaseOrder());
+        PurchaseOrder purchaseOrder = getSuppPurchaseOrderById(purchaseOrderUpdateDTO.getIdPurchaseOrder());
 
         if(purchaseOrderUpdateDTO.getPurchaseOrderNumber() != null
                 && !purchaseOrderUpdateDTO.getPurchaseOrderNumber().equals(purchaseOrder.getReference())){
@@ -293,4 +302,6 @@ public class PurchaseOrderService implements PurchaseOrderUseCase {
     public boolean existsBySupplierPurchaseOrderId(UUID purchaseOrderId) {
         return supplierPurchaseOrderPort.existsByPurchaseOrderId(purchaseOrderId);
     }
+
+
 }

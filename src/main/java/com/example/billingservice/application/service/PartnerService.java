@@ -138,9 +138,23 @@ public class PartnerService implements PartnerUseCase  {
     }
 
     @Override
+    public Optional<Partner> getSupplierByName(String name) {
+        return supplierRepositoryPort.findSupplierByName(name);
+    }
+
+    @Override
     public Page<PartnerItemDTO> getAllSuppliers(String keyword , String Country , int page) {
         return  supplierRepositoryPort
                 .findAllSuppliers(keyword, Country, page);
+    }
+
+    @Override
+    public boolean existsBySupplierName(String name) {
+        return supplierRepositoryPort.existsByName(name);
+    }
+    @Override
+    public Optional<Partner> findSupplierExistsByEmail(String email) {
+        return supplierRepositoryPort.findSupplierByEmail(email);
     }
 
     @Override

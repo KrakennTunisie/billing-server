@@ -2,6 +2,7 @@ package com.example.billingservice.infrastructure.in.web;
 
 
 import com.example.billingservice.application.ports.in.PartnerUseCase;
+import com.example.billingservice.domain.exceptions.BillingException;
 import com.example.billingservice.domain.model.Partner;
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerForm;
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerItemDTO;
@@ -51,6 +52,20 @@ public class PartnerController {
     public ResponseEntity<Optional<Partner>> getSupplierById(@Parameter(description = "ID du partenaire")@PathVariable String id)
     {
         return ResponseEntity.ok(partnerUseCase.getSupplierById(id));
+    }
+    @GetMapping("/suppliers/existByEmail/{email}")
+    @Operation(summary = "Récupérer un fournisseur")
+    public ResponseEntity<Optional<Partner>> supplierExistByEmail(@Parameter(description = "Email du partenaire")@PathVariable String email)
+    {
+        return ResponseEntity.ok(partnerUseCase.findSupplierExistsByEmail(email));
+    }
+
+    @GetMapping("/name/{id}")
+    @Operation(summary = "Récupérer un fournisseur")
+    public ResponseEntity<Partner> getSupplierByName(@Parameter(description = "ID du partenaire") @PathVariable String id) {
+        return partnerUseCase.getSupplierByName(id)
+                .map(ResponseEntity::ok)
+                .orElseThrow(() -> BillingException.notFound("Fournisseur", id));
     }
 
     @GetMapping("/supplier-item/{email}")

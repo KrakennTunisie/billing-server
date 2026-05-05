@@ -19,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
@@ -131,6 +132,8 @@ public class PurchaseOrderController {
         form.setPurchaseOrderItems(purchaseOrderItems);
         return ResponseEntity.status(201).body(purchaseOrderUseCase.createSupplierPurchaseOrder(form));
     }
+     // test
+
     @Operation(summary = "Liste des bons de commande")
     @GetMapping("/supplier")
     public ResponseEntity <Page<PurchaseOrderPageItemDTO>> getSupplierPurchaseOrders(@RequestParam(required = false) String keyword, @RequestParam(required = false) String filter,
@@ -142,9 +145,9 @@ public class PurchaseOrderController {
 
     @GetMapping("/supplier/{id}")
     @Operation(summary = "Détails d'un bon de commande")
-    public ResponseEntity<PurchaseOrder> getSupplierPurchaseOrderById(@Parameter(description = "ID du bon de commande") @PathVariable String id)
+    public ResponseEntity<PurchaseOrderDTO> getSupplierPurchaseOrderById(@Parameter(description = "ID du bon de commande") @PathVariable String id)
     {
-        PurchaseOrder purchaseOrder =  purchaseOrderUseCase.getSupplierPurchaseOrderById(UUID.fromString(id));
+        PurchaseOrderDTO purchaseOrder =  purchaseOrderUseCase.getSupplierPurchaseOrderById(UUID.fromString(id));
         return ResponseEntity.status(201).body(purchaseOrder);
     }
     @GetMapping("/supplier/summary")

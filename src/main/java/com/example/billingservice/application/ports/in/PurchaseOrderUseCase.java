@@ -37,7 +37,8 @@ public interface PurchaseOrderUseCase {
 
         PurchaseOrderDTO createSupplierPurchaseOrder(PurchaseOrderCreateDTO purchaseOrderCreateDTO) throws IOException;
 
-        PurchaseOrder getSupplierPurchaseOrderById(UUID idPurchaseOrder);
+        PurchaseOrderDTO getSupplierPurchaseOrderById(UUID idPurchaseOrder);
+        PurchaseOrder getSuppPurchaseOrderById(UUID idPurchaseOrder);
         List<PurchaseOrderSummaryDTO> getSupplierPurchaseOrderSummary();
 
         void deleteSupplierPurchaseOrder(UUID idPurchaseOrder);
@@ -49,5 +50,6 @@ public interface PurchaseOrderUseCase {
         boolean existsBySupplierPurchaseOrderNumber(String purchaseOrderNumber);
 
         boolean existsBySupplierPurchaseOrderId(UUID purchaseOrderId);
+
 
 }
