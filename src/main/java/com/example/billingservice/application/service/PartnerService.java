@@ -144,6 +144,10 @@ public class PartnerService implements PartnerUseCase  {
     public boolean existsBySupplierName(String name) {
         return supplierRepositoryPort.existsByName(name);
     }
+    @Override
+    public Optional<Partner> findSupplierExistsByEmail(String email) {
+        return supplierRepositoryPort.findSupplierByEmail(email);
+    }
 
     @Override
     @Transactional

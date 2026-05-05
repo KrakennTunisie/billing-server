@@ -192,7 +192,7 @@ public class PurchaseOrderService implements PurchaseOrderUseCase {
         }
 
         System.out.println(purchaseOrderCreateDTO.getPartner());
-        if(!partnerUseCase.existsBySupplierName(purchaseOrderCreateDTO.getPartner())){
+        if(!partnerUseCase.supplierExistsByIdPartner(UUID.fromString(purchaseOrderCreateDTO.getPartner()))){
             throw BillingException.notFound("Partner", purchaseOrderCreateDTO.getPartner());
         }
 

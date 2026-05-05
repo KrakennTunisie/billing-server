@@ -53,6 +53,12 @@ public class PartnerController {
     {
         return ResponseEntity.ok(partnerUseCase.getSupplierById(id));
     }
+    @GetMapping("/suppliers/existByEmail/{email}")
+    @Operation(summary = "Récupérer un fournisseur")
+    public ResponseEntity<Optional<Partner>> supplierExistByEmail(@Parameter(description = "Email du partenaire")@PathVariable String email)
+    {
+        return ResponseEntity.ok(partnerUseCase.findSupplierExistsByEmail(email));
+    }
 
     @GetMapping("/name/{id}")
     @Operation(summary = "Récupérer un fournisseur")
