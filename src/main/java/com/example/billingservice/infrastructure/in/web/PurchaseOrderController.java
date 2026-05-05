@@ -145,9 +145,9 @@ public class PurchaseOrderController {
 
     @GetMapping("/supplier/{id}")
     @Operation(summary = "Détails d'un bon de commande")
-    public ResponseEntity<PurchaseOrder> getSupplierPurchaseOrderById(@Parameter(description = "ID du bon de commande") @PathVariable String id)
+    public ResponseEntity<PurchaseOrderDTO> getSupplierPurchaseOrderById(@Parameter(description = "ID du bon de commande") @PathVariable String id)
     {
-        PurchaseOrder purchaseOrder =  purchaseOrderUseCase.getSupplierPurchaseOrderById(UUID.fromString(id));
+        PurchaseOrderDTO purchaseOrder =  purchaseOrderUseCase.getSupplierPurchaseOrderById(UUID.fromString(id));
         return ResponseEntity.status(201).body(purchaseOrder);
     }
     @GetMapping("/supplier/summary")

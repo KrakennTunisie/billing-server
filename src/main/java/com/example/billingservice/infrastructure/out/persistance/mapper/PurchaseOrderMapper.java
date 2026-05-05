@@ -330,7 +330,7 @@ public class PurchaseOrderMapper {
 
             return partnerUseCase.getSupplierByName(partner).get();
         }
-        if (invoiceType == PurchaseOrderType.PURCHASE){
+        if (invoiceType == PurchaseOrderType.SALE){
             return partnerUseCase.findCustomerById(partner).get();
         }
         else {
