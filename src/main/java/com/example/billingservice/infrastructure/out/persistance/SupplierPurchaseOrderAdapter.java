@@ -7,6 +7,7 @@ import com.example.billingservice.domain.model.PurchaseOrder;
 import com.example.billingservice.infrastructure.out.persistance.dto.PurchaseOrderDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.PurchaseOrderPageItemDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.PurchaseOrderSummaryDTO;
+import com.example.billingservice.infrastructure.out.persistance.entity.ClientPurchaseOrderEntity;
 import com.example.billingservice.infrastructure.out.persistance.entity.PurchaseOrderEntity;
 import com.example.billingservice.infrastructure.out.persistance.entity.SupplierPurchaseOrderEntity;
 import com.example.billingservice.infrastructure.out.persistance.mapper.PurchaseOrderMapper;
@@ -49,7 +50,14 @@ public class SupplierPurchaseOrderAdapter implements SupplierPurchaseOrderPort {
     }
 
     @Override
-    public PurchaseOrder getById(UUID idPurchaseOrder) {
+    public PurchaseOrderDTO getById(UUID idPurchaseOrder) {
+        SupplierPurchaseOrderEntity purchaseOrderEntity = supplierPurchaseOrderRepository.getById(idPurchaseOrder);
+        PurchaseOrder purchaseOrder =  purchaseOrderMapper.toDomain(purchaseOrderEntity,PurchaseOrderType.PURCHASE);
+        return purchaseOrderMapper.domainToPurchaseOrderDTO(purchaseOrder);
+    }
+
+    @Override
+    public PurchaseOrder getSupplierById(UUID idPurchaseOrder) {
         PurchaseOrderEntity purchaseOrderEntity = supplierPurchaseOrderRepository.getReferenceById(idPurchaseOrder);
         return purchaseOrderMapper.toDomain(purchaseOrderEntity,PurchaseOrderType.PURCHASE);
     }

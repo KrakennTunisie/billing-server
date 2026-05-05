@@ -17,7 +17,8 @@ public interface SupplierPurchaseOrderPort {
 
     PurchaseOrder createPurchaseOrder(PurchaseOrder purchaseOrder);
 
-    PurchaseOrder getById(UUID idPurchaseOrder);
+    PurchaseOrderDTO getById(UUID idPurchaseOrder);
+    PurchaseOrder getSupplierById(UUID idPurchaseOrder);
 
     PurchaseOrderDTO update(PurchaseOrder purchaseOrder);
 
