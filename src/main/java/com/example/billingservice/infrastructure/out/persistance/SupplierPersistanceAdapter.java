@@ -6,6 +6,7 @@ import com.example.billingservice.domain.enums.PartnerType;
 import com.example.billingservice.domain.exceptions.BillingException;
 import com.example.billingservice.domain.model.Partner;
 
+import com.example.billingservice.infrastructure.out.persistance.dto.PartnerDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerItemDTO;
 import com.example.billingservice.infrastructure.out.persistance.entity.SupplierEntity;
 import com.example.billingservice.infrastructure.out.persistance.mapper.PartnerMapper;
@@ -65,6 +66,13 @@ public class SupplierPersistanceAdapter implements SupplierRepositoryPort {
     @Override
     public boolean existsByEmail(String email) {
         return supplierRepository.existsByEmail(email);
+    }
+
+    @Override
+    public PartnerItemDTO getByEmail(String email) {
+        SupplierEntity supplierEntity = supplierRepository.getSupplierEntityByEmail(email);
+        Partner partner = partnerMapper.toDomain(supplierEntity, PartnerType.SUPPLIER);
+        return partnerMapper.toItemDTO(partner);
     }
 
     @Override

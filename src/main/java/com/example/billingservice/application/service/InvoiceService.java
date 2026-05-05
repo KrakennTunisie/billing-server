@@ -33,7 +33,6 @@ public class InvoiceService implements InvoiceUseCase, InvoiceStatsUseCase {
     private final ClientInvoicesRepositoryPort clientInvoicesRepositoryPort;
     private final SupplierInvoicesRepositoryPort supplierInvoicesRepositoryPort;
     private final InvoiceCreditNoteUseCase invoiceCreditNoteUseCase;
-    private final CurrencyConversionUseCase currencyConversionUseCase;
 
     @Override
     public InvoiceDTO createInvoice(InvoiceCreateDTO createDTO) throws IOException, BillingException {
@@ -171,6 +170,14 @@ public class InvoiceService implements InvoiceUseCase, InvoiceStatsUseCase {
     }
 
     @Override
+    public InvoiceDTO getInvoiceByInvoiceNumber(String invoiceNumber) {
+        if(!supplierInvoicesRepositoryPort.existsByInvoiceNumber(invoiceNumber)){
+            throw BillingException.notFound("Facture", invoiceNumber);
+        }
+        return supplierInvoicesRepositoryPort.getInvoiceByInvoiceNumber(invoiceNumber);
+    }
+
+    @Override
     public InvoiceDTO getClientInvoiceById(UUID invoiceId) {
         if(!clientInvoicesRepositoryPort.existsByInvoiceId(invoiceId)){
             throw  BillingException.notFound("Facture Client", String.valueOf(invoiceId));
@@ -246,7 +253,7 @@ public class InvoiceService implements InvoiceUseCase, InvoiceStatsUseCase {
 
         InvoiceStatus invoiceStatus = ParseEnum.parseEnum(status, InvoiceStatus.class);
 
-        return supplierInvoicesRepositoryPort.findAllInvoices(keyword, invoiceStatus, page, InvoiceType.SALE);
+        return supplierInvoicesRepositoryPort.findAllInvoices(keyword, invoiceStatus, page, InvoiceType.PURCHASE);
     }
 
 
@@ -339,7 +346,7 @@ public class InvoiceService implements InvoiceUseCase, InvoiceStatsUseCase {
     }
 
     @Override
-    public PartnerInvoiceStatsResponse getSupplierInvoiceStats(UUID idPartner) {
+    public ConvertedInvoiceStats getSupplierInvoiceStats(UUID idPartner) {
         return supplierInvoicesRepositoryPort.getSupplierInvoicesStats(idPartner);
     }
 
@@ -352,12 +359,17 @@ public class InvoiceService implements InvoiceUseCase, InvoiceStatsUseCase {
 
     @Override
     public List<ClientInvoiceDashboardStatsMultiCurrencyDTO> getSuppliersInvoicesDashboardStats(int year) {
-        return List.of();
+        return supplierInvoicesRepositoryPort.getSupplierInvoicesDashboardStats(year);
     }
 
     @Override
     public ConvertedInvoiceStats getALLClientInvoiceStats() {
         return clientInvoicesRepositoryPort.getAllClientInvoiceCountStats(InvoiceStatus.TO_COLLECT);
+    }
+
+    @Override
+    public ConvertedInvoiceStats getALLSupplierInvoiceStats() {
+        return supplierInvoicesRepositoryPort.getAllSupplierInvoiceCountStats(InvoiceStatus.TO_PAY);
     }
 
 

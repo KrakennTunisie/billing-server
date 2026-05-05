@@ -3,12 +3,10 @@ package com.example.billingservice.application.ports.out;
 import com.example.billingservice.domain.enums.InvoiceStatus;
 import com.example.billingservice.domain.enums.InvoiceType;
 import com.example.billingservice.domain.model.Invoice;
-import com.example.billingservice.infrastructure.out.persistance.dto.InvoiceDTO;
-import com.example.billingservice.infrastructure.out.persistance.dto.InvoicePageItemDTO;
-import com.example.billingservice.infrastructure.out.persistance.dto.InvoicesStatsResponse;
-import com.example.billingservice.infrastructure.out.persistance.dto.PartnerInvoiceStatsResponse;
+import com.example.billingservice.infrastructure.out.persistance.dto.*;
 import org.springframework.data.domain.Page;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface SupplierInvoicesRepositoryPort {
@@ -23,12 +21,17 @@ public interface SupplierInvoicesRepositoryPort {
 
     InvoiceDTO getById(UUID idInvoice);
 
+    InvoiceDTO getInvoiceByInvoiceNumber(String invoiceNumber);
+
     Invoice getInvoice(UUID idInvoice);
 
     InvoicesStatsResponse getSuppliersInvoicesStats(int year);
 
-    PartnerInvoiceStatsResponse getSupplierInvoicesStats(UUID idPartner);
+    ConvertedInvoiceStats getSupplierInvoicesStats(UUID idPartner);
 
+    List<ClientInvoiceDashboardStatsMultiCurrencyDTO> getSupplierInvoicesDashboardStats(int year);
+
+    ConvertedInvoiceStats getAllSupplierInvoiceCountStats(InvoiceStatus pendingStatus);
 
     void delete(UUID idInvoice);
 
