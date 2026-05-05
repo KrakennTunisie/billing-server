@@ -13,13 +13,15 @@ public interface InvoiceStatsUseCase {
 
     ConvertedInvoiceStats getClientInvoiceStats(UUID idPartner);
 
-    PartnerInvoiceStatsResponse getSupplierInvoiceStats(UUID idPartner);
+    ConvertedInvoiceStats getSupplierInvoiceStats(UUID idPartner);
 
     List<ClientInvoiceDashboardStatsMultiCurrencyDTO> getClientInvoicesDashboardStats(int year);
 
     List<ClientInvoiceDashboardStatsMultiCurrencyDTO> getSuppliersInvoicesDashboardStats(int year);
 
     ConvertedInvoiceStats getALLClientInvoiceStats();
+
+    ConvertedInvoiceStats getALLSupplierInvoiceStats();
 
 
 }

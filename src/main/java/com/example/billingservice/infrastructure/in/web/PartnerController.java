@@ -53,6 +53,14 @@ public class PartnerController {
         return ResponseEntity.ok(partnerUseCase.getSupplierById(id));
     }
 
+    @GetMapping("/supplier-item/{email}")
+    @Operation(summary = "Récupérer un fournisseur")
+    public ResponseEntity<PartnerItemDTO> getSupplierItemByEmail(
+            @Parameter(description = "Email du partenaire")@PathVariable String email)
+    {
+        return ResponseEntity.ok(partnerUseCase.getSupplierByEmail(email));
+    }
+
 
     @Operation(summary = "Liste des fournisseurs")
     @GetMapping("/suppliers")

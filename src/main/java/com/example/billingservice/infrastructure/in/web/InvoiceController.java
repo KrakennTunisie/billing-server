@@ -132,8 +132,16 @@ public class InvoiceController {
 
     @Operation(summary = "Créer une facture fournisseur", description = "Ajoute une nouvelle facture fournisseur")
     @PostMapping(path = SUPPLIER_INVOICES, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<InvoiceDTO> createSupplierInvoice (@Valid @ModelAttribute InvoiceCreateDTO form)
+    public ResponseEntity<InvoiceDTO> createSupplierInvoice (@Valid @ModelAttribute InvoiceCreateDTO form,
+                                                             @RequestParam(value = "invoiceItemsList", required = true) String invoiceItemsJson)
             throws DataIntegrityViolationException, IOException {
+        List<InvoiceItemCreateDTO> invoiceItems = objectMapper.readValue(
+                invoiceItemsJson,
+                new TypeReference<List<InvoiceItemCreateDTO>>() {}
+        );
+
+        System.out.println(invoiceItems);
+        form.setInvoiceItems(invoiceItems);
         return ResponseEntity.status(201).body(invoiceUseCase.createInvoice(form));
     }
 
@@ -147,10 +155,28 @@ public class InvoiceController {
 
     }
 
+    @GetMapping(SUPPLIER_INVOICES+"/reference/{reference}")
+    @Operation(summary = "Détails d'une facture fournissuer")
+    public ResponseEntity<InvoiceDTO> getSupplierInvoiceByInvoiceNumber(@Parameter(description = "ID du facture") @PathVariable String reference)
+    {
+        InvoiceDTO invoiceDTO =  invoiceUseCase.getInvoiceByInvoiceNumber(reference);
+        return ResponseEntity.status(201).body(invoiceDTO);
+
+    }
+
+
     @Operation(summary = "Mise à jour de facture client", description = "Mettre à jour une facture existante")
     @PatchMapping(path = SUPPLIER_INVOICES, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<InvoiceDTO> updateSupplierInvoice (@Valid @ModelAttribute InvoiceUpdateDTO form)
+    public ResponseEntity<InvoiceDTO> updateSupplierInvoice (@Valid @ModelAttribute InvoiceUpdateDTO form,
+                                                             @RequestParam(value = "invoiceItemsList", required = true) String invoiceItemsJson)
             throws DataIntegrityViolationException, IOException {
+        List<InvoiceItemCreateDTO> invoiceItems = objectMapper.readValue(
+                invoiceItemsJson,
+                new TypeReference<List<InvoiceItemCreateDTO>>() {}
+        );
+
+        System.out.println(invoiceItems);
+        form.setInvoiceItems(invoiceItems);
         return ResponseEntity.status(201).body(invoiceUseCase.updateInvoice(form));
     }
 
@@ -158,7 +184,7 @@ public class InvoiceController {
     @PatchMapping(SUPPLIER_INVOICES+"/{invoiceId}/status")
     public ResponseEntity<InvoiceDTO> updateSupplierInvoiceStatus(
             @PathVariable String invoiceId,
-            @Valid @RequestBody UpdateInvoiceStatusRequest request
+            @Valid @ModelAttribute UpdateInvoiceStatusRequest request
     ) {
 
         InvoiceDTO updated = invoiceUseCase.updateInvoiceStatus(
@@ -190,6 +216,23 @@ public class InvoiceController {
     public ResponseEntity<ConvertedInvoiceStats> getClientInvoicesStats(@Parameter(description = "ID du facture") @PathVariable String id)
     {
         ConvertedInvoiceStats convertedInvoiceStats =  invoiceStatsUseCase.getClientInvoiceStats(UUID.fromString(id));
+        return ResponseEntity.status(200).body(convertedInvoiceStats);
+    }
+
+
+    @GetMapping(SUPPLIER_INVOICES+"/stats")
+    @Operation(summary = "Détails d'une facture client")
+    public ResponseEntity<ConvertedInvoiceStats> getSuppliersInvoicesStats()
+    {
+        ConvertedInvoiceStats convertedInvoiceStats =  invoiceStatsUseCase.getALLSupplierInvoiceStats();
+        return ResponseEntity.status(200).body(convertedInvoiceStats);
+    }
+
+    @GetMapping(SUPPLIER_INVOICES+"/stats/{id}")
+    @Operation(summary = "Détails d'une facture client")
+    public ResponseEntity<ConvertedInvoiceStats> getSupplierInvoicesStats(@Parameter(description = "ID du facture") @PathVariable String id)
+    {
+        ConvertedInvoiceStats convertedInvoiceStats =  invoiceStatsUseCase.getSupplierInvoiceStats(UUID.fromString(id));
         return ResponseEntity.status(200).body(convertedInvoiceStats);
     }
 

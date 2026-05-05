@@ -24,6 +24,8 @@ public interface SupplierRepository extends JpaRepository<SupplierEntity, UUID> 
 
     boolean existsByIban(String iban);
 
+    SupplierEntity getSupplierEntityByEmail(String email);
+
     @Query("""
     SELECT p FROM SupplierEntity p
     WHERE
