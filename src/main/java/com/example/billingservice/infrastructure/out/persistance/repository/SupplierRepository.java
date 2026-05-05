@@ -47,4 +47,6 @@ public interface SupplierRepository extends JpaRepository<SupplierEntity, UUID> 
             @Param("country") String country,
             Pageable pageable
     );
+
+    Optional<SupplierEntity> findByEmail(String email);
 }

@@ -328,7 +328,7 @@ public class PurchaseOrderMapper {
     public Partner getPartner(PurchaseOrderType invoiceType, String partner){
         if(invoiceType == PurchaseOrderType.PURCHASE){
 
-            return partnerUseCase.getSupplierByName(partner).get();
+            return partnerUseCase.getSupplierById(partner).get();
         }
         if (invoiceType == PurchaseOrderType.SALE){
             return partnerUseCase.findCustomerById(partner).get();

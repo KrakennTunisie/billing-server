@@ -84,6 +84,17 @@ public class SupplierPersistanceAdapter implements SupplierRepositoryPort {
     }
 
     @Override
+    public Optional<Partner> findSupplierByEmail(String email) {
+        try
+        {return supplierRepository.findByEmail(email)
+                .map(p-> partnerMapper.toDomain(p, PartnerType.SUPPLIER))
+                .or(() -> { throw BillingException.notFound("Fournisseur", email); });
+        } catch (IllegalArgumentException ex) {
+            throw BillingException.badRequest( "bad request"+ ex);
+        }
+    }
+
+    @Override
     public boolean existsByIban(String iban) {
         return supplierRepository.existsByIban(iban);
     }
