@@ -11,8 +11,8 @@ public final class StatusMapper {
 
         return switch (status) {
             case DRAFT -> "Brouillon";
-            case TO_PAY -> "À payer";
-            case TO_COLLECT -> "À encaisser";
+            case TO_PAY -> "À Payer";
+            case TO_COLLECT -> "À Encaisser";
             case PAID -> "Payée";
             case CANCELLED -> "Annulée";
         };

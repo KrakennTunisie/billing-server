@@ -20,6 +20,6 @@ public class InvoiceEventEntity  extends BaseEventEntity{
     private InvoiceEventTrigger eventTrigger;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "invoice_id", nullable = false)
+    @JoinColumn(name = "invoice_id")
     private InvoiceEntity invoice;
 }

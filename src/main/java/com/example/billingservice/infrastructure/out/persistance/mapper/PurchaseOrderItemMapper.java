@@ -9,14 +9,17 @@ import org.springframework.stereotype.Component;
 @Component
 public class PurchaseOrderItemMapper {
 
-    public PurchaseOrderItem purchaseOrderItemCreateDTOtoDomain(PurchaseOrderItemCreateDTO dto) {
+    public PurchaseOrderItem purchaseOrderItemCreateDTOtoDomain(PurchaseOrderItemCreateDTO dto, Double appliedExchangeRate) {
         if (dto == null) {
             return null;
         }
 
-        Double totalExclTax = dto.getQuantity() * dto.getUnityPriceEXclTax();
-        Double taxAmount = totalExclTax * dto.getVatRate() / 100;
-        Double totalInclTax = totalExclTax + taxAmount;
+        double totalExclTax = (dto.getQuantity() * dto.getUnityPriceEXclTax())/appliedExchangeRate;
+        totalExclTax = Math.round(totalExclTax * 100.0) / 100.0;
+
+        double taxAmount = totalExclTax * dto.getVatRate() / 100;
+        taxAmount = Math.round(taxAmount * 100.0) / 100.0;
+        Double totalInclTax = (totalExclTax + taxAmount);
 
         return PurchaseOrderItem.builder()
                 .description(dto.getDescription())
@@ -43,6 +46,7 @@ public class PurchaseOrderItemMapper {
         purchaseOrderItemEntity.setQuantity(dto.getQuantity());
         purchaseOrderItemEntity.setInvoicedQuantity(dto.getInvoicedQuantity());
         purchaseOrderItemEntity.setUnityPriceEXclTax(dto.getUnityPriceEXclTax());
+        purchaseOrderItemEntity.setTotalPriceIncTax(dto.getItemTotalInclTax());
         purchaseOrderItemEntity.setVatRate(dto.getVatRate());
         purchaseOrderItemEntity.setOperationCategory(dto.getOperationCategory());
 
@@ -54,9 +58,10 @@ public class PurchaseOrderItemMapper {
         if (entity == null) {
             return null;
         }
-        Double totalExclTax = entity.getQuantity() * entity.getUnityPriceEXclTax();
-        Double taxAmount = totalExclTax * entity.getVatRate() / 100;
-        Double totalInclTax = totalExclTax + taxAmount;
+        double totalExclTax = entity.getTotalPriceIncTax()/(1+(entity.getVatRate() / 100));
+        totalExclTax = Math.round(totalExclTax * 100.0) / 100.0;
+        double taxAmount = entity.getTotalPriceIncTax() - totalExclTax;
+        taxAmount = Math.round(taxAmount * 100.0) / 100.0;
 
         return PurchaseOrderItem.builder()
                 .idPurchaseOrderItem(entity.getIdPurchaseOrderItem())
@@ -68,7 +73,7 @@ public class PurchaseOrderItemMapper {
                 .operationCategory(entity.getOperationCategory())
                 .itemTotalExclTax(totalExclTax)
                 .itemTaxAmount(taxAmount)
-                .itemTotalInclTax(totalInclTax)
+                .itemTotalInclTax(entity.getTotalPriceIncTax())
                 .build();
     }
 

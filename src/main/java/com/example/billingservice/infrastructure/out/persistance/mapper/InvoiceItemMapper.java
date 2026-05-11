@@ -1,14 +1,12 @@
 package com.example.billingservice.infrastructure.out.persistance.mapper;
 
 import com.example.billingservice.application.ports.out.PurchaseOrderItemRepositoryPort;
-import com.example.billingservice.domain.enums.InvoiceCurrency;
 import com.example.billingservice.domain.enums.OperationCategory;
 import com.example.billingservice.domain.model.InvoiceItem;
 import com.example.billingservice.domain.model.PurchaseOrderItem;
 import com.example.billingservice.infrastructure.out.persistance.dto.InvoiceItemCreateDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.InvoiceItemDTO;
 import com.example.billingservice.infrastructure.out.persistance.entity.InvoiceItemEntity;
-import com.example.billingservice.infrastructure.out.persistance.repository.PurchaseOrderItemRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -24,9 +22,10 @@ public class InvoiceItemMapper {
             return null;
         }
         PurchaseOrderItem purchaseOrderItem =null ;
-        Double totalExclTax = dto.getQuantity() * dto.getUnityPriceEXclTax();
+
+        Double totalExclTax =( dto.getQuantity() * dto.getUnityPriceEXclTax())/appliedExchangeRate;
         Double taxAmount = totalExclTax * dto.getVatRate() / 100;
-        Double totalInclTax = (totalExclTax + taxAmount) / appliedExchangeRate;
+        Double totalInclTax = (totalExclTax + taxAmount) ;
         if (dto.getIdPurchaseOrderItem()!=null) {
             purchaseOrderItem = purchaseOrderItemPort.getById(dto.getIdPurchaseOrderItem());
         }
@@ -68,9 +67,10 @@ public class InvoiceItemMapper {
             return null;
         }
         PurchaseOrderItem purchaseOrderItem =null ;
-        Double totalExclTax = entity.getQuantity() * entity.getUnityPriceEXclTax();
-        Double taxAmount = totalExclTax * entity.getVatRate() / 100;
-        Double totalInclTax = totalExclTax + taxAmount;
+        double totalExclTax = entity.getTotalPriceIncTax()/(1+(entity.getVatRate() / 100));
+        totalExclTax = Math.round(totalExclTax * 100.0) / 100.0;
+        double taxAmount = entity.getTotalPriceIncTax() - totalExclTax;
+        taxAmount = Math.round(taxAmount * 100.0) / 100.0;
         if (entity.getPurchaseOrderItem()!=null) {
             purchaseOrderItem = purchaseOrderItemPort.getById(entity.getPurchaseOrderItem().getIdPurchaseOrderItem());
         }
@@ -85,43 +85,20 @@ public class InvoiceItemMapper {
 
                 .itemTotalExclTax(totalExclTax)
                 .itemTaxAmount(taxAmount)
-                .itemTotalInclTax(totalInclTax)
+                .itemTotalInclTax(entity.getTotalPriceIncTax())
                 .build();
     }
-
-    public InvoiceItemDTO toInvoiceItemDTO(InvoiceItemEntity entity) {
-        if (entity == null) {
-            return null;
-        }
-
-        Double totalExclTax = entity.getQuantity() * entity.getUnityPriceEXclTax();
-        Double taxAmount = totalExclTax * entity.getVatRate() / 100;
-        Double totalInclTax = totalExclTax + taxAmount;
-
-
-            InvoiceItemDTO dto =InvoiceItemDTO.builder()
-                    .idInvoiceItem(entity.getIdInvoiceItem())
-                    .description(entity.getDescription())
-                    .quantity(entity.getQuantity())
-                    .unityPriceEXclTax(entity.getUnityPriceEXclTax())
-                    .vatRate(entity.getVatRate())
-                    .itemTotalExclTax(totalExclTax)
-                    .itemTaxAmount(taxAmount)
-                    .itemTotalInclTax(totalInclTax)
-                    .operationCategory(String.valueOf(entity.getOperationCategory())).build();
-
-        return dto;
-    }
-
 
     public InvoiceItem toInvoiceItem(InvoiceItemEntity entity) {
         if (entity == null) {
             return null;
         }
         PurchaseOrderItem purchaseOrderItem =null ;
-        Double totalExclTax = entity.getQuantity() * entity.getUnityPriceEXclTax();
-        Double taxAmount = totalExclTax * entity.getVatRate() / 100;
-        Double totalInclTax = totalExclTax + taxAmount;
+
+        double totalExclTax = entity.getTotalPriceIncTax()/(1+(entity.getVatRate() / 100));
+        totalExclTax = Math.round(totalExclTax * 100.0) / 100.0;
+        double taxAmount = entity.getTotalPriceIncTax() - totalExclTax;
+        taxAmount = Math.round(taxAmount * 100.0) / 100.0;
         if (entity.getPurchaseOrderItem()!=null) {
             purchaseOrderItem = purchaseOrderItemPort.getById(entity.getPurchaseOrderItem().getIdPurchaseOrderItem());
         }
@@ -135,7 +112,7 @@ public class InvoiceItemMapper {
                 .vatRate(entity.getVatRate())
                 .itemTotalExclTax(totalExclTax)
                 .itemTaxAmount(taxAmount)
-                .itemTotalInclTax(totalInclTax)
+                .itemTotalInclTax(entity.getTotalPriceIncTax())
                 .operationCategory(entity.getOperationCategory())
                 .build();
         return dto;

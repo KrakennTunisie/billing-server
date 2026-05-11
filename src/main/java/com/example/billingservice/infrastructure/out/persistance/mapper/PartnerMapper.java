@@ -3,6 +3,7 @@ package com.example.billingservice.infrastructure.out.persistance.mapper;
 import com.example.billingservice.domain.enums.PartnerType;
 import com.example.billingservice.domain.model.Document;
 import com.example.billingservice.domain.model.Partner;
+import com.example.billingservice.infrastructure.out.persistance.dto.PartnerDetailsDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerItemDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerSummaryDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.UpdatePartnerDTO;
@@ -75,6 +76,8 @@ public class PartnerMapper {
                 .iban(entity.getIban())
                 .partnerType(type)
                 .rne(rne).contract(contrat).patente(patente)
+                .createdAt(entity.getCreatedAt())
+                .updatedAt(entity.getUpdatedAt())
                 .build();
 
     }
@@ -145,6 +148,29 @@ public class PartnerMapper {
                 .address(partner.getAddress())// optionnel
                 .phoneNumber(partner.getPhoneNumber())      // optionnel
                 .partnerType(partner.getPartnerType())
+                .build();
+    }
+
+    public PartnerDetailsDTO toDetailsDTO(Partner partner) {
+        if (partner == null) {
+            return null;
+        }
+
+        return PartnerDetailsDTO.builder()
+                .idPartner(partner.getIdPartner())
+                .name(partner.getName())
+                .email(partner.getEmail())
+                .phoneNumber(partner.getPhoneNumber())
+                .taxRegistrationNumber(partner.getTaxRegistrationNumber())
+                .country(partner.getCountry())
+                .address(partner.getAddress())
+                .iban(partner.getIban())
+                .partnerType(partner.getPartnerType())
+                .rne(documentMapper.toDocumentSummary(partner.getRne()))
+                .contract(documentMapper.toDocumentSummary(partner.getContract()))
+                .patente(documentMapper.toDocumentSummary(partner.getPatente()))
+                .createdAt(partner.getCreatedAt())
+                .updatedAt(partner.getUpdatedAt())
                 .build();
     }
 

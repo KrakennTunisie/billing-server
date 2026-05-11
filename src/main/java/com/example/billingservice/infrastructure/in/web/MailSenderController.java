@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/invoices")
+@RequestMapping("/api/mailing")
 @RequiredArgsConstructor
 public class MailSenderController {
 
@@ -23,12 +23,21 @@ public class MailSenderController {
         return ResponseEntity.accepted().build();
     }
 
-    @PostMapping("/{invoiceId}/send-email")
+    @PostMapping("/invoice/{invoiceId}/send-email")
     public ResponseEntity<Void> sendInvoiceEmail(
             @PathVariable String invoiceId,
             @RequestBody SendEmailRequest request
     ) {
         sendEmailUseCase.sendInvoiceEmail(UUID.fromString(invoiceId), request);
+        return ResponseEntity.accepted().build();
+    }
+
+    @PostMapping("/creditNote/{invoiceId}/send-email")
+    public ResponseEntity<Void> sendCreditNoteEmail(
+            @PathVariable String invoiceId,
+            @RequestBody SendEmailRequest request
+    ) {
+        sendEmailUseCase.sendCreditNoteEmail(UUID.fromString(invoiceId), request);
         return ResponseEntity.accepted().build();
     }
 
