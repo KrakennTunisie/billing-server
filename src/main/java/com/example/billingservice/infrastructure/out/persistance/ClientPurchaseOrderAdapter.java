@@ -97,7 +97,7 @@ public class ClientPurchaseOrderAdapter implements ClientPurchaseOrderPort {
 
     @Override
     public List<PurchaseOrderSummaryDTO> getPurchaseOrderSummary() {
-        List<ClientPurchaseOrderEntity>  purchaseOrderEntities= clientPurchaseOrderRepository.getPurchaseOrdersByStatus(List.of(PurchaseOrderStatus.DRAFT, PurchaseOrderStatus.IN_DELIVERY));
+        List<ClientPurchaseOrderEntity>  purchaseOrderEntities= clientPurchaseOrderRepository.getPurchaseOrdersByStatus(List.of(PurchaseOrderStatus.DRAFT, PurchaseOrderStatus.IN_DELIVERY,PurchaseOrderStatus.PARTIALLY_INVOICED));
         return purchaseOrderEntities.stream()
                 .map(entity->purchaseOrderMapper.toDomain(entity,PurchaseOrderType.PURCHASE))
                 .map(purchaseOrderMapper::toSummaryDTO)

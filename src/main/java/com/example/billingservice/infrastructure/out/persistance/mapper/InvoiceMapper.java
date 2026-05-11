@@ -365,7 +365,10 @@ public class InvoiceMapper {
                     .complianceQRcode(invoiceDTO.getComplianceQRcode())
                     .build();
 
-
+            if(invoiceUpdateDTO.getPurchaseOrder()!= null) {
+                PurchaseOrder purchaseorder = getPurchaseOrder(invoiceUpdateDTO.getPurchaseOrder());
+                invoice.setPurchaseOrder(purchaseorder);
+            }
             String idPartner = String.valueOf(invoiceDTO.getPartner().getIdPartner());
             Partner partner = getPartner(invoiceDTO.getInvoiceType(), idPartner);
             invoice.setPartner(partner);
@@ -397,6 +400,7 @@ public class InvoiceMapper {
                     .toList()
                     : List.of();
 
+            System.out.println(items.stream().toList());
 
             invoice.setInvoiceItems(items);
 

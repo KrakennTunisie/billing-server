@@ -68,4 +68,11 @@ public class BillingException extends RuntimeException{
                 message
         );
     }
+    public static BillingException BusinessException(String message,String field) {
+        return new BillingException(
+                HttpStatus.CONFLICT,
+                field,
+                message
+        );
+    }
 }
