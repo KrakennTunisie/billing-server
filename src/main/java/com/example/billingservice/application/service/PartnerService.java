@@ -110,6 +110,14 @@ public class PartnerService implements PartnerUseCase  {
     }
 
     @Override
+    public PartnerItemDTO getSupplierByEmail(String email) {
+        if(!supplierRepositoryPort.existsByEmail(email)){
+            throw BillingException.notFound("Fournisseur", email);
+        }
+        return supplierRepositoryPort.getByEmail(email);
+    }
+
+    @Override
     public boolean supplierExistsByIdPartner(UUID idPartner) {
         return supplierRepositoryPort.existsByIdPartner(idPartner);
     }

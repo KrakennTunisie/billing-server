@@ -1,10 +1,7 @@
 package com.example.billingservice.application.ports.in;
 
 import com.example.billingservice.domain.model.Partner;
-import com.example.billingservice.infrastructure.out.persistance.dto.PartnerForm;
-import com.example.billingservice.infrastructure.out.persistance.dto.PartnerItemDTO;
-import com.example.billingservice.infrastructure.out.persistance.dto.PartnerSummaryDTO;
-import com.example.billingservice.infrastructure.out.persistance.dto.UpdatePartnerDTO;
+import com.example.billingservice.infrastructure.out.persistance.dto.*;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 
@@ -21,6 +18,8 @@ public interface PartnerUseCase {
     Partner createSupplier(PartnerForm partner) throws IOException, DataIntegrityViolationException;
 
     Optional<Partner> getSupplierById(String id);
+
+    PartnerItemDTO getSupplierByEmail(String email);
     boolean supplierExistsByIdPartner(UUID idPartner);
     boolean supplierExistsByRegistrationNumber(String taxRegistrationNumber);
     boolean supplierExistsByEmail(String email);

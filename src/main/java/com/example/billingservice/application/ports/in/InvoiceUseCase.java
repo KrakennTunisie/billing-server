@@ -33,6 +33,9 @@ public interface InvoiceUseCase {
 
     InvoiceDTO getInvoiceById(UUID invoiceId);
 
+    InvoiceDTO getInvoiceByInvoiceNumber(String invoiceNumber);
+
+
     InvoiceDTO getClientInvoiceById(UUID invoiceId);
 
     Invoice getInvoiceDomainById(UUID invoiceId);
