@@ -4,10 +4,8 @@ import com.example.billingservice.application.ports.in.GenerateInvoiceNumberUseC
 import com.example.billingservice.application.ports.in.PartnerUseCase;
 import com.example.billingservice.application.ports.in.PurchaseOrderUseCase;
 import com.example.billingservice.application.ports.out.ClientPurchaseOrderPort;
-import com.example.billingservice.application.ports.out.PurchaseOrderRepoistoryPort;
 import com.example.billingservice.application.ports.out.SupplierPurchaseOrderPort;
 import com.example.billingservice.domain.enums.DocumentType;
-import com.example.billingservice.domain.enums.InvoiceStatus;
 import com.example.billingservice.domain.enums.PurchaseOrderStatus;
 import com.example.billingservice.domain.enums.SequenceNumberType;
 import com.example.billingservice.domain.exceptions.BillingException;
@@ -15,7 +13,6 @@ import com.example.billingservice.domain.model.Document;
 import com.example.billingservice.domain.model.PurchaseOrder;
 import com.example.billingservice.infrastructure.out.persistance.dto.*;
 import com.example.billingservice.infrastructure.out.persistance.mapper.PurchaseOrderMapper;
-import com.example.billingservice.infrastructure.out.persistance.repository.SupplierPurchaseOrderRepository;
 import com.example.billingservice.shared.ParseEnum;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

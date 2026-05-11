@@ -47,6 +47,8 @@ public class InvoiceItemCreateDTO {
     @ValidEnum(enumClass = OperationCategory.class, message = "Catégorie d'opération invalide")
     private String operationCategory;
 
+    private UUID idPurchaseOrderItem;
+
     @Override
     public String toString() {
         return "InvoiceItemCreateDTO{" +

@@ -71,7 +71,7 @@ public class InvoiceUpdateDTO {
 
     private String complianceQRcode;
 
-    private String purchaseOrder;
+    private UUID purchaseOrder;
 
     @Setter
     private String partner;

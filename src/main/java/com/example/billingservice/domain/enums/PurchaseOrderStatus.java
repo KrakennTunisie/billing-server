@@ -4,5 +4,8 @@ public  enum  PurchaseOrderStatus {
     DRAFT,
     CLOSED,
     CANCELLED,
-    IN_DELIVERY
+    IN_DELIVERY,
+    PARTIALLY_INVOICED,
+    FULLY_INVOICED
+
 }

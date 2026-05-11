@@ -24,6 +24,7 @@ public class PurchaseOrderItemMapper {
         return PurchaseOrderItem.builder()
                 .description(dto.getDescription())
                 .quantity(dto.getQuantity())
+                .invoicedQuantity(0)
                 .unityPriceEXclTax(dto.getUnityPriceEXclTax())
                 .vatRate(dto.getVatRate())
                 .itemTotalExclTax(totalExclTax)
@@ -43,6 +44,7 @@ public class PurchaseOrderItemMapper {
         purchaseOrderItemEntity.setIdPurchaseOrderItem(dto.getIdPurchaseOrderItem());
         purchaseOrderItemEntity.setDescription(dto.getDescription());
         purchaseOrderItemEntity.setQuantity(dto.getQuantity());
+        purchaseOrderItemEntity.setInvoicedQuantity(dto.getInvoicedQuantity());
         purchaseOrderItemEntity.setUnityPriceEXclTax(dto.getUnityPriceEXclTax());
         purchaseOrderItemEntity.setTotalPriceIncTax(dto.getItemTotalInclTax());
         purchaseOrderItemEntity.setVatRate(dto.getVatRate());
@@ -65,6 +67,7 @@ public class PurchaseOrderItemMapper {
                 .idPurchaseOrderItem(entity.getIdPurchaseOrderItem())
                 .description(entity.getDescription())
                 .quantity(entity.getQuantity())
+                .invoicedQuantity(entity.getInvoicedQuantity())
                 .unityPriceEXclTax(entity.getUnityPriceEXclTax())
                 .vatRate(entity.getVatRate())
                 .operationCategory(entity.getOperationCategory())

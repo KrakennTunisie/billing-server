@@ -1,5 +1,6 @@
 package com.example.billingservice.infrastructure.out.persistance.entity;
 
+import com.example.billingservice.domain.model.PurchaseOrderItem;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,6 +16,8 @@ public class InvoiceItemEntity extends BaseItemEntity{
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID idInvoiceItem;
 
+    @ManyToOne
+    private PurchaseOrderItemEntity purchaseOrderItem;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "invoice_id", nullable = true)
