@@ -15,7 +15,7 @@ public class InvoiceItem extends BaseItem{
 
     private UUID idInvoiceItem;
     private Invoice invoice;
-
+    private PurchaseOrderItem purchaseOrderItem;
     public UUID getIdInvoiceItem() {
         return idInvoiceItem;
     }

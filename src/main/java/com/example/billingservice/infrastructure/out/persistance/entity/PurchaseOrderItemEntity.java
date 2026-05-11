@@ -16,6 +16,9 @@ public class PurchaseOrderItemEntity extends BaseItemEntity{
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID idPurchaseOrderItem;
 
+    @Column(name = "invoicedQuantity", nullable = true, length = 500)
+    private int invoicedQuantity;
+
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "purchase_order_id", nullable = false)

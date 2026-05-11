@@ -34,6 +34,7 @@ public class InvoiceService implements InvoiceUseCase, InvoiceStatsUseCase {
     private final SupplierInvoicesRepositoryPort supplierInvoicesRepositoryPort;
     private final InvoiceCreditNoteUseCase invoiceCreditNoteUseCase;
     private final CurrencyConversionUseCase currencyConversionUseCase;
+    private final PurchaseOrderSynchronizationService synchronizationService;
 
     @Override
     public InvoiceDTO createInvoice(InvoiceCreateDTO createDTO) throws IOException, BillingException {
@@ -195,7 +196,7 @@ public class InvoiceService implements InvoiceUseCase, InvoiceStatsUseCase {
         if(!clientInvoicesRepositoryPort.existsByInvoiceId(invoiceId)){
             throw  BillingException.notFound("Facture Client", String.valueOf(invoiceId));
         }
-        return supplierInvoicesRepositoryPort.getInvoice(invoiceId);    }
+        return clientInvoicesRepositoryPort.getInvoice(invoiceId);    }
 
     @Override
     @Transactional
@@ -273,6 +274,15 @@ public class InvoiceService implements InvoiceUseCase, InvoiceStatsUseCase {
 
         Invoice invoice = invoiceMapper.invoiceCreateDTOtoDomain(createDTO, invoiceDocument, invoiceNumber);
 
+        if(createDTO.getPurchaseOrder()!=null)
+        {
+            List<InvoiceItem> syncedItems = synchronizationService.synchronize(
+                    createDTO.getPurchaseOrder(),
+                    createDTO.getInvoiceItems()
+            );
+            invoice.setInvoiceItems(syncedItems);
+        }
+
         InvoiceDTO savedInvoice =
                 invoice.getInvoiceType() == InvoiceType.PURCHASE
                 ?
@@ -311,9 +321,12 @@ public class InvoiceService implements InvoiceUseCase, InvoiceStatsUseCase {
                 uploadDocumentService.upload(invoiceUpdateDTO.getInvoiceNumber(), DocumentType.INVOICE, document);
 
         invoiceUpdateDTO.setPartner(String.valueOf(invoiceDTO.getPartner().getIdPartner()));
-
-
         Invoice invoice = invoiceMapper.updateDTOtoDomain(invoiceUpdateDTO, invoiceDTO, invoiceDocument);
+        System.out.println("hellooooo"+invoiceUpdateDTO.getPurchaseOrder());
+        if(invoiceUpdateDTO.getPurchaseOrder()!=null)
+        {   System.out.println(invoiceUpdateDTO.getPurchaseOrder());
+          synchronizationService.updatePurchaseOrderItemInvoicedQuantity(invoiceUpdateDTO.getInvoiceItems(),invoiceUpdateDTO.getPurchaseOrder());
+        }
 
         return invoice;
     }
