@@ -242,6 +242,22 @@ public class InvoiceService implements InvoiceUseCase, InvoiceStatsUseCase {
     }
 
     @Override
+    public List<InvoicePageItemDTO> getClientTopInvoices(UUID clientId) {
+        if(!partnerUseCase.customerExistsByIdPartner(clientId)){
+            throw BillingException.notFound("Client", String.valueOf(clientId));
+        }
+        return clientInvoicesRepositoryPort.getClientTopInvoices(clientId);
+    }
+
+    @Override
+    public List<InvoicePageItemDTO> getSupplierTopInvoices(UUID supplierId) {
+        if(!partnerUseCase.supplierExistsByIdPartner(supplierId)){
+            throw BillingException.notFound("Fournisseur", String.valueOf(supplierId));
+        }
+        return supplierInvoicesRepositoryPort.getSupplierTopInvoices(supplierId);
+    }
+
+    @Override
     public Page<InvoicePageItemDTO> getClientsInvoices(String keyword, String status, int page) {
         InvoiceStatus invoiceStatus = ParseEnum.parseEnum(status, InvoiceStatus.class);
 

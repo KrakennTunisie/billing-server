@@ -12,6 +12,7 @@ import java.util.UUID;
 public interface SupplierInvoicesRepositoryPort {
     Page<InvoicePageItemDTO> findAllInvoices(String keyword , InvoiceStatus status , int page, InvoiceType type);
 
+    List<InvoicePageItemDTO> getSupplierTopInvoices(UUID idSupplier);
 
     InvoiceDTO save(Invoice invoice);
 

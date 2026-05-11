@@ -97,6 +97,14 @@ public class InvoiceController {
         return ResponseEntity.status(201).body(invoiceDTO);
     }
 
+    @GetMapping(CLIENT_INVOICES+"/client/{idClient}")
+    @Operation(summary = "Lister top 3 factures non brouillon et non annulé")
+    public ResponseEntity<List<InvoicePageItemDTO>> getTopInvoicesByClientId(@Parameter(description = "ID du client") @PathVariable String idClient)
+    {
+        List<InvoicePageItemDTO> invoicePageItemDTOS =  invoiceUseCase.getClientTopInvoices(UUID.fromString(idClient));
+        return ResponseEntity.status(200).body(invoicePageItemDTOS);
+    }
+
     @PatchMapping(CLIENT_INVOICES+"/{invoiceId}/status")
     public ResponseEntity<InvoiceDTO> updateClientInvoiceStatus(
             @PathVariable String invoiceId,
@@ -157,10 +165,19 @@ public class InvoiceController {
 
     @GetMapping(SUPPLIER_INVOICES+"/reference/{reference}")
     @Operation(summary = "Détails d'une facture fournissuer")
-    public ResponseEntity<InvoiceDTO> getSupplierInvoiceByInvoiceNumber(@Parameter(description = "ID du facture") @PathVariable String reference)
+    public ResponseEntity<InvoiceDTO> getSupplierInvoiceByInvoiceNumber(@Parameter(description = "réference de facture") @PathVariable String reference)
     {
         InvoiceDTO invoiceDTO =  invoiceUseCase.getInvoiceByInvoiceNumber(reference);
         return ResponseEntity.status(201).body(invoiceDTO);
+
+    }
+
+    @GetMapping(SUPPLIER_INVOICES+"/supplier/{idSupplier}")
+    @Operation(summary = "Lister top 3 factures non brouillon et non annulé")
+    public ResponseEntity<List<InvoicePageItemDTO>> getTopInvoicesBySupplierId(@Parameter(description = "ID du facture") @PathVariable String idSupplier)
+    {
+        List<InvoicePageItemDTO> invoicePageItemDTOS =  invoiceUseCase.getSupplierTopInvoices(UUID.fromString(idSupplier));
+        return ResponseEntity.status(201).body(invoicePageItemDTOS);
 
     }
 
@@ -180,7 +197,7 @@ public class InvoiceController {
         return ResponseEntity.status(201).body(invoiceUseCase.updateInvoice(form));
     }
 
-
+    @Operation(summary = "Mise à jour de statut facture fournisseur")
     @PatchMapping(SUPPLIER_INVOICES+"/{invoiceId}/status")
     public ResponseEntity<InvoiceDTO> updateSupplierInvoiceStatus(
             @PathVariable String invoiceId,
@@ -197,14 +214,14 @@ public class InvoiceController {
 
     @DeleteMapping(SUPPLIER_INVOICES+"/{id}")
     @Operation(summary = "Suppression d'une facture fournisseur")
-    public ResponseEntity<Void> deleteSupplierInvoice(@Parameter(description = "ID du facture") @PathVariable String id)
+    public ResponseEntity<Void> deleteSupplierInvoice(@Parameter(description = "ID du facture fournisseur") @PathVariable String id)
     {
         invoiceUseCase.deleteInvoice(UUID.fromString(id));
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping(CLIENT_INVOICES+"/stats")
-    @Operation(summary = "Détails d'une facture client")
+    @Operation(summary = "Statistiques de tous les clients")
     public ResponseEntity<ConvertedInvoiceStats> getClientsInvoicesStats()
     {
         ConvertedInvoiceStats convertedInvoiceStats =  invoiceStatsUseCase.getALLClientInvoiceStats();
@@ -212,8 +229,8 @@ public class InvoiceController {
     }
 
     @GetMapping(CLIENT_INVOICES+"/stats/{id}")
-    @Operation(summary = "Détails d'une facture client")
-    public ResponseEntity<ConvertedInvoiceStats> getClientInvoicesStats(@Parameter(description = "ID du facture") @PathVariable String id)
+    @Operation(summary = "Statistiques d'un client bien détérminé")
+    public ResponseEntity<ConvertedInvoiceStats> getClientInvoicesStats(@Parameter(description = "ID du client") @PathVariable String id)
     {
         ConvertedInvoiceStats convertedInvoiceStats =  invoiceStatsUseCase.getClientInvoiceStats(UUID.fromString(id));
         return ResponseEntity.status(200).body(convertedInvoiceStats);
@@ -221,7 +238,7 @@ public class InvoiceController {
 
 
     @GetMapping(SUPPLIER_INVOICES+"/stats")
-    @Operation(summary = "Détails d'une facture client")
+    @Operation(summary = "Statistiques de tous les fournisseurs")
     public ResponseEntity<ConvertedInvoiceStats> getSuppliersInvoicesStats()
     {
         ConvertedInvoiceStats convertedInvoiceStats =  invoiceStatsUseCase.getALLSupplierInvoiceStats();
@@ -229,8 +246,8 @@ public class InvoiceController {
     }
 
     @GetMapping(SUPPLIER_INVOICES+"/stats/{id}")
-    @Operation(summary = "Détails d'une facture client")
-    public ResponseEntity<ConvertedInvoiceStats> getSupplierInvoicesStats(@Parameter(description = "ID du facture") @PathVariable String id)
+    @Operation(summary = "Statistiques d'un fournisseur bien détérminé")
+    public ResponseEntity<ConvertedInvoiceStats> getSupplierInvoicesStats(@Parameter(description = "ID du fournisseur") @PathVariable String id)
     {
         ConvertedInvoiceStats convertedInvoiceStats =  invoiceStatsUseCase.getSupplierInvoiceStats(UUID.fromString(id));
         return ResponseEntity.status(200).body(convertedInvoiceStats);

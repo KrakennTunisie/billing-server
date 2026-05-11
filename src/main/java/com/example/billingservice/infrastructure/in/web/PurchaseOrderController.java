@@ -46,7 +46,7 @@ public class PurchaseOrderController {
     }
     @Operation(summary = "Créer un bon de commande", description = "Ajoute un nouveau bon de commande")
     @PostMapping(path = "/", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<PurchaseOrderDTO> createPurchaseOrder ( @ModelAttribute PurchaseOrderCreateDTO form,
+    public ResponseEntity<PurchaseOrderDTO> createPurchaseOrder (@Valid @ModelAttribute PurchaseOrderCreateDTO form,
       @RequestParam(value = "purchaseOrderItemsList", required = true) String purchaseOrderItemsJson)
             throws DataIntegrityViolationException, IOException {
         List<PurchaseOrderItemCreateDTO> purchaseOrderItems = objectMapper.readValue(

@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -149,7 +150,8 @@ public class InvoiceMapper {
                 entity.getCurrency().name(),
                 totalExclTax,
                 totalInclTax,
-                dto.getAppliedExchangeRate()
+                dto.getAppliedExchangeRate(),
+                dto.getExchangeRateReferenceDate()
         );
 
 
@@ -270,7 +272,8 @@ public class InvoiceMapper {
                     invoiceCreateDTO.getInvoiceCurrency(),
                     totalExclTax,
                     totalInclTax,
-                    invoice.getAppliedExchangeRate()
+                    invoice.getAppliedExchangeRate(),
+                    invoice.getExchangeRateReferenceDate()
             );
 
 
@@ -412,7 +415,8 @@ public class InvoiceMapper {
                     invoiceUpdateDTO.getInvoiceCurrency(),
                     totalExclTax,
                     totalInclTax,
-                    invoice.getAppliedExchangeRate()
+                    invoice.getAppliedExchangeRate(),
+                    invoice.getExchangeRateReferenceDate()
             );
 
 

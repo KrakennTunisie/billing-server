@@ -134,7 +134,6 @@ public class InvoiceCreditNoteMapper {
          InvoiceCreditNote invoiceCreditNote = InvoiceCreditNote.builder()
                 .motif(dto.getMotif())
                 .description(dto.getDescription())
-                // ⚠️ on ne mappe pas toute la facture ici
                 .invoice(invoice)
                 .invoiceCreditNoteItems(
                         dto.getInvoiceItems() != null
@@ -146,7 +145,7 @@ public class InvoiceCreditNoteMapper {
                 .invoiceCreditNoteDocument(document)
                 .invoiceCreditNoteNumber(dto.getInvoiceCreditNoteNumber())
                 .qrCode(null)
-                 .issueDate(new Date())
+                 .issueDate(dto.getIssueDate())
                  .complianceStatus(InvoiceComplianceStatus.TTN_PENDING)
                  .invoiceCreditNoteStatus(InvoiceCreditNoteStatus.DRAFT)
                 .build();
@@ -180,18 +179,22 @@ public class InvoiceCreditNoteMapper {
                 : List.of();
 
         double totalExclTax = items.stream()
-                .mapToDouble(item -> item.getInvoiceItem().getItemTotalExclTax() != null ? item.getInvoiceItem().getItemTotalExclTax() : 0.0)
+                .mapToDouble(item -> item.getQuantity() != null
+                        ?(item.getInvoiceItem().getUnityPriceEXclTax() * item.getQuantity())/domain.getInvoice().getAppliedExchangeRate()  : 0.0)
                 .sum();
 
         double totalInclTax = items.stream()
-                .mapToDouble(item -> item.getInvoiceItem().getItemTotalInclTax() != null ? item.getInvoiceItem().getItemTotalInclTax(): 0.0)
+                .mapToDouble(item -> item.getInvoiceItem().getUnityPriceEXclTax() != null
+                        ? (item.getInvoiceItem().getUnityPriceEXclTax() * item.getQuantity())*(1+(item.getInvoiceItem().getVatRate()/100))/domain.getInvoice().getAppliedExchangeRate()
+                        : 0.0)
                 .sum();
 
         CurrencyTotals totals = currencyCalculator.calculateTotals(
                 domain.getInvoice().getCurrency().name(),
                 totalExclTax,
                 totalInclTax,
-                domain.getInvoice().getAppliedExchangeRate()
+                domain.getInvoice().getAppliedExchangeRate(),
+                domain.getInvoice().getExchangeRateReferenceDate()
         );
 
 
@@ -205,7 +208,7 @@ public class InvoiceCreditNoteMapper {
                 .total(totalInclTax)
                 .totalExclTaxEUR(totals.totalExclTaxEUR())
                 .totalInclTaxEUR(totals.totalInclTaxEUR())
-                .totalExclTaxTND(totals.totalExclTaxEUR())
+                .totalExclTaxTND(totals.totalExclTaxTND())
                 .totalInclTaxTND(totals.totalInclTaxTND())
                 .totalExclTaxUSD(totals.totalExclTaxUSD())
                 .totalInclTaxUSD(totals.totalInclTaxUSD())
@@ -228,7 +231,7 @@ public class InvoiceCreditNoteMapper {
         double totalInclTax = items.stream()
                 .mapToDouble(
                         item -> item.getQuantity() != null
-                                ? item.getQuantity() * item.getInvoiceItem().getUnityPriceEXclTax() *(1+item.getInvoiceItem().getVatRate())
+                                ? item.getQuantity() * item.getInvoiceItem().getUnityPriceEXclTax() *(1+(item.getInvoiceItem().getVatRate()/100))
                                 : 0.0
                 )
                 .sum();
@@ -260,18 +263,23 @@ public class InvoiceCreditNoteMapper {
                 : List.of();
 
         double totalExclTax = items.stream()
-                .mapToDouble(item -> item.getInvoiceItem().getItemTotalExclTax() != null ? item.getInvoiceItem().getItemTotalExclTax() : 0.0)
+                .mapToDouble(item -> item.getQuantity()!= null
+                        ? (item.getInvoiceItem().getUnityPriceEXclTax() * item.getQuantity())/invoiceCreditNote.getInvoice().getAppliedExchangeRate(): 0.0)
                 .sum();
 
         double totalInclTax = items.stream()
-                .mapToDouble(item -> item.getInvoiceItem().getItemTotalInclTax() != null ? item.getInvoiceItem().getItemTotalInclTax(): 0.0)
+                .mapToDouble(item -> item.getInvoiceItem().getUnityPriceEXclTax() != null
+                        ? ((item.getInvoiceItem().getUnityPriceEXclTax() * item.getQuantity())*(1+(item.getInvoiceItem().getVatRate()/100)))/invoiceCreditNote.getInvoice().getAppliedExchangeRate()
+                        : 0.0)
                 .sum();
 
         CurrencyTotals totals = currencyCalculator.calculateTotals(
                 invoiceCreditNote.getInvoice().getCurrency().name(),
                 totalExclTax,
                 totalInclTax,
-                invoiceCreditNote.getInvoice().getAppliedExchangeRate()
+                invoiceCreditNote.getInvoice().getAppliedExchangeRate(),
+                invoiceCreditNote.getInvoice().getExchangeRateReferenceDate()
+
         );
 
         return InvoiceCreditNoteDetailsDTO.builder()
@@ -289,7 +297,7 @@ public class InvoiceCreditNoteMapper {
                 .invoiceCreditNoteDocument(documentMapper.toDocumentSummary(invoiceCreditNote.getInvoiceCreditNoteDocument()))
                 .totalExclTaxEUR(totals.totalExclTaxEUR())
                 .totalInclTaxEUR(totals.totalInclTaxEUR())
-                .totalExclTaxTND(totals.totalExclTaxEUR())
+                .totalExclTaxTND(totals.totalExclTaxTND())
                 .totalInclTaxTND(totals.totalInclTaxTND())
                 .totalExclTaxUSD(totals.totalExclTaxUSD())
                 .totalInclTaxUSD(totals.totalInclTaxUSD())

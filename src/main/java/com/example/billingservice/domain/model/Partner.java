@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -44,6 +45,8 @@ public class Partner {
     @Schema(description = "Liste des factures d'un partenaire")
     private List<Invoice> invoices;
 
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     @Override
     public boolean equals(Object o) {
