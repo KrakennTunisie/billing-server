@@ -20,6 +20,7 @@ public interface InvoiceCreditNoteRepository extends JpaRepository<InvoiceCredit
                 :keyword IS NULL OR :keyword = '' OR
                 LOWER(cn.description) LIKE LOWER(CONCAT('%', :keyword, '%'))
                 OR LOWER(cn.motif) LIKE LOWER(CONCAT('%', :keyword, '%'))
+                OR LOWER(cn.invoiceCreditNoteNumber) LIKE LOWER(CONCAT('%', :keyword, '%'))
             )
         AND
             (

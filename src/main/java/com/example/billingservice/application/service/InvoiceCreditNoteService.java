@@ -155,7 +155,7 @@ public class InvoiceCreditNoteService implements InvoiceCreditNoteUseCase {
         InvoiceCreditNoteEvent invoiceEvent = InvoiceCreditNoteEvent.builder()
                 .invoiceCreditNoteEventType(InvoiceCreditNoteEventType.UPDATED)
                 .eventDate(new Date())
-                .description("Mise à jour de satut facture : "+InvoiceEventTrigger.USER.name())
+                .description("Mise à jour de satut facture : "+StatusMapper.mapCreditNoteStatusToFrench(invoiceCreditNoteStatus))
                 .eventTrigger(InvoiceEventTrigger.USER)
                 .triggeredBy("user: wassef")
                 .build();

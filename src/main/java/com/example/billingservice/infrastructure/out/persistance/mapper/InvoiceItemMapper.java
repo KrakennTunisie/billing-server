@@ -5,7 +5,6 @@ import com.example.billingservice.domain.enums.OperationCategory;
 import com.example.billingservice.domain.model.InvoiceItem;
 import com.example.billingservice.domain.model.PurchaseOrderItem;
 import com.example.billingservice.infrastructure.out.persistance.dto.InvoiceItemCreateDTO;
-import com.example.billingservice.infrastructure.out.persistance.dto.InvoiceItemDTO;
 import com.example.billingservice.infrastructure.out.persistance.entity.InvoiceItemEntity;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -40,27 +39,11 @@ public class InvoiceItemMapper {
                         .itemTotalInclTax(totalInclTax)
                         .operationCategory(OperationCategory.valueOf(dto.getOperationCategory()))
                         .purchaseOrderItem(purchaseOrderItem)
+                        .creditedQuantity(0)
                         .build();
 
         return invoiceItem;
     }
-
-    public InvoiceItemEntity invoiceItemDTOtoEntity(InvoiceItemDTO dto) {
-        if (dto == null) {
-            return null;
-        }
-
-
-        InvoiceItemEntity invoiceItemEntity = new InvoiceItemEntity();
-        invoiceItemEntity.setDescription(dto.getDescription());
-        invoiceItemEntity.setQuantity(dto.getQuantity());
-        invoiceItemEntity.setUnityPriceEXclTax(dto.getUnityPriceEXclTax());
-        invoiceItemEntity.setVatRate(dto.getVatRate());
-        invoiceItemEntity.setOperationCategory(OperationCategory.valueOf(dto.getOperationCategory()));
-
-        return invoiceItemEntity;
-    }
-
 
     public InvoiceItem invoiceItemtoDomain(InvoiceItemEntity entity) {
         if (entity == null) {
@@ -86,6 +69,7 @@ public class InvoiceItemMapper {
                 .itemTotalExclTax(totalExclTax)
                 .itemTaxAmount(taxAmount)
                 .itemTotalInclTax(entity.getTotalPriceIncTax())
+                .creditedQuantity(entity.getCreditedQuantity())
                 .build();
     }
 
@@ -135,6 +119,7 @@ public class InvoiceItemMapper {
         entity.setVatRate(invoiceItem.getVatRate());
         entity.setOperationCategory(invoiceItem.getOperationCategory());
         entity.setTotalPriceIncTax(invoiceItem.getItemTotalInclTax());
+        entity.setCreditedQuantity(invoiceItem.getCreditedQuantity());
 
         return entity;
     }

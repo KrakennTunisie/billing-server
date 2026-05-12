@@ -9,4 +9,6 @@ public interface InvoiceItemUseCase {
     InvoiceItem getById(UUID invoiceItemId);
 
     InvoiceItemEntity getInvoiceItemEntityById(UUID invoiceItemId);
+
+    int getTotalCreditedQuantityByInvoiceItemId(UUID invoiceItemId);
 }
