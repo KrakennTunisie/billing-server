@@ -154,30 +154,6 @@ public class PurchaseOrderMapper {
 
             purchaseOrder.setPurchaseOrderItems(items);
 
-
-            double totalExclTax = items.stream()
-                    .mapToDouble(item -> item.getItemTotalExclTax() != null ? item.getItemTotalExclTax() : 0.0)
-                    .sum();
-
-            double totalInclTax = items.stream()
-                    .mapToDouble(item -> item.getItemTotalInclTax() != null ? item.getItemTotalInclTax() : 0.0)
-                    .sum();
-
-            CurrencyTotals totals = currencyCalculator.calculateTotals(
-                    purchaseOrderCreateDTO.getPurchaseCurrency(),
-                    totalExclTax,
-                    totalInclTax,
-                    purchaseOrder.getAppliedExchangeRate(),
-                    purchaseOrder.getExchangeRateReferenceDate()
-            );
-
-
-            purchaseOrder.setTotalExclTaxEUR(totals.totalExclTaxEUR());
-            purchaseOrder.setTotalInclTaxEUR(totals.totalInclTaxEUR());
-            purchaseOrder.setTotalExclTaxTND(totals.totalExclTaxTND());
-            purchaseOrder.setTotalInclTaxTND(totals.totalExclTaxTND());
-            purchaseOrder.setTotalExclTaxUSD(totals.totalExclTaxUSD());
-            purchaseOrder.setTotalInclTaxUSD(totals.totalInclTaxUSD());
             return purchaseOrder;
         }
         catch (Exception exception){

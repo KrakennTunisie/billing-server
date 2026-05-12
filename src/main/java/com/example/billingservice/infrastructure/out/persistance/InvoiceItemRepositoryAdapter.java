@@ -26,4 +26,9 @@ public class InvoiceItemRepositoryAdapter implements InvoiceItemRepositoryPort {
     public InvoiceItemEntity getInvoiceItemEntityById(UUID invoiceItemId) {
         return invoiceItemRepository.getReferenceById(invoiceItemId);
     }
+
+    @Override
+    public InvoiceItemEntity saveInvoiceItem(InvoiceItemEntity invoiceItemEntity) {
+        return invoiceItemRepository.save(invoiceItemEntity);
+    }
 }

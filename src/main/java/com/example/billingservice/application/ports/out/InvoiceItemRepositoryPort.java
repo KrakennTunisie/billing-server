@@ -11,4 +11,5 @@ public interface InvoiceItemRepositoryPort {
 
     InvoiceItemEntity getInvoiceItemEntityById(UUID invoiceItemId);
 
+    InvoiceItemEntity saveInvoiceItem(InvoiceItemEntity invoiceItemEntity);
 }
