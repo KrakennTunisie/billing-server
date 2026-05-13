@@ -4,6 +4,7 @@ import com.example.billingservice.application.ports.out.CustomerRepositoryPort;
 import com.example.billingservice.domain.enums.PartnerType;
 import com.example.billingservice.domain.exceptions.BillingException;
 import com.example.billingservice.domain.model.Partner;
+import com.example.billingservice.infrastructure.out.persistance.dto.PartnerDetailsDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerItemDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerSummaryDTO;
 import com.example.billingservice.infrastructure.out.persistance.entity.CustomerEntity;
@@ -47,6 +48,13 @@ public class CustomerPersistanceAdapter implements CustomerRepositoryPort {
             throw BillingException.badRequest("UUID Invalid"+id);
         }
 
+    }
+
+    @Override
+    public Optional<PartnerDetailsDTO> findClientById(UUID idClient) {
+        return customerRepository.findById(idClient)
+                .map(p->partnerMapper.toDetailsDTO(partnerMapper.toDomain(p, PartnerType.CLIENT)))
+                .or(() -> { throw BillingException.notFound("Client", String.valueOf(idClient)); });
     }
 
     @Override

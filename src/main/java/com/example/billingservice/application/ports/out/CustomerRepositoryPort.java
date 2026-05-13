@@ -1,6 +1,7 @@
 package com.example.billingservice.application.ports.out;
 
 import com.example.billingservice.domain.model.Partner;
+import com.example.billingservice.infrastructure.out.persistance.dto.PartnerDetailsDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerItemDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerSummaryDTO;
 import org.springframework.data.domain.Page;
@@ -12,6 +13,8 @@ import java.util.UUID;
 public interface CustomerRepositoryPort {
     Partner saveCustomer (Partner partner);
     Optional<Partner> findCustomerById(String id);
+
+    Optional<PartnerDetailsDTO> findClientById( UUID idClient);
 
     boolean existsByIdPartner(UUID idPartner);
 

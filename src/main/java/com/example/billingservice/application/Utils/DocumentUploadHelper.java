@@ -34,7 +34,7 @@ public class DocumentUploadHelper {
                 && documentType!= DocumentType.INVOICE
                 && documentType!= DocumentType.PURCHASE_ORDER) {
             throw new InvalidDocumentTypeException(
-                    "Unsupported customer document type: " + documentType
+                    "le type de document n'est pas pris en charge: " + documentType
             );
         }
     }

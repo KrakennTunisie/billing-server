@@ -460,6 +460,29 @@ public class InvoiceMapper {
                 .build();
     }
 
+    public InvoiceDetailedSummaryDTO toDetailedSummaryDTO(Invoice invoice) {
+        if (invoice == null) {
+            return null;
+        }
+
+        return InvoiceDetailedSummaryDTO.builder()
+                .idInvoice(invoice.getIdInvoice())
+                .invoiceNumber(invoice.getReference())
+                .issueDate(invoice.getIssueDate())
+                .invoiceType(invoice.getInvoiceType())
+                .invoiceStatus(invoice.getInvoiceStatus())
+                .invoiceComplianceStatus(invoice.getInvoiceComplianceStatus())
+                .invoiceCurrency(invoice.getCurrency())
+                .totalExclTaxEUR(invoice.getTotalExclTaxEUR())
+                .totalInclTaxEUR(invoice.getTotalInclTaxEUR())
+                .totalExclTaxTND(invoice.getTotalExclTaxTND())
+                .totalInclTaxTND(invoice.getTotalInclTaxTND())
+                .totalExclTaxUSD(invoice.getTotalExclTaxUSD())
+                .totalInclTaxUSD(invoice.getTotalInclTaxUSD())
+                .partner(partnerMapper.toSummaryDTO(invoice.getPartner()))
+                .build();
+    }
+
     public Partner getPartner(InvoiceType invoiceType, String idPartner){
         if(invoiceType == InvoiceType.PURCHASE){
             return partnerUseCase.getSupplierById(idPartner).get();

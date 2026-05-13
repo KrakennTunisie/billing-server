@@ -19,6 +19,8 @@ public interface PartnerUseCase {
 
     Optional<Partner> getSupplierById(String id);
 
+    Optional<PartnerDetailsDTO> getSupplierDetailsById(String idSupplier);
+
     PartnerItemDTO getSupplierByEmail(String email);
     boolean supplierExistsByIdPartner(UUID idPartner);
     boolean supplierExistsByRegistrationNumber(String taxRegistrationNumber);
@@ -40,6 +42,8 @@ public interface PartnerUseCase {
     Optional<Partner> createCustomer(PartnerForm partner) throws IOException;
 
     Optional<Partner> findCustomerById(String id);
+
+    Optional<PartnerDetailsDTO> getClientDetailsById(String idClient);
 
     boolean customerExistsByIdPartner(UUID idPartner);
 

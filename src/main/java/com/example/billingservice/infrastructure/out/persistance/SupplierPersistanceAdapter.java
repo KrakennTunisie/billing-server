@@ -7,6 +7,7 @@ import com.example.billingservice.domain.exceptions.BillingException;
 import com.example.billingservice.domain.model.Partner;
 
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerDTO;
+import com.example.billingservice.infrastructure.out.persistance.dto.PartnerDetailsDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerItemDTO;
 import com.example.billingservice.infrastructure.out.persistance.entity.SupplierEntity;
 import com.example.billingservice.infrastructure.out.persistance.mapper.PartnerMapper;
@@ -51,6 +52,13 @@ public class SupplierPersistanceAdapter implements SupplierRepositoryPort {
         } catch (IllegalArgumentException ex) {
             throw BillingException.badRequest("Invalid UUID "+id);
         }
+    }
+
+    @Override
+    public Optional<PartnerDetailsDTO> getSupplierById(UUID idSupplier) {
+        return supplierRepository.findById(idSupplier)
+                .map(p->partnerMapper.toDetailsDTO(partnerMapper.toDomain(p, PartnerType.SUPPLIER)))
+                .or(() -> { throw BillingException.notFound("Fournisseur", String.valueOf(idSupplier)); });
     }
 
     @Override

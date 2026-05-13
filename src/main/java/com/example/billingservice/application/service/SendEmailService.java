@@ -40,11 +40,11 @@ public class SendEmailService implements SendEmailUseCase {
 
         String partnerEmail = invoice.getPartner().getEmail();
 
-        DocumentReadFile documentReadFile = documentReaderPort.getFileAttachment(invoice.getInvoiceDocument().getIdDocument());
-
         if (!partnerEmail.equalsIgnoreCase(request.toEmail())) {
             throw new RuntimeException("Email does not match invoice partner email");
         }
+
+        DocumentReadFile documentReadFile = documentReaderPort.getFileAttachment(invoice.getInvoiceDocument().getIdDocument());
 
         MailJob job = new MailJob(
                 partnerEmail,
@@ -65,6 +65,7 @@ public class SendEmailService implements SendEmailUseCase {
 
     @Override
     public void sendCreditNoteEmail(UUID invoiceCreditNoteId, SendEmailRequest request) {
+
         if(!invoiceCreditNoteUseCase.existsByInvoiceCreditNoteId(invoiceCreditNoteId)){
             throw BillingException.notFound("Facture avoir", String.valueOf(invoiceCreditNoteId));
         }
