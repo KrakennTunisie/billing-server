@@ -2,11 +2,13 @@ package com.example.billingservice.infrastructure.out.persistance.dto;
 
 import com.example.billingservice.domain.enums.PartnerType;
 import lombok.Builder;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Builder
+@Getter
 public class PartnerDetailsDTO {
 
     private UUID idPartner;

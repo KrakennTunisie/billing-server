@@ -214,7 +214,7 @@ public class InvoiceCreditNoteMapper {
                 .totalInclTaxUSD(totals.totalInclTaxUSD())
                 .invoice(
                         domain.getInvoice() != null
-                                ? invoiceMapper.toSummaryDTO(domain.getInvoice())
+                                ? invoiceMapper.toDetailedSummaryDTO(domain.getInvoice())
                                 : null
                 )
                 .build();

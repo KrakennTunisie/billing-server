@@ -25,5 +25,5 @@ public class InvoiceCreditNotePageItemDTO {
     private Double totalExclTaxUSD;
     private Double totalInclTaxUSD;
 
-    private InvoiceSummaryDTO invoice;
+    private InvoiceDetailedSummaryDTO invoice;
 }

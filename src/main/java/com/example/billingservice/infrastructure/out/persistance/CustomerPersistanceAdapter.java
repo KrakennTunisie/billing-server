@@ -4,6 +4,7 @@ import com.example.billingservice.application.ports.out.CustomerRepositoryPort;
 import com.example.billingservice.domain.enums.PartnerType;
 import com.example.billingservice.domain.exceptions.BillingException;
 import com.example.billingservice.domain.model.Partner;
+import com.example.billingservice.infrastructure.out.persistance.dto.PartnerDetailsDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerItemDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerSummaryDTO;
 import com.example.billingservice.infrastructure.out.persistance.entity.CustomerEntity;
@@ -30,10 +31,10 @@ public class CustomerPersistanceAdapter implements CustomerRepositoryPort {
     private final CustomerRepository customerRepository;
 
     @Override
-    public Partner saveCustomer(Partner partner) {
+    public PartnerDetailsDTO saveCustomer(Partner partner) {
 
         CustomerEntity entity = (CustomerEntity) partnerMapper.toEntity(partner);
-        return partnerMapper.toDomain(customerRepository.save(entity), PartnerType.CLIENT) ;
+        return partnerMapper.toDetailsDTO(partnerMapper.toDomain(customerRepository.save(entity), PartnerType.CLIENT)) ;
 
     }
 
@@ -47,6 +48,13 @@ public class CustomerPersistanceAdapter implements CustomerRepositoryPort {
             throw BillingException.badRequest("UUID Invalid"+id);
         }
 
+    }
+
+    @Override
+    public Optional<PartnerDetailsDTO> findClientById(UUID idClient) {
+        return customerRepository.findById(idClient)
+                .map(p->partnerMapper.toDetailsDTO(partnerMapper.toDomain(p, PartnerType.CLIENT)))
+                .or(() -> { throw BillingException.notFound("Client", String.valueOf(idClient)); });
     }
 
     @Override
@@ -99,9 +107,9 @@ public class CustomerPersistanceAdapter implements CustomerRepositoryPort {
     }
 
     @Override
-    public Partner updateCustomer(Partner partner) throws DataIntegrityViolationException {
+    public PartnerDetailsDTO updateCustomer(Partner partner) throws DataIntegrityViolationException {
             CustomerEntity entity = (CustomerEntity) partnerMapper.toEntity(partner);
-            return partnerMapper.toDomain(customerRepository.save(entity), PartnerType.CLIENT);
+            return partnerMapper.toDetailsDTO(partnerMapper.toDomain(customerRepository.save(entity), PartnerType.CLIENT));
 
     }
 

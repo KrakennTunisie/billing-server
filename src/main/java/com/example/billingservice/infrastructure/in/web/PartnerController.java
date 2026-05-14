@@ -4,10 +4,7 @@ package com.example.billingservice.infrastructure.in.web;
 import com.example.billingservice.application.ports.in.PartnerUseCase;
 import com.example.billingservice.domain.exceptions.BillingException;
 import com.example.billingservice.domain.model.Partner;
-import com.example.billingservice.infrastructure.out.persistance.dto.PartnerForm;
-import com.example.billingservice.infrastructure.out.persistance.dto.PartnerItemDTO;
-import com.example.billingservice.infrastructure.out.persistance.dto.PartnerSummaryDTO;
-import com.example.billingservice.infrastructure.out.persistance.dto.UpdatePartnerDTO;
+import com.example.billingservice.infrastructure.out.persistance.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -28,7 +25,7 @@ import java.util.Optional;
 
 
 
-@Tag(name= "Partner API", description = "Gestion des paramétres")
+@Tag(name= "Partner API", description = "Gestion des clients et fournisseurs")
 @RestController
 @RequestMapping("/api/partners")
 @RequiredArgsConstructor
@@ -41,7 +38,7 @@ public class PartnerController {
 
     @Operation(summary = "Créer un fournisseur", description = "Ajoute un nouveau fournisseur")
     @PostMapping(path = "/suppliers", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity <Partner> createSupplier (@Valid @ModelAttribute PartnerForm form) throws IOException,
+    public ResponseEntity <PartnerDetailsDTO> createSupplier (@Valid @ModelAttribute PartnerForm form) throws IOException,
             DataIntegrityViolationException {
         return ResponseEntity.status(201).body(partnerUseCase.createSupplier(form));
     }
@@ -49,13 +46,13 @@ public class PartnerController {
 
     @GetMapping("/suppliers/{id}")
     @Operation(summary = "Récupérer un fournisseur")
-    public ResponseEntity<Optional<Partner>> getSupplierById(@Parameter(description = "ID du partenaire")@PathVariable String id)
+    public ResponseEntity<Optional<PartnerDetailsDTO>> getSupplierById(@Parameter(description = "ID du fournisseur")@PathVariable String id)
     {
-        return ResponseEntity.ok(partnerUseCase.getSupplierById(id));
+        return ResponseEntity.ok(partnerUseCase.getSupplierDetailsById(id));
     }
     @GetMapping("/suppliers/existByEmail/{email}")
     @Operation(summary = "Récupérer un fournisseur")
-    public ResponseEntity<Optional<Partner>> supplierExistByEmail(@Parameter(description = "Email du partenaire")@PathVariable String email)
+    public ResponseEntity<Optional<Partner>> supplierExistByEmail(@Parameter(description = "Email du fournisseur")@PathVariable String email)
     {
         return ResponseEntity.ok(partnerUseCase.findSupplierExistsByEmail(email));
     }
@@ -98,7 +95,7 @@ public class PartnerController {
 
     @PatchMapping("/suppliers/{id}")
     @Operation(summary = "Modification d'un fournisseur")
-    public ResponseEntity <Partner> updateSupplier (@Parameter(description = "ID du fournisseur") @PathVariable String id ,
+    public ResponseEntity <PartnerDetailsDTO> updateSupplier (@Parameter(description = "ID du fournisseur") @PathVariable String id ,
                                                     @RequestBody UpdatePartnerDTO request)
     {
        return ResponseEntity.status(201).body(partnerUseCase.updateSupplier(id,request)) ;
@@ -110,7 +107,7 @@ public class PartnerController {
     /********** CUSTOMER *************/
     @Operation(summary = "Créer un client", description = "Ajoute un nouveau client")
     @PostMapping(path = "/clients", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity <Optional<Partner>> createCustomer (@ModelAttribute PartnerForm form) throws IOException {
+    public ResponseEntity <PartnerDetailsDTO> createCustomer (@ModelAttribute PartnerForm form) throws IOException {
         return ResponseEntity.status(201).body(partnerUseCase.createCustomer(form));
     }
 
@@ -134,9 +131,9 @@ public class PartnerController {
 
     @GetMapping("/clients/{id}")
     @Operation(summary = "Récupérer un client")
-    public ResponseEntity<Optional<Partner>> getCustomerById(@Parameter(description = "ID du client")@PathVariable String id)
+    public ResponseEntity<Optional<PartnerDetailsDTO>> getCustomerById(@Parameter(description = "ID du client")@PathVariable String id)
     {
-        return ResponseEntity.ok(partnerUseCase.findCustomerById(id));
+        return ResponseEntity.ok(partnerUseCase.getClientDetailsById(id));
     }
 
 
@@ -151,7 +148,7 @@ public class PartnerController {
 
     @PatchMapping("/clients/{id}")
     @Operation(summary = "Modification client")
-    public ResponseEntity <Partner> updateCustomer (@Parameter(description = "ID du client") @PathVariable String id ,
+    public ResponseEntity <PartnerDetailsDTO> updateCustomer (@Parameter(description = "ID du client") @PathVariable String id ,
                                                     @RequestBody UpdatePartnerDTO request)
     {
         return ResponseEntity.status(201).body(partnerUseCase.updateCustomer(id,request)) ;

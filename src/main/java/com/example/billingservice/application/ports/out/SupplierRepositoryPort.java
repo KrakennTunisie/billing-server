@@ -2,6 +2,7 @@ package com.example.billingservice.application.ports.out;
 
 import com.example.billingservice.domain.model.Partner;
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerDTO;
+import com.example.billingservice.infrastructure.out.persistance.dto.PartnerDetailsDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerItemDTO;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
@@ -11,8 +12,10 @@ import java.util.UUID;
 
 public interface SupplierRepositoryPort {
 
-    Partner saveSupplier  (Partner partner) throws DataIntegrityViolationException;
+    PartnerDetailsDTO saveSupplier  (Partner partner) throws DataIntegrityViolationException;
     Optional<Partner> findSupplierById(String id);
+
+    Optional<PartnerDetailsDTO> getSupplierById(UUID idSupplier);
 
     boolean existsByIdPartner(UUID idPartner);
 
@@ -29,6 +32,6 @@ public interface SupplierRepositoryPort {
 
     boolean existsByIban(String email);
     Page<PartnerItemDTO> findAllSuppliers(String keyword , String Country , int page);
-    Partner updateSupplier (Partner partner) throws DataIntegrityViolationException;
+    PartnerDetailsDTO updateSupplier (Partner partner) throws DataIntegrityViolationException;
     void deleteSupplierById(String id);
 }

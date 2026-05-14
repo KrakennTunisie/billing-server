@@ -7,6 +7,7 @@ import com.example.billingservice.domain.exceptions.BillingException;
 import com.example.billingservice.domain.model.Partner;
 
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerDTO;
+import com.example.billingservice.infrastructure.out.persistance.dto.PartnerDetailsDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerItemDTO;
 import com.example.billingservice.infrastructure.out.persistance.entity.SupplierEntity;
 import com.example.billingservice.infrastructure.out.persistance.mapper.PartnerMapper;
@@ -33,11 +34,11 @@ public class SupplierPersistanceAdapter implements SupplierRepositoryPort {
     private final PartnerMapper partnerMapper;
 
     @Override
-    public Partner saveSupplier(Partner partner) throws DataIntegrityViolationException{
+    public PartnerDetailsDTO saveSupplier(Partner partner) throws DataIntegrityViolationException{
 
         SupplierEntity entity = (SupplierEntity) partnerMapper.toEntity(partner);
 
-        return partnerMapper.toDomain(supplierRepository.save(entity), PartnerType.SUPPLIER) ;
+        return partnerMapper.toDetailsDTO(partnerMapper.toDomain(supplierRepository.save(entity), PartnerType.SUPPLIER) );
 
     }
 
@@ -51,6 +52,13 @@ public class SupplierPersistanceAdapter implements SupplierRepositoryPort {
         } catch (IllegalArgumentException ex) {
             throw BillingException.badRequest("Invalid UUID "+id);
         }
+    }
+
+    @Override
+    public Optional<PartnerDetailsDTO> getSupplierById(UUID idSupplier) {
+        return supplierRepository.findById(idSupplier)
+                .map(p->partnerMapper.toDetailsDTO(partnerMapper.toDomain(p, PartnerType.SUPPLIER)))
+                .or(() -> { throw BillingException.notFound("Fournisseur", String.valueOf(idSupplier)); });
     }
 
     @Override
@@ -130,13 +138,13 @@ public class SupplierPersistanceAdapter implements SupplierRepositoryPort {
     }
 
     @Override
-    public Partner updateSupplier(Partner partner) throws DataIntegrityViolationException {
+    public PartnerDetailsDTO updateSupplier(Partner partner) throws DataIntegrityViolationException {
 
             SupplierEntity entity = (SupplierEntity) partnerMapper.toEntity(partner);
 
             SupplierEntity savedSupplier = supplierRepository.save(entity);
 
-            return partnerMapper.toDomain(savedSupplier, PartnerType.SUPPLIER);
+            return partnerMapper.toDetailsDTO(partnerMapper.toDomain(savedSupplier, PartnerType.SUPPLIER));
 
 
     }

@@ -35,7 +35,7 @@ public class PartnerService implements PartnerUseCase  {
     /********* SUPPLIER ********/
 
     @Override
-    public Partner createSupplier(PartnerForm partner) throws IOException, DataIntegrityViolationException {
+    public PartnerDetailsDTO createSupplier(PartnerForm partner) throws IOException, DataIntegrityViolationException {
         if(!Objects.equals(partner.getPartnerType(), PartnerType.SUPPLIER.name())){
             throw BillingException
                     .badRequest("Le Type est inadéquat");
@@ -110,6 +110,14 @@ public class PartnerService implements PartnerUseCase  {
     }
 
     @Override
+    public Optional<PartnerDetailsDTO> getSupplierDetailsById(String idSupplier) {
+        if(!supplierRepositoryPort.existsByIdPartner(UUID.fromString(idSupplier))){
+            throw BillingException.notFound("Fournisseur", idSupplier);
+        }
+        return supplierRepositoryPort.getSupplierById(UUID.fromString(idSupplier));
+    }
+
+    @Override
     public PartnerItemDTO getSupplierByEmail(String email) {
         if(!supplierRepositoryPort.existsByEmail(email)){
             throw BillingException.notFound("Fournisseur", email);
@@ -165,7 +173,7 @@ public class PartnerService implements PartnerUseCase  {
 
 
     @Override
-    public Partner updateSupplier(String id, UpdatePartnerDTO partnerDTO) throws DataIntegrityViolationException{
+    public PartnerDetailsDTO updateSupplier(String id, UpdatePartnerDTO partnerDTO) throws DataIntegrityViolationException{
 
         Partner updatedPartner = supplierRepositoryPort.findSupplierById(id)
                 .orElseThrow(() -> BillingException.notFound("Fournisseur",id));
@@ -178,7 +186,7 @@ public class PartnerService implements PartnerUseCase  {
     /************ CUSTOMER **********/
 
     @Override
-    public Optional<Partner> createCustomer(PartnerForm partner) throws IOException {
+    public PartnerDetailsDTO createCustomer(PartnerForm partner) throws IOException {
         if(!Objects.equals(partner.getPartnerType(), PartnerType.CLIENT.name())){
             throw BillingException
                     .badRequest("Le Type est inadéquat");
@@ -242,9 +250,7 @@ public class PartnerService implements PartnerUseCase  {
                 .address(partner.getAddress()).iban(partner.getIban()).partnerType(PartnerType.valueOf(partner.getPartnerType()))
                 .rne(uploadedRne).contract(uploadedContract).patente(uploadedPatente).build();
 
-        Partner savedPartner = customerRepositoryPort.saveCustomer(partnerModel);
-
-        return customerRepositoryPort.findCustomerById(String.valueOf(savedPartner.getIdPartner()));
+        return customerRepositoryPort.saveCustomer(partnerModel);
     }
 
     @Override
@@ -261,6 +267,13 @@ public class PartnerService implements PartnerUseCase  {
     public Optional<Partner> findCustomerById(String id) {
         return customerRepositoryPort.findCustomerById(id);
     }
+
+    @Override
+    public Optional<PartnerDetailsDTO> getClientDetailsById(String idClient) {
+        if(!customerRepositoryPort.existsByIdPartner(UUID.fromString(idClient))){
+            throw BillingException.notFound("Client", idClient);
+        }
+        return customerRepositoryPort.findClientById(UUID.fromString(idClient));    }
 
     @Override
     public boolean customerExistsByIdPartner(UUID idPartner) {
@@ -289,7 +302,7 @@ public class PartnerService implements PartnerUseCase  {
     }
 
     @Override
-    public Partner updateCustomer(String id, UpdatePartnerDTO partner) throws DataIntegrityViolationException{
+    public PartnerDetailsDTO updateCustomer(String id, UpdatePartnerDTO partner) throws DataIntegrityViolationException{
         Partner updatedPartner = customerRepositoryPort.findCustomerById(id)
                 .orElseThrow(() -> BillingException.notFound("Client",id));
 
