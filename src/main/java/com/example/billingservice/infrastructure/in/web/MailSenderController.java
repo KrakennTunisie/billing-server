@@ -32,12 +32,21 @@ public class MailSenderController {
         return ResponseEntity.accepted().build();
     }
 
-    @PostMapping("/creditNote/{invoiceId}/send-email")
+    @PostMapping("/creditNote/{creditNoteId}/send-email")
     public ResponseEntity<Void> sendCreditNoteEmail(
-            @PathVariable String invoiceId,
+            @PathVariable String creditNoteId,
             @RequestBody SendEmailRequest request
     ) {
-        sendEmailUseCase.sendCreditNoteEmail(UUID.fromString(invoiceId), request);
+        sendEmailUseCase.sendCreditNoteEmail(UUID.fromString(creditNoteId), request);
+        return ResponseEntity.accepted().build();
+    }
+
+    @PostMapping("/purchase-order/{purchaseOrderId}/send-email")
+    public ResponseEntity<Void> sendPurchaseOrderEmail(
+            @PathVariable String purchaseOrderId,
+            @RequestBody SendEmailRequest request
+    ) {
+        sendEmailUseCase.sendPurchaseOrderEmail(UUID.fromString(purchaseOrderId), request);
         return ResponseEntity.accepted().build();
     }
 

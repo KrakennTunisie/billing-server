@@ -38,7 +38,7 @@ public class PartnerController {
 
     @Operation(summary = "Créer un fournisseur", description = "Ajoute un nouveau fournisseur")
     @PostMapping(path = "/suppliers", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity <Partner> createSupplier (@Valid @ModelAttribute PartnerForm form) throws IOException,
+    public ResponseEntity <PartnerDetailsDTO> createSupplier (@Valid @ModelAttribute PartnerForm form) throws IOException,
             DataIntegrityViolationException {
         return ResponseEntity.status(201).body(partnerUseCase.createSupplier(form));
     }
@@ -95,7 +95,7 @@ public class PartnerController {
 
     @PatchMapping("/suppliers/{id}")
     @Operation(summary = "Modification d'un fournisseur")
-    public ResponseEntity <Partner> updateSupplier (@Parameter(description = "ID du fournisseur") @PathVariable String id ,
+    public ResponseEntity <PartnerDetailsDTO> updateSupplier (@Parameter(description = "ID du fournisseur") @PathVariable String id ,
                                                     @RequestBody UpdatePartnerDTO request)
     {
        return ResponseEntity.status(201).body(partnerUseCase.updateSupplier(id,request)) ;
@@ -107,7 +107,7 @@ public class PartnerController {
     /********** CUSTOMER *************/
     @Operation(summary = "Créer un client", description = "Ajoute un nouveau client")
     @PostMapping(path = "/clients", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity <Optional<Partner>> createCustomer (@ModelAttribute PartnerForm form) throws IOException {
+    public ResponseEntity <PartnerDetailsDTO> createCustomer (@ModelAttribute PartnerForm form) throws IOException {
         return ResponseEntity.status(201).body(partnerUseCase.createCustomer(form));
     }
 
@@ -148,7 +148,7 @@ public class PartnerController {
 
     @PatchMapping("/clients/{id}")
     @Operation(summary = "Modification client")
-    public ResponseEntity <Partner> updateCustomer (@Parameter(description = "ID du client") @PathVariable String id ,
+    public ResponseEntity <PartnerDetailsDTO> updateCustomer (@Parameter(description = "ID du client") @PathVariable String id ,
                                                     @RequestBody UpdatePartnerDTO request)
     {
         return ResponseEntity.status(201).body(partnerUseCase.updateCustomer(id,request)) ;

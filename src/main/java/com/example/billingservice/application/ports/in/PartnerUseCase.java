@@ -15,7 +15,7 @@ public interface PartnerUseCase {
 
     /****** Supplier *****/
 
-    Partner createSupplier(PartnerForm partner) throws IOException, DataIntegrityViolationException;
+    PartnerDetailsDTO createSupplier(PartnerForm partner) throws IOException, DataIntegrityViolationException;
 
     Optional<Partner> getSupplierById(String id);
 
@@ -32,14 +32,14 @@ public interface PartnerUseCase {
     Page<PartnerItemDTO> getAllSuppliers(String keyword , String Country , int page);
     boolean existsBySupplierName(String name);
 
-    Partner updateSupplier (String id , UpdatePartnerDTO command) throws DataIntegrityViolationException;
+    PartnerDetailsDTO updateSupplier (String id , UpdatePartnerDTO command) throws DataIntegrityViolationException;
 
     void deleteSupplier(String id);
 
 
     /**** CUSTOMER ****/
 
-    Optional<Partner> createCustomer(PartnerForm partner) throws IOException;
+    PartnerDetailsDTO createCustomer(PartnerForm partner) throws IOException;
 
     Optional<Partner> findCustomerById(String id);
 
@@ -57,11 +57,7 @@ public interface PartnerUseCase {
 
     void deleteCustomerById(String id);
 
-    Partner updateCustomer(String id, UpdatePartnerDTO partner) throws DataIntegrityViolationException;
-
-
-
-
+    PartnerDetailsDTO updateCustomer(String id, UpdatePartnerDTO partner) throws DataIntegrityViolationException;
 
 
 }

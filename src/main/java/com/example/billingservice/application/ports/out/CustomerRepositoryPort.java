@@ -11,7 +11,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface CustomerRepositoryPort {
-    Partner saveCustomer (Partner partner);
+    PartnerDetailsDTO saveCustomer (Partner partner);
     Optional<Partner> findCustomerById(String id);
 
     Optional<PartnerDetailsDTO> findClientById( UUID idClient);
@@ -31,7 +31,7 @@ public interface CustomerRepositoryPort {
 
     List<PartnerSummaryDTO> getSummaryClients(String keyword , String Country);
 
-    Partner updateCustomer (Partner partner);
+    PartnerDetailsDTO updateCustomer (Partner partner);
 
     void deleteCustomerById(String id);
 }

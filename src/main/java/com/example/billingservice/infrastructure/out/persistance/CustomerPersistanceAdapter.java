@@ -31,10 +31,10 @@ public class CustomerPersistanceAdapter implements CustomerRepositoryPort {
     private final CustomerRepository customerRepository;
 
     @Override
-    public Partner saveCustomer(Partner partner) {
+    public PartnerDetailsDTO saveCustomer(Partner partner) {
 
         CustomerEntity entity = (CustomerEntity) partnerMapper.toEntity(partner);
-        return partnerMapper.toDomain(customerRepository.save(entity), PartnerType.CLIENT) ;
+        return partnerMapper.toDetailsDTO(partnerMapper.toDomain(customerRepository.save(entity), PartnerType.CLIENT)) ;
 
     }
 
@@ -107,9 +107,9 @@ public class CustomerPersistanceAdapter implements CustomerRepositoryPort {
     }
 
     @Override
-    public Partner updateCustomer(Partner partner) throws DataIntegrityViolationException {
+    public PartnerDetailsDTO updateCustomer(Partner partner) throws DataIntegrityViolationException {
             CustomerEntity entity = (CustomerEntity) partnerMapper.toEntity(partner);
-            return partnerMapper.toDomain(customerRepository.save(entity), PartnerType.CLIENT);
+            return partnerMapper.toDetailsDTO(partnerMapper.toDomain(customerRepository.save(entity), PartnerType.CLIENT));
 
     }
 

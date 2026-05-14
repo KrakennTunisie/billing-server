@@ -9,6 +9,8 @@ public interface SendEmailUseCase {
 
     void sendCreditNoteEmail(UUID invoiceCreditNoteId, SendEmailRequest request);
 
+    void sendPurchaseOrderEmail(UUID purchaseOrderId, SendEmailRequest request);
+
     void sendEmail(SendEmailRequest request);
 
 }

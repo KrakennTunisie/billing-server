@@ -34,11 +34,11 @@ public class SupplierPersistanceAdapter implements SupplierRepositoryPort {
     private final PartnerMapper partnerMapper;
 
     @Override
-    public Partner saveSupplier(Partner partner) throws DataIntegrityViolationException{
+    public PartnerDetailsDTO saveSupplier(Partner partner) throws DataIntegrityViolationException{
 
         SupplierEntity entity = (SupplierEntity) partnerMapper.toEntity(partner);
 
-        return partnerMapper.toDomain(supplierRepository.save(entity), PartnerType.SUPPLIER) ;
+        return partnerMapper.toDetailsDTO(partnerMapper.toDomain(supplierRepository.save(entity), PartnerType.SUPPLIER) );
 
     }
 
@@ -138,13 +138,13 @@ public class SupplierPersistanceAdapter implements SupplierRepositoryPort {
     }
 
     @Override
-    public Partner updateSupplier(Partner partner) throws DataIntegrityViolationException {
+    public PartnerDetailsDTO updateSupplier(Partner partner) throws DataIntegrityViolationException {
 
             SupplierEntity entity = (SupplierEntity) partnerMapper.toEntity(partner);
 
             SupplierEntity savedSupplier = supplierRepository.save(entity);
 
-            return partnerMapper.toDomain(savedSupplier, PartnerType.SUPPLIER);
+            return partnerMapper.toDetailsDTO(partnerMapper.toDomain(savedSupplier, PartnerType.SUPPLIER));
 
 
     }

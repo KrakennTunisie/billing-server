@@ -12,7 +12,7 @@ import java.util.UUID;
 
 public interface SupplierRepositoryPort {
 
-    Partner saveSupplier  (Partner partner) throws DataIntegrityViolationException;
+    PartnerDetailsDTO saveSupplier  (Partner partner) throws DataIntegrityViolationException;
     Optional<Partner> findSupplierById(String id);
 
     Optional<PartnerDetailsDTO> getSupplierById(UUID idSupplier);
@@ -32,6 +32,6 @@ public interface SupplierRepositoryPort {
 
     boolean existsByIban(String email);
     Page<PartnerItemDTO> findAllSuppliers(String keyword , String Country , int page);
-    Partner updateSupplier (Partner partner) throws DataIntegrityViolationException;
+    PartnerDetailsDTO updateSupplier (Partner partner) throws DataIntegrityViolationException;
     void deleteSupplierById(String id);
 }
