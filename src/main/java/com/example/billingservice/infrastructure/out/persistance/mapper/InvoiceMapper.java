@@ -27,7 +27,7 @@ public class InvoiceMapper {
     private final PurchaseOrderMapper purchaseOrderMapper;
     private final PartnerUseCase partnerUseCase;
     private final PurchaseOrderUseCase purchaseOrderUseCase;
-    private final InvoiceEventMapper invoiceEventMapper;
+    private final AuditEventMapper invoiceEventMapper;
     private final CurrencyCalculator currencyCalculator;
     public InvoiceEntity toEntity(Invoice dto) {
         if (dto == null) {
@@ -72,17 +72,6 @@ public class InvoiceMapper {
         items.forEach(item -> item.setInvoice(invoice));
         invoice.setInvoiceItems(items);
 
-        List<InvoiceEventEntity> invoiceEventEntities = dto.getInvoiceEvents() != null
-                ? dto.getInvoiceEvents()
-                .stream()
-                .map(invoiceEventMapper::toEntity)
-                .toList()
-                : List.of();
-
-        invoiceEventEntities.forEach(event -> event.setInvoice(invoice));
-        invoice.setInvoiceEvents(invoiceEventEntities);
-
-
         return invoice;
     }
 
@@ -113,7 +102,7 @@ public class InvoiceMapper {
                 .appliedExchangeRate(entity.getAppliedExchangeRate())
                 .exchangeRateSource(entity.getExchangeRateSource())
                 .complianceQRcode(entity.getComplianceQRcode())
-                .partner(partnerMapper.toDomain(entity.getPartner(), partnerType))
+                .partner(partnerMapper.toDomain(entity.getPartner(),PartnerType.CLIENT))// à modifier
                 .purchaseOrder(purchaseOrderMapper.toDomain(entity.getPurchaseOrder(),PurchaseOrderType.SALE))
                 .invoiceDocument(documentMapper.toDomain(entity.getInvoiceDocument()))
                 .build();
@@ -127,15 +116,6 @@ public class InvoiceMapper {
                 : List.of();
 
         dto.setInvoiceItems(items);
-
-        List<InvoiceEvent> invoiceEvents = entity.getInvoiceEvents() != null
-                ? entity.getInvoiceEvents()
-                .stream()
-                .map(invoiceEventMapper::toDomain)
-                .toList()
-                : List.of();
-        dto.setInvoiceEvents(invoiceEvents);
-
 
         double totalExclTax = items.stream()
                 .mapToDouble(item -> item.getItemTotalExclTax() != null ? item.getItemTotalExclTax() : 0.0)
@@ -244,20 +224,6 @@ public class InvoiceMapper {
             invoice.setInvoiceItems(invoiceItems);
 
 
-            InvoiceEvent invoiceEvent = InvoiceEvent.builder()
-                    .invoiceEventType(InvoiceEventType.CREATED)
-                    .eventDate(new Date())
-                    .description("Nouvelle facture créé par : "+InvoiceEventTrigger.USER.name())
-                    .eventTrigger(InvoiceEventTrigger.USER)
-                    .triggeredBy("user: wassef")
-                    .build();
-
-            List<InvoiceEvent> invoiceEvents= new ArrayList<>();
-
-            invoiceEvents.add(invoiceEvent);
-
-            invoice.setInvoiceEvents(invoiceEvents);
-
             double totalExclTax = items.stream()
                     .mapToDouble(item -> item.getItemTotalExclTax() != null ? item.getItemTotalExclTax() : 0.0)
                     .sum();
@@ -323,18 +289,6 @@ public class InvoiceMapper {
                 .invoiceDocument(documentMapper.toDocumentSummary(invoice.getInvoiceDocument()))
                 .build();
 
-        List<InvoiceEvent> invoiceEvents = invoice.getInvoiceEvents() != null
-                ? invoice.getInvoiceEvents()
-                .stream()
-                .toList()
-                : List.of();
-
-        invoiceDTO.setInvoiceEvents(invoiceEvents);
-
-        //invoiceDTO.setHasInvoiceCreditNotes(invoice.getInvoiceCreditNotes().isEmpty());
-
-        invoiceEvents.forEach(e-> System.out.println(e.toString()));
-
         return invoiceDTO;
     }
 
@@ -373,25 +327,6 @@ public class InvoiceMapper {
             Partner partner = getPartner(invoiceDTO.getInvoiceType(), idPartner);
             invoice.setPartner(partner);
 
-
-            List<InvoiceEvent> invoiceEvents = invoiceDTO.getInvoiceEvents() != null
-                    ? invoiceDTO.getInvoiceEvents()
-                    : List.of();
-
-            InvoiceEvent invoiceEvent = InvoiceEvent.builder()
-                    .invoiceEventType(InvoiceEventType.UPDATED)
-                    .eventDate(new Date())
-                    .description("Mise à jour de facture : "+InvoiceEventTrigger.USER.name())
-                    .eventTrigger(InvoiceEventTrigger.USER)
-                    .triggeredBy("user: wassef")
-                    .build();
-
-
-            List<InvoiceEvent> updatedEvents = new ArrayList<>(invoiceEvents);
-
-            updatedEvents.add(invoiceEvent);
-
-            invoice.setInvoiceEvents(updatedEvents);
 
             List<InvoiceItem> items = invoiceUpdateDTO.getInvoiceItems() != null
                     ? invoiceUpdateDTO.getInvoiceItems()

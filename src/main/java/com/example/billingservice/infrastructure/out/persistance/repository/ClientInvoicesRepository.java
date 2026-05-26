@@ -23,7 +23,7 @@ WHERE
         :keyword IS NULL OR :keyword = '' OR
         LOWER(i.reference) LIKE LOWER(CONCAT('%', :keyword, '%')) OR
         LOWER(i.partner.email) LIKE LOWER(CONCAT('%', :keyword, '%')) OR
-        LOWER(i.partner.name) LIKE LOWER(CONCAT('%', :keyword, '%'))
+        LOWER(i.partner.partnerName) LIKE LOWER(CONCAT('%', :keyword, '%'))
     )
 AND
     (
@@ -40,6 +40,7 @@ AND
     boolean existsByReference(String invoiceNumber);
 
     boolean existsByIdInvoice(UUID invoiceId);
+    boolean existsByPurchaseOrderIdPurchaseOrder(UUID purchaseOrderId);
 
     ClientInvoiceEntity getClientInvoiceEntityByIdInvoice(UUID idInvoice);
 
@@ -90,7 +91,7 @@ AND
     @Query("""
     SELECT
         p.idPartner AS id,
-        p.name AS client,
+        p.partnerName AS client,
         i.appliedExchangeRate AS appliedExchangeRate,
 
         COALESCE(SUM(i.totalInclTaxTND), 0) AS amount,
@@ -110,7 +111,7 @@ AND
 
     GROUP BY
         p.idPartner,
-        p.name,
+        p.partnerName,
         MONTH(i.issueDate)
 
 """)
@@ -121,7 +122,7 @@ AND
     @Query("""
     SELECT
         c.idPartner AS id,
-        c.name AS client,
+        c.partnerName AS client,
 
         COALESCE(SUM(it.totalPriceIncTax), 0) AS amount,
 
@@ -144,7 +145,7 @@ AND
 
     GROUP BY
         c.idPartner,
-        c.name,
+        c.partnerName,
         MONTH(i.issueDate),
         i.currency,
         i.appliedExchangeRate,

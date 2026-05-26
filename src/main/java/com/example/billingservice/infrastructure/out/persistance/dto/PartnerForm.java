@@ -1,6 +1,10 @@
 package com.example.billingservice.infrastructure.out.persistance.dto;
 
+import com.example.billingservice.domain.enums.InvoiceCurrency;
 import com.example.billingservice.domain.enums.PartnerType;
+import com.example.billingservice.domain.enums.PaymentCondition;
+import com.example.billingservice.domain.model.Address;
+import com.example.billingservice.domain.model.Document;
 import com.example.billingservice.infrastructure.out.persistance.validators.ValidEnum;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -10,36 +14,49 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.UUID;
+
 @Getter
 @Setter
 @AllArgsConstructor
 public class PartnerForm {
 
-    @NotBlank(message = "Le nom est obligatoire")
-    private String name;
 
-    @NotBlank(message = "L'email est obligatoire")
-    @Email(message = "L'email est invalide")
+    private String active;
+
+    private String enablePortal;
+
+    private PartnerType partnerType;
+
+    private String partnerName;
+
+    private String maritalStatus;
+
+    private String companyName;
+
+    private String displayName;
+
     private String email;
 
-    @NotBlank(message = "Le numéro de téléphone est obligatoire")
-    private String phoneNumber;
+    private String personnelPhoneNumber;
 
-    @NotBlank(message = "Le matricule fiscal est obligatoire")
+    private String professionnalPhoneNumber;
+
+    private AddressDTO billingAddress;
+
+    private AddressDTO shippingAddress;
+
+    private String Language;
+
+    private InvoiceCurrency currency;
+
+    private String TaxRate;
+
     private String taxRegistrationNumber;
 
-    @NotBlank(message = "Le pays est obligatoire")
-    private String country;
+    private PaymentCondition paymentCondition;
 
-    @NotBlank(message = "L'adresse est obligatoire")
-    private String address;
-
-    @NotBlank(message = "L'IBAN est obligatoire")
     private String iban;
-
-    @NotNull(message = "Le type de partenaire est obligatoire")
-    @ValidEnum(enumClass = PartnerType.class, message = "Type de partenaire invalide")
-    private String partnerType;
 
     @NotNull(message = "Le document rne est obligatoire")
     private MultipartFile rne;

@@ -52,6 +52,8 @@ public interface InvoiceUseCase {
 
     boolean existsByInvoiceId(UUID invoiceId);
 
+    boolean existsByClientPurchaseOrderId(UUID purchaseOrderID);
+
     boolean clientInvoiceExistsByInvoiceId(UUID invoiceId);
 
 

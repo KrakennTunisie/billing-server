@@ -25,7 +25,7 @@ public interface ClientPurchaseOrderRepository extends JpaRepository<ClientPurch
                 :keyword IS NULL OR :keyword = '' OR
                 LOWER(p.reference) LIKE LOWER(CONCAT('%', :keyword, '%')) OR
                 LOWER(p.partner.email) LIKE LOWER(CONCAT('%', :keyword, '%')) OR
-                LOWER(p.partner.name) LIKE LOWER(CONCAT('%', :keyword, '%'))
+                LOWER(p.partner.partnerName) LIKE LOWER(CONCAT('%', :keyword, '%'))
             )
         AND
             (

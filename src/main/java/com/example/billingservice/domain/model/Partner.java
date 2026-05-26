@@ -1,8 +1,12 @@
 package com.example.billingservice.domain.model;
 
+import com.example.billingservice.domain.enums.InvoiceCurrency;
 import com.example.billingservice.domain.enums.PartnerType;
+import com.example.billingservice.domain.enums.PaymentCondition;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,18 +23,38 @@ import java.util.UUID;
 public class Partner {
     @Schema(description = "Identifiant unique", example = "550e8400-e29b-41d4-a716-446655440000")
     private UUID idPartner;
-    @Schema(description = "Nom du partenaire", example = "Oumaima chelly")
-    private String name;
+    @Schema(description = "Status du partenaire", example = "Active || UnActive")
+    private boolean active;
+    @Schema(description = "Portail client", example = "Oui || Non")
+    private boolean enablePortal;
+    @Schema(description = "Nom du partenaire", example = "Kouka")
+    private String partnerName;
+    @Schema(description = "Situation sociale", example = "Miss")
+    private String maritalStatus;
+    @Schema(description = "Nom du l'entreprise", example = "Kouka")
+    private String companyName;
+    @Schema(description = "Nom affichee", example = "Kouka SARL")
+    private String displayName;
     @Schema(description = "Email du partenaire", example = "oumaima@example.com")
     private String email;
-    @Schema(description = "Numéro de téléphone", example = "+33612345678")
-    private String phoneNumber;
+    @Schema(description = "Numéro de téléphone personnel", example = "+33612345678")
+    private String personnelPhoneNumber;
+    @Schema(description = "Numéro de téléphone professionenelle", example = "+33612345678")
+    private String professionnalPhoneNumber;
+    @Schema(description = "Addresse de facturation", example = "Nabeul ,city")
+    private Address billingAddress;
+    @Schema(description = "Addresse de livraison", example = "Nabeul ,city")
+    private Address shippingAddress;
+    @Schema(description = "Langue", example = "+33612345678")
+    private String Language;
+    @Schema(description = "Devise", example = "EUR")
+    private InvoiceCurrency currency;
+    @Schema(description = "Pourcentage tax", example = "19%")
+    private String taxRate;
     @Schema(description = "Numéro fiscal", example = "TAX123456")
     private String taxRegistrationNumber;
-    @Schema(description = "Pays", example = "Tunisie")
-    private String country;
-    @Schema(description = "Adresse", example = "12 Rue de Paris")
-    private String address;
+    @Schema(description = "Condition de paiement", example = "NET_15")
+    private PaymentCondition paymentCondition;
     @Schema(description = "IBAN", example = "FR7630006000011234567890189")
     private String iban;
     @Schema(description = "Document RNE")
@@ -43,6 +67,8 @@ public class Partner {
     private PartnerType partnerType;
     @Schema(description = "Liste des factures d'un partenaire")
     private List<Invoice> invoices;
+    @Schema(description = "Liste d'audit pour le client : Tout ce qui est concerne le client : Facture / avoir / contact ")
+    private List<AuditLog>  logs;
 
 
     @Override
@@ -59,16 +85,27 @@ public class Partner {
     @Override
     public String toString() {
         return "Partner{" +
-                "name='" + name + '\'' +
+                "idPartner=" + idPartner +
+                ", active=" + active +
+                ", partnerName='" + partnerName + '\'' +
+                ", companyName='" + companyName + '\'' +
+                ", displayName='" + displayName + '\'' +
                 ", email='" + email + '\'' +
-                ", phoneNumber='" + phoneNumber + '\'' +
+                ", personnelPhoneNumber='" + personnelPhoneNumber + '\'' +
+                ", professionnalPhoneNumber='" + professionnalPhoneNumber + '\'' +
+                ", billingAddress=" + billingAddress +
+                ", shippingAddress=" + shippingAddress +
+                ", Language='" + Language + '\'' +
+                ", currency=" + currency +
+                ", TaxRate='" + taxRate + '\'' +
                 ", taxRegistrationNumber='" + taxRegistrationNumber + '\'' +
-                ", country='" + country + '\'' +
-                ", adress='" + address + '\'' +
-                ", iban=" + iban +
+                ", paymentCondition=" + paymentCondition +
+                ", iban='" + iban + '\'' +
                 ", rne=" + rne +
-                ", contact=" + contract +
+                ", contract=" + contract +
+                ", patente=" + patente +
                 ", partnerType=" + partnerType +
+                ", invoices=" + invoices +
                 '}';
     }
 }

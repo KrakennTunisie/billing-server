@@ -22,16 +22,11 @@ public class Invoice extends BaseCommercialDocument{
     private InvoiceComplianceStatus invoiceComplianceStatus;
     private String complianceQRcode;
     private PurchaseOrder purchaseOrder;
-
     private List<InvoiceItem> invoiceItems;
-    private List<InvoiceEvent> invoiceEvents;
     private List<InvoiceCreditNote> invoiceCreditNotes;
     private Document invoiceDocument;
 
-    public void addEvent(InvoiceEvent event) {
-        this.invoiceEvents.add(event);
-        event.setInvoice(this);
-    }
+
 
     public void addItem(InvoiceItem item) {
         invoiceItems.add(item);

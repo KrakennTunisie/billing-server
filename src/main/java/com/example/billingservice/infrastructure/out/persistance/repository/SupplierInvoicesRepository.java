@@ -24,7 +24,7 @@ WHERE
         :keyword IS NULL OR :keyword = '' OR
         LOWER(i.reference) LIKE LOWER(CONCAT('%', :keyword, '%')) OR
         LOWER(i.partner.email) LIKE LOWER(CONCAT('%', :keyword, '%')) OR
-        LOWER(i.partner.name) LIKE LOWER(CONCAT('%', :keyword, '%'))
+        LOWER(i.partner.partnerName) LIKE LOWER(CONCAT('%', :keyword, '%'))
     )
 AND
     (
@@ -97,7 +97,7 @@ AND
     @Query("""
     SELECT
         c.idPartner AS id,
-        c.name AS client,
+        c.partnerName AS client,
 
         COALESCE(SUM(it.totalPriceIncTax), 0) AS amount,
 
@@ -120,7 +120,7 @@ AND
 
     GROUP BY
         c.idPartner,
-        c.name,
+        c.partnerName,
         MONTH(i.issueDate),
         i.currency,
         i.appliedExchangeRate,

@@ -149,10 +149,10 @@ public class PartnerController {
     }
 
 
-    @PatchMapping("/clients/{id}")
+    @PatchMapping(path = "/clients/{id}",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Modification client")
     public ResponseEntity <Partner> updateCustomer (@Parameter(description = "ID du client") @PathVariable String id ,
-                                                    @RequestBody UpdatePartnerDTO request)
+                                                    @ModelAttribute UpdatePartnerDTO request)
     {
         return ResponseEntity.status(201).body(partnerUseCase.updateCustomer(id,request)) ;
     }

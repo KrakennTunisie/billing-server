@@ -3,6 +3,7 @@ package com.example.billingservice.application.ports.out;
 import com.example.billingservice.domain.model.Partner;
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerItemDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerSummaryDTO;
+import com.example.billingservice.infrastructure.out.persistance.dto.UpdatePartnerDTO;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -28,7 +29,7 @@ public interface CustomerRepositoryPort {
 
     List<PartnerSummaryDTO> getSummaryClients(String keyword , String Country);
 
-    Partner updateCustomer (Partner partner);
+    Partner updateCustomer (String id,UpdatePartnerDTO partner);
 
     void deleteCustomerById(String id);
 }

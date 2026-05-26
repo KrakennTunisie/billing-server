@@ -1,13 +1,18 @@
 package com.example.billingservice.infrastructure.out.persistance;
 
 import com.example.billingservice.application.ports.out.CustomerRepositoryPort;
+import com.example.billingservice.domain.enums.AuditEventTrigger;
+import com.example.billingservice.domain.enums.AuditType;
 import com.example.billingservice.domain.enums.PartnerType;
 import com.example.billingservice.domain.exceptions.BillingException;
 import com.example.billingservice.domain.model.Partner;
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerItemDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerSummaryDTO;
+import com.example.billingservice.infrastructure.out.persistance.dto.UpdatePartnerDTO;
+import com.example.billingservice.infrastructure.out.persistance.entity.AuditLogEntity;
 import com.example.billingservice.infrastructure.out.persistance.entity.CustomerEntity;
 import com.example.billingservice.infrastructure.out.persistance.mapper.PartnerMapper;
+import com.example.billingservice.infrastructure.out.persistance.repository.AuditLogRepository;
 import com.example.billingservice.infrastructure.out.persistance.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -17,6 +22,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -28,13 +34,26 @@ public class CustomerPersistanceAdapter implements CustomerRepositoryPort {
 
     private final PartnerMapper partnerMapper;
     private final CustomerRepository customerRepository;
+    private final AuditLogRepository auditLogRepository;
 
     @Override
     public Partner saveCustomer(Partner partner) {
 
         CustomerEntity entity = (CustomerEntity) partnerMapper.toEntity(partner);
-        return partnerMapper.toDomain(customerRepository.save(entity), PartnerType.CLIENT) ;
+        CustomerEntity savedEntity = (CustomerEntity) customerRepository.save(entity);
 
+        AuditLogEntity audit = new AuditLogEntity();
+        audit.setAuditEventType(AuditType.CREATED);
+        audit.setEntityName("Partner");
+        audit.setTriggeredBy("user");
+        audit.setAuditEventTrigger(AuditEventTrigger.USER);
+        audit.setEntityId(savedEntity.getIdPartner());
+        audit.setDescription("Ajout d'un nouveau partenaire");
+        audit.setEventDate(new Date());
+        audit.setPartner(savedEntity);
+        auditLogRepository.save(audit);
+
+        return partnerMapper.toDomain(savedEntity,PartnerType.CLIENT);
     }
 
     @Override
@@ -42,7 +61,7 @@ public class CustomerPersistanceAdapter implements CustomerRepositoryPort {
         try
         {
             return customerRepository.findById(UUID.fromString(id))
-                    .map(p -> partnerMapper.toDomain(p, PartnerType.CLIENT)).or(() -> { throw BillingException.notFound("Client", id); });
+                    .map(p -> partnerMapper.toDomain(p,PartnerType.CLIENT)).or(() -> { throw BillingException.notFound("Client", id); });
         } catch (IllegalArgumentException ex) {
             throw BillingException.badRequest("UUID Invalid"+id);
         }
@@ -71,17 +90,17 @@ public class CustomerPersistanceAdapter implements CustomerRepositoryPort {
 
     @Override
     public boolean existsByName(String name) {
-        return customerRepository.existsByName(name);
+        return customerRepository.existsByPartnerName(name);
     }
 
     @Override
     public Page<PartnerItemDTO> findAllCustomers(String keyword , String Country ,int page) {
-        PageRequest pageRequest = PageRequest.of(page, 5, Sort.by("name").ascending());
+        PageRequest pageRequest = PageRequest.of(page, 5, Sort.by("partnerName").ascending());
         Page<CustomerEntity> entities = customerRepository.findCustomers(keyword,Country,pageRequest);
 
         List<PartnerItemDTO> partners = entities.getContent()
                 .stream()
-                .map(p-> partnerMapper.toDomain(p, PartnerType.CLIENT))
+                .map(p-> partnerMapper.toDomain(p,PartnerType.CLIENT))
                 .map(partnerMapper::toItemDTO)
                 .collect(Collectors.toList());
 
@@ -93,16 +112,28 @@ public class CustomerPersistanceAdapter implements CustomerRepositoryPort {
     public List<PartnerSummaryDTO> getSummaryClients(String keyword, String Country) {
         List<CustomerEntity> customerEntities= customerRepository.getCustomers(keyword, Country);
         return customerEntities.stream()
-                .map(entity->partnerMapper.toDomain(entity, PartnerType.CLIENT))
+                .map(entity->partnerMapper.toDomain(entity,PartnerType.CLIENT))
                 .map(partnerMapper::toSummaryDTO)
                 .toList();
     }
 
     @Override
-    public Partner updateCustomer(Partner partner) throws DataIntegrityViolationException {
-            CustomerEntity entity = (CustomerEntity) partnerMapper.toEntity(partner);
-            return partnerMapper.toDomain(customerRepository.save(entity), PartnerType.CLIENT);
-
+    public Partner updateCustomer(String id,UpdatePartnerDTO partner) throws DataIntegrityViolationException {
+        CustomerEntity managedEntity = customerRepository.findById(UUID.fromString(id))
+                .orElseThrow(() -> BillingException.notFound("Client", id));
+            CustomerEntity entity = (CustomerEntity) partnerMapper.updateEntity(partner,managedEntity);
+            Partner savedPartner =  partnerMapper.toDomain(customerRepository.save(entity),PartnerType.CLIENT);
+        AuditLogEntity audit = new AuditLogEntity();
+        audit.setAuditEventType(AuditType.UPDATED);
+        audit.setEntityName("Partner");
+        audit.setTriggeredBy("user");
+        audit.setAuditEventTrigger(AuditEventTrigger.USER);
+        audit.setEntityId(entity.getIdPartner());
+        audit.setDescription("Modification d'un  partenaire");
+        audit.setEventDate(new Date());
+        audit.setPartner(entity);
+        auditLogRepository.save(audit);
+        return  savedPartner;
     }
 
     @Override
@@ -113,7 +144,16 @@ public class CustomerPersistanceAdapter implements CustomerRepositoryPort {
             if (!customerRepository.existsById(uuid)) {
                 throw BillingException.notFound("Customer", id);
             }
-
+            Optional<CustomerEntity> partnerToDelete = customerRepository.findById(UUID.fromString(id));
+            AuditLogEntity audit = new AuditLogEntity();
+            audit.setAuditEventType(AuditType.DELETED);
+            audit.setEntityName("Partner");
+            audit.setTriggeredBy("user");
+            audit.setAuditEventTrigger(AuditEventTrigger.USER);
+            audit.setEntityId(partnerToDelete.get().getIdPartner());
+            audit.setDescription("Suppression d'un partenaire partenaire");
+            audit.setEventDate(new Date());
+            auditLogRepository.save(audit);
             customerRepository.deleteById(uuid);
 
         } catch (IllegalArgumentException ex) {

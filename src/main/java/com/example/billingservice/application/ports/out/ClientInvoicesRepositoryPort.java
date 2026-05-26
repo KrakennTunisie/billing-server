@@ -37,5 +37,6 @@ public interface ClientInvoicesRepositoryPort {
     boolean existsByInvoiceNumber(String invoiceNumber);
 
     boolean existsByInvoiceId(UUID invoiceId);
+    boolean existsByPurchaseOrderId(UUID purchaseOrderId);
 
 }

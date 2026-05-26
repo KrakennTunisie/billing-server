@@ -16,9 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.time.LocalDate;
 import java.util.*;
 
 
@@ -103,26 +100,6 @@ public class InvoiceService implements InvoiceUseCase, InvoiceStatsUseCase {
         InvoiceDTO invoiceDTO = supplierInvoicesRepositoryPort.getById(invoiceId);
 
         InvoiceStatusPassagePolicy.checkTransition(invoiceDTO.getInvoiceStatus(), invoiceStatus);
-
-        List<InvoiceEvent> invoiceEvents = invoiceDTO.getInvoiceEvents() != null
-                ? invoiceDTO.getInvoiceEvents()
-                : List.of();
-
-        InvoiceEvent invoiceEvent = InvoiceEvent.builder()
-                .invoiceEventType(InvoiceEventType.UPDATED)
-                .eventDate(new Date())
-                .description("Mise à jour de satut facture : "+InvoiceEventTrigger.USER.name())
-                .eventTrigger(InvoiceEventTrigger.USER)
-                .triggeredBy("user: wassef")
-                .build();
-
-
-        List<InvoiceEvent> updatedEvents = new ArrayList<>(invoiceEvents);
-
-        updatedEvents.add(invoiceEvent);
-
-        invoiceDTO.setInvoiceEvents(updatedEvents);
-
         return supplierInvoicesRepositoryPort.updateStatus(invoiceId, invoiceStatus);
     }
 
@@ -136,26 +113,6 @@ public class InvoiceService implements InvoiceUseCase, InvoiceStatsUseCase {
         InvoiceDTO invoiceDTO = clientInvoicesRepositoryPort.getById(invoiceId);
 
         InvoiceStatusPassagePolicy.checkTransition(invoiceDTO.getInvoiceStatus(), invoiceStatus);
-
-        List<InvoiceEvent> invoiceEvents = invoiceDTO.getInvoiceEvents() != null
-                ? invoiceDTO.getInvoiceEvents()
-                : List.of();
-
-        InvoiceEvent invoiceEvent = InvoiceEvent.builder()
-                .invoiceEventType(InvoiceEventType.UPDATED)
-                .eventDate(new Date())
-                .description("Mise à jour de satut facture : "+InvoiceEventTrigger.USER.name())
-                .eventTrigger(InvoiceEventTrigger.USER)
-                .triggeredBy("user: wassef")
-                .build();
-
-
-        List<InvoiceEvent> updatedEvents = new ArrayList<>(invoiceEvents);
-
-        updatedEvents.add(invoiceEvent);
-
-        invoiceDTO.setInvoiceEvents(updatedEvents);
-
         return clientInvoicesRepositoryPort.updateStatus(invoiceId, invoiceStatus);
     }
 
@@ -220,6 +177,7 @@ public class InvoiceService implements InvoiceUseCase, InvoiceStatsUseCase {
         if(!clientInvoicesRepositoryPort.existsByInvoiceId(invoiceId)){
             throw BillingException.notFound("Facture Fournisseur", String.valueOf(invoiceId));
         }
+        synchronizationService.deleteInvoiceRelatedToPurchaseOrder(invoiceId);
         clientInvoicesRepositoryPort.delete(invoiceId);
     }
 
@@ -236,6 +194,11 @@ public class InvoiceService implements InvoiceUseCase, InvoiceStatsUseCase {
     @Override
     public boolean existsByInvoiceId(UUID invoiceId) {
         return supplierInvoicesRepositoryPort.existsByInvoiceId(invoiceId);
+    }
+
+    @Override
+    public boolean existsByClientPurchaseOrderId(UUID purchaseOrderID) {
+        return clientInvoicesRepositoryPort.existsByPurchaseOrderId(purchaseOrderID);
     }
 
     @Override

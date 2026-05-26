@@ -40,7 +40,6 @@ public class InvoiceDTO {
     private PartnerSummaryDTO partner;
 
     private List<InvoiceItem> invoiceItems;
-    private List<InvoiceEvent> invoiceEvents;
     private boolean hasInvoiceCreditNotes;
     private DocumentSummaryDTO invoiceDocument;
 }

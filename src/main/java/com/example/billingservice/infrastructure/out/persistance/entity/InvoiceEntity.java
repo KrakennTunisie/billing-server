@@ -24,9 +24,6 @@ public abstract class InvoiceEntity extends BaseCommercialDocumentEntity{
 
     private Date dueDate;
 
-    //@Enumerated(EnumType.STRING)
-    //private InvoiceType invoiceType;
-
     @Enumerated(EnumType.STRING)
     private InvoiceStatus invoiceStatus;
 
@@ -43,9 +40,6 @@ public abstract class InvoiceEntity extends BaseCommercialDocumentEntity{
     @JoinColumn(name = "purchase_order_id", nullable = true)
     private PurchaseOrderEntity purchaseOrder;
 
-
-    @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<InvoiceEventEntity> invoiceEvents = new ArrayList<>();
 
     @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<InvoiceItemEntity> invoiceItems;

@@ -1,6 +1,7 @@
 package com.example.billingservice.infrastructure.out.persistance.dto;
 
 import com.example.billingservice.domain.enums.PartnerType;
+import com.example.billingservice.domain.model.Address;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -12,7 +13,7 @@ public class PartnerSummaryDTO {
     private UUID idPartner;
     private String name;
     private String email;
-    private String address;
+    private Address address;
     private String phoneNumber;
     private PartnerType partnerType;
 }

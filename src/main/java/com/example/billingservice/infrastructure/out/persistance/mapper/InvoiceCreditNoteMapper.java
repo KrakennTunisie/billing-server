@@ -4,7 +4,6 @@ import com.example.billingservice.domain.enums.*;
 import com.example.billingservice.domain.model.*;
 import com.example.billingservice.infrastructure.out.persistance.dto.*;
 import com.example.billingservice.infrastructure.out.persistance.entity.InvoiceCreditNoteEntity;
-import com.example.billingservice.infrastructure.out.persistance.entity.InvoiceCreditNoteEventEntity;
 import com.example.billingservice.infrastructure.out.persistance.entity.InvoiceCreditNoteItemEntity;
 import com.example.billingservice.shared.CurrencyCalculator;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +18,7 @@ import java.util.List;
 public class InvoiceCreditNoteMapper {
     private final InvoiceMapper invoiceMapper;
     private final InvoiceCreditNoteItemMapper invoiceCreditNoteItemMapper;
-    private final InvoiceCreditNoteEventMapper invoiceCreditNoteEventMapper;
+    private final AuditEventMapper invoiceCreditNoteEventMapper;
     private final DocumentMapper documentMapper;
     private final CurrencyCalculator currencyCalculator;
 
@@ -45,13 +44,6 @@ public class InvoiceCreditNoteMapper {
                         entity.getInvoiceCreditNoteItems() != null
                                 ? entity.getInvoiceCreditNoteItems().stream()
                                 .map(invoiceCreditNoteItemMapper::toDomain)
-                                .toList()
-                                : List.of()
-                )
-                .invoiceCreditNoteEvents(
-                        entity.getInvoiceCreditNoteEvents() != null
-                                ? entity.getInvoiceCreditNoteEvents().stream()
-                                .map(invoiceCreditNoteEventMapper::toDomain)
                                 .toList()
                                 : List.of()
                 )
@@ -105,17 +97,6 @@ public class InvoiceCreditNoteMapper {
         );
 
 
-        List<InvoiceCreditNoteEventEntity> invoiceEventEntities = domain.getInvoiceCreditNoteEvents() != null
-                ? domain.getInvoiceCreditNoteEvents()
-                .stream()
-                .map(invoiceCreditNoteEventMapper::toEntity)
-                .toList()
-                : List.of();
-
-        invoiceEventEntities.forEach(event -> event.setInvoiceCreditNote(entity));
-
-        entity.setInvoiceCreditNoteEvents(invoiceEventEntities);
-
 
         return entity;
     }
@@ -156,7 +137,7 @@ public class InvoiceCreditNoteMapper {
                         .invoiceCreditNoteEventType(InvoiceCreditNoteEventType.CREATED)
                         .eventDate(new Date())
                         .description("Facture d'avoir créé")
-                        .eventTrigger(InvoiceEventTrigger.USER)
+                        .eventTrigger(AuditEventTrigger.USER)
                         .triggeredBy("user: wassef ammar")
                         .build();
 

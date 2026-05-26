@@ -1,8 +1,9 @@
 package com.example.billingservice.domain.enums;
 
-public enum InvoiceEventType {
+public enum AuditType {
     CREATED,
     UPDATED,
+    DELETED,
     STATUS_CHANGED,
     PAYMENT_REGISTERED,
     PAYMENT_METHOD_UPDATED,
@@ -16,5 +17,7 @@ public enum InvoiceEventType {
     TTN_SUBMITTED,
     TTN_ACCEPTED,
     TTN_REJECTED,
-    FX_RATE_APPLIED
+    FX_RATE_APPLIED,
+    REFUND_REQUESTED,
+    REFUND_COMPLETED,
 }

@@ -312,13 +312,6 @@ public class ClientInvoicesPersistenceAdapter implements ClientInvoicesRepositor
             }
         }
 
-        System.out.println("totalAmountTND: "+totalAmountTND);
-        System.out.println("pendingAmountTND: "+pendingAmountTND);
-        System.out.println("totalAmountTND: "+totalAmountEUR);
-        System.out.println("pendingAmountTND: "+pendingAmountEUR);
-        System.out.println("totalAmountTND: "+totalAmountUSD);
-        System.out.println("pendingAmountTND: "+pendingAmountUSD);
-
         return StatsHelper.getStats(totalAmountTND,pendingAmountTND,
                 totalAmountEUR,pendingAmountEUR,
                 totalAmountUSD,pendingAmountUSD,
@@ -347,7 +340,10 @@ public class ClientInvoicesPersistenceAdapter implements ClientInvoicesRepositor
         return clientInvoicesRepository.existsByIdInvoice(invoiceId);
     }
 
-
+    @Override
+    public boolean existsByPurchaseOrderId(UUID purchaseOrderId) {
+        return clientInvoicesRepository.existsByPurchaseOrderIdPurchaseOrder(purchaseOrderId);
+    }
 
 
     public LocalDate convertToLocalDate(Date date) {
