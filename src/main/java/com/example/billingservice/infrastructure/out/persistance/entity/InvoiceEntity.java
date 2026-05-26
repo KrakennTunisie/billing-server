@@ -24,6 +24,9 @@ public abstract class InvoiceEntity extends BaseCommercialDocumentEntity{
 
     private Date dueDate;
 
+    //@Enumerated(EnumType.STRING)
+    //private InvoiceType invoiceType;
+
     @Enumerated(EnumType.STRING)
     private InvoiceStatus invoiceStatus;
 

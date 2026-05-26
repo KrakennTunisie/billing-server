@@ -19,6 +19,8 @@ public interface PartnerUseCase {
 
     Optional<Partner> getSupplierById(String id);
 
+    Optional<Partner> getSupplierDetailsById(String idSupplier);
+
     PartnerItemDTO getSupplierByEmail(String email);
     boolean supplierExistsByIdPartner(UUID idPartner);
     boolean supplierExistsByRegistrationNumber(String taxRegistrationNumber);
@@ -41,6 +43,8 @@ public interface PartnerUseCase {
 
     Optional<Partner> findCustomerById(String id);
 
+    Optional<Partner> getClientDetailsById(String idClient);
+
     boolean customerExistsByIdPartner(UUID idPartner);
 
     boolean customerExistsByRegistrationNumber(String taxRegistrationNumber);
@@ -54,10 +58,6 @@ public interface PartnerUseCase {
     void deleteCustomerById(String id);
 
     Partner updateCustomer(String id, UpdatePartnerDTO partner) throws DataIntegrityViolationException;
-
-
-
-
 
 
 }

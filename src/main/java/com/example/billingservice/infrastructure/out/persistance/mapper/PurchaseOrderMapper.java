@@ -54,7 +54,8 @@ public class PurchaseOrderMapper {
                 entity.getCurrency().name(),
                 totalExclTax,
                 totalInclTax,
-                entity.getAppliedExchangeRate()
+                entity.getAppliedExchangeRate(),
+                entity.getExchangeRateReferenceDate()
         );
 
 
@@ -114,8 +115,7 @@ public class PurchaseOrderMapper {
                 .toList()
                 : List.of();
         entity.setPurchaseOrderItems(items);
-        //entity.setTotalAmountExclTax(domain.getTotalAmountExclTax());
-       // entity.setTotalAmountInclTax(domain.getTotalAmountInclTax());
+        entity.setExchangeRateReferenceDate(domain.getExchangeRateReferenceDate());
         return entity;
     }
 
@@ -148,35 +148,12 @@ public class PurchaseOrderMapper {
             List<PurchaseOrderItem> items = purchaseOrderCreateDTO.getPurchaseOrderItems() != null
                     ? purchaseOrderCreateDTO.getPurchaseOrderItems()
                     .stream()
-                    .map(purchaseOrderItemMapper::purchaseOrderItemCreateDTOtoDomain)
+                    .map(p->purchaseOrderItemMapper.purchaseOrderItemCreateDTOtoDomain(p, purchaseOrderCreateDTO.getAppliedExchangeRate()))
                     .toList()
                     : List.of();
 
             purchaseOrder.setPurchaseOrderItems(items);
 
-
-            double totalExclTax = items.stream()
-                    .mapToDouble(item -> item.getItemTotalExclTax() != null ? item.getItemTotalExclTax() : 0.0)
-                    .sum();
-
-            double totalInclTax = items.stream()
-                    .mapToDouble(item -> item.getItemTotalInclTax() != null ? item.getItemTotalInclTax() : 0.0)
-                    .sum();
-
-            CurrencyTotals totals = currencyCalculator.calculateTotals(
-                    purchaseOrderCreateDTO.getPurchaseCurrency(),
-                    totalExclTax,
-                    totalInclTax,
-                    purchaseOrder.getAppliedExchangeRate()
-            );
-
-
-            purchaseOrder.setTotalExclTaxEUR(totals.totalExclTaxEUR());
-            purchaseOrder.setTotalInclTaxEUR(totals.totalInclTaxEUR());
-            purchaseOrder.setTotalExclTaxTND(totals.totalExclTaxTND());
-            purchaseOrder.setTotalInclTaxTND(totals.totalExclTaxTND());
-            purchaseOrder.setTotalExclTaxUSD(totals.totalExclTaxUSD());
-            purchaseOrder.setTotalInclTaxUSD(totals.totalInclTaxUSD());
             return purchaseOrder;
         }
         catch (Exception exception){
@@ -204,6 +181,7 @@ public class PurchaseOrderMapper {
                 .paymentMethod(purchaseOrder.getPaymentMethod())
                 .paymentCondition(purchaseOrder.getPaymentCondition())
                 .purchaseOrderType(purchaseOrder.getPurchaseOrderType())
+                .appliedExchangeRate(purchaseOrder.getAppliedExchangeRate())
                 .partner(partnerMapper.toSummaryDTO(purchaseOrder.getPartner()))
                 .purchaseOrderItems(purchaseOrder.getPurchaseOrderItems())
                 .purchaseOrderDocument(documentMapper.toDocumentSummary(purchaseOrder.getPurchaseOrderDocument()))
@@ -274,7 +252,7 @@ public class PurchaseOrderMapper {
             List<PurchaseOrderItem> items = purchaseOrderUpdateDTO.getPurchaseOrderItems() != null
                     ? purchaseOrderUpdateDTO.getPurchaseOrderItems()
                     .stream()
-                    .map(purchaseOrderItemMapper::purchaseOrderItemCreateDTOtoDomain)
+                    .map(p->purchaseOrderItemMapper.purchaseOrderItemCreateDTOtoDomain(p, purchaseOrderUpdateDTO.getAppliedExchangeRate()))
                     .toList()
                     : List.of();
 
@@ -293,7 +271,8 @@ public class PurchaseOrderMapper {
                     String.valueOf(purchaseOrder1.getCurrency()),
                     totalExclTax,
                     totalInclTax,
-                    purchaseOrder1.getAppliedExchangeRate()
+                    purchaseOrder1.getAppliedExchangeRate(),
+                    purchaseOrder1.getExchangeRateReferenceDate()
             );
 
 

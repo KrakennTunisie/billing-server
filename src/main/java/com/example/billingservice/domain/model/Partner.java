@@ -11,6 +11,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -70,6 +71,8 @@ public class Partner {
     @Schema(description = "Liste d'audit pour le client : Tout ce qui est concerne le client : Facture / avoir / contact ")
     private List<AuditLog>  logs;
 
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     @Override
     public boolean equals(Object o) {

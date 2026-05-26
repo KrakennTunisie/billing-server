@@ -1,6 +1,8 @@
 package com.example.billingservice.infrastructure.out.persistance.mapper;
 
+import com.example.billingservice.application.ports.in.CreditNoteSynchronizationUseCase;
 import com.example.billingservice.application.ports.in.InvoiceItemUseCase;
+import com.example.billingservice.domain.exceptions.BillingException;
 import com.example.billingservice.domain.model.InvoiceCreditNoteItem;
 import com.example.billingservice.domain.model.InvoiceItem;
 import com.example.billingservice.infrastructure.out.persistance.dto.InvoiceCreditNoteItemCreateDTO;
@@ -16,6 +18,7 @@ public class InvoiceCreditNoteItemMapper {
 
     private final InvoiceItemMapper invoiceItemMapper;
     private final InvoiceItemUseCase invoiceItemUseCase;
+    private final CreditNoteSynchronizationUseCase creditNoteSynchronizationUseCase;
     // =========================
     // ENTITY -> DOMAIN
     // =========================
@@ -58,11 +61,19 @@ public class InvoiceCreditNoteItemMapper {
         if (dto == null) {
             return null;
         }
+        InvoiceItem invoiceItem = invoiceItemUseCase.getById(UUID.fromString(dto.getIdInvoiceItem()));
+        if(!creditNoteSynchronizationUseCase.checkInvoiceItemAvailableQuantity(UUID.fromString(dto.getIdInvoiceItem()), dto.getQuantity())){
+            throw BillingException.badRequest("Quantité créditée dépasse la quantité initiale: "+invoiceItem.getDescription());
+        }
 
-        return InvoiceCreditNoteItem.builder()
+
+        InvoiceCreditNoteItem invoiceCreditNoteItem =  InvoiceCreditNoteItem.builder()
                 .quantity(dto.getQuantity())
-                // ⚠️ on ne mappe pas toute la ligne, seulement l'id
-                .invoiceItem(invoiceItemUseCase.getById(UUID.fromString(dto.getIdInvoiceItem())))
+                .invoiceItem(invoiceItem)
                 .build();
+
+        creditNoteSynchronizationUseCase.synchronize(UUID.fromString(dto.getIdInvoiceItem()), dto.getQuantity());
+
+        return invoiceCreditNoteItem;
     }
 }

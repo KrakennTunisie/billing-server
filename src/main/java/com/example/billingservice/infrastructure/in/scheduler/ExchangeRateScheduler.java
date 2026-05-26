@@ -24,7 +24,7 @@ public class ExchangeRateScheduler {
     /**
      * Every day at midnight Tunisia time
      */
-    @Scheduled(cron = "0 0 0 * * *", zone = "Africa/Tunis")
+    @Scheduled(cron = "0 0 6 * * *", zone = "Africa/Tunis")
     public void fetchDailyExchangeRates() {
         LocalDate today = LocalDate.now(ZoneId.of("Africa/Tunis"));
 

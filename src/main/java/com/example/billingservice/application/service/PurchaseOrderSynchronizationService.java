@@ -15,6 +15,7 @@ import com.example.billingservice.domain.model.PurchaseOrder;
 import com.example.billingservice.domain.model.PurchaseOrderItem;
 import com.example.billingservice.infrastructure.out.persistance.dto.InvoiceItemCreateDTO;
 
+import com.example.billingservice.infrastructure.out.persistance.mapper.InvoiceItemMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
@@ -33,6 +34,7 @@ public class PurchaseOrderSynchronizationService {
     private final PurchaseOrderItemRepositoryPort purchaseOrderItemRepository;
     private final InvoiceItemRepositoryPort  invoiceItemRepositoryPort;
     private final ClientInvoicesRepositoryPort clientInvoicesRepositoryPort;
+    private final InvoiceItemMapper invoiceItemMapper;
 
     @Transactional
     public List<InvoiceItem> synchronize(UUID purchaseOrderId, List<InvoiceItemCreateDTO> itemsToInvoice) {
@@ -44,7 +46,7 @@ public class PurchaseOrderSynchronizationService {
             itemsToInvoice = buildAllRemainingItems(purchaseOrder);
         }
 
-        List<InvoiceItem> invoiceItems = processItems(itemsToInvoice);
+        List<InvoiceItem> invoiceItems = processItems(itemsToInvoice, purchaseOrder.getAppliedExchangeRate() );
 
         updatePurchaseOrderStatus(purchaseOrder);
 
@@ -66,7 +68,7 @@ public class PurchaseOrderSynchronizationService {
                         .collect(Collectors.toList());
     }
 
-    private List<InvoiceItem> processItems(List<InvoiceItemCreateDTO> itemsToInvoice) {
+    private List<InvoiceItem> processItems(List<InvoiceItemCreateDTO> itemsToInvoice, double exchangeRate) {
         List<InvoiceItem> invoiceItems = new ArrayList<>();
 
         for (InvoiceItemCreateDTO itemDTO : itemsToInvoice) {
@@ -75,17 +77,8 @@ public class PurchaseOrderSynchronizationService {
 
             validateQuantity(poItem, Double.valueOf(itemDTO.getQuantity()));
 
-            InvoiceItem invoiceItem = InvoiceItem.builder()
-                    .purchaseOrderItem(poItem)
-                    .quantity(itemDTO.getQuantity())
-                    .unityPriceEXclTax(itemDTO.getUnityPriceEXclTax())
-                    .description(itemDTO.getDescription())
-                    .vatRate(itemDTO.getVatRate())
-                    .operationCategory(OperationCategory.valueOf(itemDTO.getOperationCategory()))
-                    .itemTaxAmount(itemDTO.getItemTaxAmount())
-                    .itemTotalExclTax(itemDTO.getItemTotalExclTax())
-                    .itemTotalInclTax(itemDTO.getItemTotalInclTax())
-                    .build();
+            InvoiceItem invoiceItem = invoiceItemMapper.invoiceItemCreateDTOtoDomain(itemDTO, exchangeRate);
+            invoiceItem.setPurchaseOrderItem(poItem);
 
             invoiceItems.add(invoiceItem);
             poItem.setInvoicedQuantity(poItem.getInvoicedQuantity() + itemDTO.getQuantity());

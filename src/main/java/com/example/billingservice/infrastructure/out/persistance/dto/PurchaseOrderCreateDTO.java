@@ -61,7 +61,7 @@ public class PurchaseOrderCreateDTO {
     private String partner;
 
     @Setter
-    @NotEmpty(message = "Au moins une ligne de facture est obligatoire")
+   // @NotEmpty(message = "Au moins une ligne de facture est obligatoire")
     private List<PurchaseOrderItemCreateDTO> purchaseOrderItems;
 
     @NotNull(message = "Le document de bon de commande est obligatoire")

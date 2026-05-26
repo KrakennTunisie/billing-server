@@ -1,15 +1,18 @@
 package com.example.billingservice.infrastructure.out.persistance;
 
+import com.example.billingservice.application.Utils.StatusMapper;
 import com.example.billingservice.application.ports.in.CurrencyConversionUseCase;
 import com.example.billingservice.application.ports.out.SupplierInvoicesRepositoryPort;
-import com.example.billingservice.domain.enums.InvoiceCurrency;
-import com.example.billingservice.domain.enums.InvoiceStatus;
-import com.example.billingservice.domain.enums.InvoiceType;
+import com.example.billingservice.domain.enums.*;
 import com.example.billingservice.domain.exceptions.BillingException;
 import com.example.billingservice.domain.model.Invoice;
+
 import com.example.billingservice.infrastructure.out.persistance.dto.*;
+import com.example.billingservice.infrastructure.out.persistance.entity.ClientInvoiceEntity;
 import com.example.billingservice.infrastructure.out.persistance.entity.InvoiceEntity;
+
 import com.example.billingservice.infrastructure.out.persistance.entity.SupplierInvoiceEntity;
+
 import com.example.billingservice.infrastructure.out.persistance.mapper.InvoiceMapper;
 import com.example.billingservice.infrastructure.out.persistance.projections.ClientInvoiceDashboardStatsProjection;
 import com.example.billingservice.infrastructure.out.persistance.projections.PartnerInvoiceAmountStatsProjection;
@@ -61,6 +64,21 @@ public class SupplierInvoicesAdapter implements SupplierInvoicesRepositoryPort {
         }    }
 
     @Override
+    public List<InvoicePageItemDTO> getSupplierTopInvoices(UUID idSupplier) {
+        List<SupplierInvoiceEntity> supplierInvoiceEntities = supplierInvoicesRepository
+                .findTop3ByPartner_IdPartnerAndInvoiceStatusNotInOrderByIssueDateDesc(
+                        idSupplier,
+                        List.of(InvoiceStatus.DRAFT, InvoiceStatus.CANCELLED)
+                );
+        List<InvoicePageItemDTO> invoicePageItemDTOS =
+                supplierInvoiceEntities.stream()
+                        .map(i -> invoiceMapper.toDomain(i, InvoiceType.PURCHASE))
+                        .map(invoiceMapper::toInvoicePageItemDTO)
+                        .toList();
+        return invoicePageItemDTOS;
+    }
+
+    @Override
     public InvoiceDTO save(Invoice invoice) {
         SupplierInvoiceEntity entity = (SupplierInvoiceEntity) invoiceMapper.toEntity(invoice);
         SupplierInvoiceEntity savedEntity = supplierInvoicesRepository.save(entity);
@@ -90,11 +108,17 @@ public class SupplierInvoicesAdapter implements SupplierInvoicesRepositoryPort {
 
     @Override
     public InvoiceDTO updateStatus(UUID invoiceId, InvoiceStatus newStatus) {
-        SupplierInvoiceEntity entity = supplierInvoicesRepository.getSupplierInvoiceEntityByIdInvoice(invoiceId);
-        entity.setInvoiceStatus(newStatus);
-        Invoice invoice1 = invoiceMapper.toDomain(supplierInvoicesRepository.save(entity), InvoiceType.PURCHASE);
 
-        return  invoiceMapper.toDTO(invoice1);
+        SupplierInvoiceEntity entity = supplierInvoicesRepository.getSupplierInvoiceEntityByIdInvoice(invoiceId);
+
+        entity.setInvoiceStatus(newStatus);
+
+        SupplierInvoiceEntity saved = supplierInvoicesRepository.save(entity);
+
+
+        return invoiceMapper.toDTO(
+                invoiceMapper.toDomain(saved, InvoiceType.PURCHASE)
+        );
     }
 
     @Override

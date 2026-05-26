@@ -1,16 +1,18 @@
 package com.example.billingservice.infrastructure.out.persistance;
 
+import com.example.billingservice.application.Utils.StatusMapper;
 import com.example.billingservice.application.ports.in.CurrencyConversionUseCase;
 import com.example.billingservice.application.ports.out.ClientInvoicesRepositoryPort;
-import com.example.billingservice.domain.enums.InvoiceCurrency;
-import com.example.billingservice.domain.enums.InvoiceStatus;
-import com.example.billingservice.domain.enums.InvoiceType;
+import com.example.billingservice.domain.enums.*;
 import com.example.billingservice.domain.exceptions.BillingException;
 import com.example.billingservice.domain.model.Invoice;
+
 import com.example.billingservice.infrastructure.out.persistance.dto.*;
 import com.example.billingservice.infrastructure.out.persistance.entity.InvoiceEntity;
 import com.example.billingservice.infrastructure.out.persistance.entity.ClientInvoiceEntity;
+
 import com.example.billingservice.infrastructure.out.persistance.entity.InvoiceItemEntity;
+
 import com.example.billingservice.infrastructure.out.persistance.mapper.InvoiceMapper;
 import com.example.billingservice.infrastructure.out.persistance.projections.ClientInvoiceDashboardStatsProjection;
 import com.example.billingservice.infrastructure.out.persistance.repository.ClientInvoicesRepository;
@@ -66,6 +68,22 @@ public class ClientInvoicesPersistenceAdapter implements ClientInvoicesRepositor
         }    }
 
     @Override
+    public List<InvoicePageItemDTO> getClientTopInvoices(UUID idClient) {
+        List<ClientInvoiceEntity> clientInvoiceEntities = clientInvoicesRepository
+                .findTop3ByPartner_IdPartnerAndInvoiceStatusNotInOrderByIssueDateDesc(
+                        idClient,
+                        List.of(InvoiceStatus.DRAFT, InvoiceStatus.CANCELLED)
+                );
+        List<InvoicePageItemDTO> invoicePageItemDTOS =
+                clientInvoiceEntities.stream()
+                        .map(i -> invoiceMapper.toDomain(i, InvoiceType.SALE))
+                        .map(invoiceMapper::toInvoicePageItemDTO)
+                        .toList();
+
+        return invoicePageItemDTOS;
+    }
+
+    @Override
     @Transactional
     public InvoiceDTO save(Invoice invoice) {
         ClientInvoiceEntity entity = (ClientInvoiceEntity) invoiceMapper.toEntity(invoice);
@@ -97,11 +115,20 @@ public class ClientInvoicesPersistenceAdapter implements ClientInvoicesRepositor
 
     @Override
     public InvoiceDTO updateStatus(UUID invoiceId, InvoiceStatus newStatus) {
-        ClientInvoiceEntity entity = clientInvoicesRepository.getClientInvoiceEntityByIdInvoice(invoiceId);
-        entity.setInvoiceStatus(newStatus);
-        Invoice invoice1 = invoiceMapper.toDomain(clientInvoicesRepository.save(entity), InvoiceType.SALE);
 
-        return  invoiceMapper.toDTO(invoice1);
+        ClientInvoiceEntity entity =
+                clientInvoicesRepository.getClientInvoiceEntityByIdInvoice(invoiceId);
+
+
+        entity.setInvoiceStatus(newStatus);
+
+
+        ClientInvoiceEntity saved = clientInvoicesRepository.save(entity);
+
+
+        return invoiceMapper.toDTO(
+                invoiceMapper.toDomain(saved, InvoiceType.SALE)
+        );
     }
 
     @Override

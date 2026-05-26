@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 
 public interface InvoiceUseCase {
@@ -55,6 +56,10 @@ public interface InvoiceUseCase {
     boolean existsByClientPurchaseOrderId(UUID purchaseOrderID);
 
     boolean clientInvoiceExistsByInvoiceId(UUID invoiceId);
+
+    List<InvoicePageItemDTO> getClientTopInvoices(UUID clientId);
+
+    List<InvoicePageItemDTO> getSupplierTopInvoices(UUID supplierId);
 
 
 }

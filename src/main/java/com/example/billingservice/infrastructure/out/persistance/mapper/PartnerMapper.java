@@ -124,6 +124,7 @@ public class PartnerMapper {
                 .paymentCondition(entity.getPaymentCondition())
                 .taxRate(entity.getTaxRate())
                 .iban(entity.getIban())
+                .partnerType(type)
                 .rne(rne).contract(contrat).patente(patente)
                 .build();
 

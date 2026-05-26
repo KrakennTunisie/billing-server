@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -129,7 +130,8 @@ public class InvoiceMapper {
                 entity.getCurrency().name(),
                 totalExclTax,
                 totalInclTax,
-                dto.getAppliedExchangeRate()
+                dto.getAppliedExchangeRate(),
+                dto.getExchangeRateReferenceDate()
         );
 
 
@@ -236,7 +238,8 @@ public class InvoiceMapper {
                     invoiceCreateDTO.getInvoiceCurrency(),
                     totalExclTax,
                     totalInclTax,
-                    invoice.getAppliedExchangeRate()
+                    invoice.getAppliedExchangeRate(),
+                    invoice.getExchangeRateReferenceDate()
             );
 
 
@@ -351,7 +354,8 @@ public class InvoiceMapper {
                     invoiceUpdateDTO.getInvoiceCurrency(),
                     totalExclTax,
                     totalInclTax,
-                    invoice.getAppliedExchangeRate()
+                    invoice.getAppliedExchangeRate(),
+                    invoice.getExchangeRateReferenceDate()
             );
 
 
@@ -388,6 +392,29 @@ public class InvoiceMapper {
                 .totalInclTaxTND(invoice.getTotalInclTaxTND())
                 .totalExclTaxUSD(invoice.getTotalExclTaxUSD())
                 .totalInclTaxUSD(invoice.getTotalInclTaxUSD())
+                .build();
+    }
+
+    public InvoiceDetailedSummaryDTO toDetailedSummaryDTO(Invoice invoice) {
+        if (invoice == null) {
+            return null;
+        }
+
+        return InvoiceDetailedSummaryDTO.builder()
+                .idInvoice(invoice.getIdInvoice())
+                .invoiceNumber(invoice.getReference())
+                .issueDate(invoice.getIssueDate())
+                .invoiceType(invoice.getInvoiceType())
+                .invoiceStatus(invoice.getInvoiceStatus())
+                .invoiceComplianceStatus(invoice.getInvoiceComplianceStatus())
+                .invoiceCurrency(invoice.getCurrency())
+                .totalExclTaxEUR(invoice.getTotalExclTaxEUR())
+                .totalInclTaxEUR(invoice.getTotalInclTaxEUR())
+                .totalExclTaxTND(invoice.getTotalExclTaxTND())
+                .totalInclTaxTND(invoice.getTotalInclTaxTND())
+                .totalExclTaxUSD(invoice.getTotalExclTaxUSD())
+                .totalInclTaxUSD(invoice.getTotalInclTaxUSD())
+                .partner(partnerMapper.toSummaryDTO(invoice.getPartner()))
                 .build();
     }
 

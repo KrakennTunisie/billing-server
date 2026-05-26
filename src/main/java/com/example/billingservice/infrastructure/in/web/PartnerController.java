@@ -4,10 +4,7 @@ package com.example.billingservice.infrastructure.in.web;
 import com.example.billingservice.application.ports.in.PartnerUseCase;
 import com.example.billingservice.domain.exceptions.BillingException;
 import com.example.billingservice.domain.model.Partner;
-import com.example.billingservice.infrastructure.out.persistance.dto.PartnerForm;
-import com.example.billingservice.infrastructure.out.persistance.dto.PartnerItemDTO;
-import com.example.billingservice.infrastructure.out.persistance.dto.PartnerSummaryDTO;
-import com.example.billingservice.infrastructure.out.persistance.dto.UpdatePartnerDTO;
+import com.example.billingservice.infrastructure.out.persistance.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -28,7 +25,7 @@ import java.util.Optional;
 
 
 
-@Tag(name= "Partner API", description = "Gestion des paramétres")
+@Tag(name= "Partner API", description = "Gestion des clients et fournisseurs")
 @RestController
 @RequestMapping("/api/partners")
 @RequiredArgsConstructor
@@ -55,7 +52,7 @@ public class PartnerController {
     }
     @GetMapping("/suppliers/existByEmail/{email}")
     @Operation(summary = "Récupérer un fournisseur")
-    public ResponseEntity<Optional<Partner>> supplierExistByEmail(@Parameter(description = "Email du partenaire")@PathVariable String email)
+    public ResponseEntity<Optional<Partner>> supplierExistByEmail(@Parameter(description = "Email du fournisseur")@PathVariable String email)
     {
         return ResponseEntity.ok(partnerUseCase.findSupplierExistsByEmail(email));
     }

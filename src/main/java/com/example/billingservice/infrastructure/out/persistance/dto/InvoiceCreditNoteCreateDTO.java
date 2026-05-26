@@ -4,8 +4,10 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Date;
 import java.util.List;
 
 @Getter
@@ -16,6 +18,10 @@ public class InvoiceCreditNoteCreateDTO {
 
     @Setter
     private String invoiceCreditNoteNumber;
+
+    @NotNull(message = "La date d'émission est obligatoire")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date issueDate;
 
     @NotBlank(message = "Le motif est obligatoire")
     private String motif;

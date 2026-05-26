@@ -8,6 +8,7 @@ import com.example.billingservice.domain.enums.PartnerType;
 import com.example.billingservice.domain.exceptions.BillingException;
 import com.example.billingservice.domain.model.Partner;
 
+import com.example.billingservice.infrastructure.out.persistance.dto.PartnerDetailsDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerItemDTO;
 import com.example.billingservice.infrastructure.out.persistance.entity.AuditLogEntity;
 import com.example.billingservice.infrastructure.out.persistance.entity.SupplierEntity;
@@ -67,6 +68,18 @@ public class SupplierPersistanceAdapter implements SupplierRepositoryPort {
                     .or(() -> { throw BillingException.notFound("Fournisseur", id); });
         } catch (IllegalArgumentException ex) {
             throw BillingException.badRequest("Invalid UUID "+id);
+        }
+    }
+
+    @Override
+    public Optional<Partner> getSupplierById(UUID idSupplier) {
+        try
+        {
+            return supplierRepository.findById(idSupplier)
+                    .map(p-> partnerMapper.toDomain(p,PartnerType.SUPPLIER))
+                    .or(() -> { throw BillingException.notFound("Fournisseur", String.valueOf(idSupplier)); });
+        } catch (IllegalArgumentException ex) {
+            throw BillingException.badRequest("Invalid UUID "+idSupplier);
         }
     }
 
@@ -174,8 +187,5 @@ public class SupplierPersistanceAdapter implements SupplierRepositoryPort {
             throw BillingException.badRequest("Invalid UUID format: " + id);
         }
 
-    }
-
-    public static class AuditLogPersistenceAdapter {
     }
 }

@@ -7,6 +7,10 @@ import java.util.UUID;
 public interface SendEmailUseCase {
     void sendInvoiceEmail(UUID invoiceId, SendEmailRequest request);
 
+    void sendCreditNoteEmail(UUID invoiceCreditNoteId, SendEmailRequest request);
+
+    void sendPurchaseOrderEmail(UUID purchaseOrderId, SendEmailRequest request);
+
     void sendEmail(SendEmailRequest request);
 
 }
