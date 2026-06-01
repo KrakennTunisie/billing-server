@@ -265,10 +265,12 @@ public class PartnerMapper {
 
         return PartnerSummaryDTO.builder()
                 .idPartner(partner.getIdPartner())
-                .name(partner.getCompanyName())
+                .partnerName(partner.getCompanyName())
+                .companyName(partner.getCompanyName())
                 .email(partner.getEmail())
-                .address(partner.getBillingAddress())
-                .phoneNumber(partner.getProfessionnalPhoneNumber())
+                .billingAddress(partner.getBillingAddress())
+                .professionnalPhoneNumber(partner.getProfessionnalPhoneNumber())
+                .taxRegistrationNumber(partner.getTaxRegistrationNumber())
                 .partnerType(partner.getPartnerType())
                 .build();
     }

@@ -11,9 +11,11 @@ import java.util.UUID;
 @Builder
 public class PartnerSummaryDTO {
     private UUID idPartner;
-    private String name;
+    private String partnerName;
+    private String companyName;
     private String email;
-    private Address address;
-    private String phoneNumber;
+    private Address billingAddress;
+    private String professionnalPhoneNumber;
+    private String taxRegistrationNumber;
     private PartnerType partnerType;
 }
