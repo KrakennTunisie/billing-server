@@ -5,6 +5,7 @@ import com.example.billingservice.application.ports.in.InvoiceUseCase;
 import com.example.billingservice.application.service.GenerateInvoiceNumberService;
 import com.example.billingservice.domain.enums.InvoiceStatus;
 import com.example.billingservice.domain.enums.SequenceNumberType;
+import com.example.billingservice.domain.model.Invoice;
 import com.example.billingservice.infrastructure.out.persistance.dto.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -126,8 +127,15 @@ public class InvoiceController {
         invoiceUseCase.deleteClientInvoice(UUID.fromString(id));
         return ResponseEntity.noContent().build();
     }
+    @GetMapping(CLIENT_INVOICES+"/{idClient}")
+    @Operation(summary = "Liste des factures d'un client")
+    public ResponseEntity<List<Invoice>> getClientInvoices(@Parameter(description = "ID du client") @PathVariable UUID idClient)
+    {
+        List<Invoice> Clientsinvoices =  invoiceUseCase.getClientInvoices(idClient);
+        return ResponseEntity.status(200).body(Clientsinvoices);
+    }
 
-    //SUPPLIER Invoices
+    /********************** -SUPPLIER Invoices- ***************************/
 
     @Operation(summary = "Liste des factures fournisseurs")
     @GetMapping(SUPPLIER_INVOICES)

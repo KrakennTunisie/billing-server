@@ -35,6 +35,7 @@ public interface PartnerUseCase {
     Partner updateSupplier (String id , UpdatePartnerDTO command) throws DataIntegrityViolationException;
 
     void deleteSupplier(String id);
+    void  updateSupplierStatus(String idSupplier, Boolean status);
 
 
     /**** CUSTOMER ****/
@@ -58,6 +59,7 @@ public interface PartnerUseCase {
     void deleteCustomerById(String id);
 
     Partner updateCustomer(String id, UpdatePartnerDTO partner) throws DataIntegrityViolationException;
+    void  updateCustomerStatus(String idClient, Boolean status);
 
 
 }

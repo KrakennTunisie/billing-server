@@ -4,6 +4,7 @@ import com.example.billingservice.domain.model.Partner;
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerDetailsDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerItemDTO;
+import com.example.billingservice.infrastructure.out.persistance.dto.UpdatePartnerDTO;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 
@@ -32,6 +33,7 @@ public interface SupplierRepositoryPort {
 
     boolean existsByIban(String email);
     Page<PartnerItemDTO> findAllSuppliers(String keyword , String Country , int page);
-    Partner updateSupplier (Partner partner) throws DataIntegrityViolationException;
+    Partner updateSupplier (String id , UpdatePartnerDTO partner) throws DataIntegrityViolationException;
     void deleteSupplierById(String id);
+    void updateSupplierStatus(String idSupplier, Boolean status);
 }

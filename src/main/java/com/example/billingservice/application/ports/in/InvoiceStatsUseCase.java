@@ -23,5 +23,12 @@ public interface InvoiceStatsUseCase {
 
     ConvertedInvoiceStats getALLSupplierInvoiceStats();
 
+    List<ClientRevenueStats> getClientRevenue(UUID partner , String periode);
+    List<ClientRevenueStats> getSupplierDespenses(UUID partner , String periode);
+
+    List<ClientRevenueStats> getAllClientRevenue( String periode);
+
+    List<ClientRevenueStats> getAllSupplierDespenses(UUID partner , String periode);
+
 
 }

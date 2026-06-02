@@ -32,4 +32,5 @@ public interface CustomerRepositoryPort {
     Partner updateCustomer (String id,UpdatePartnerDTO partner);
 
     void deleteCustomerById(String id);
+    void updateCustomerStatus(String idClient ,Boolean statuts);
 }

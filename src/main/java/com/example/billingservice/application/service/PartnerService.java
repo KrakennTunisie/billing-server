@@ -140,6 +140,11 @@ public class PartnerService implements PartnerUseCase  {
       supplierRepositoryPort.deleteSupplierById(id);
     }
 
+    @Override
+    public void updateSupplierStatus(String idSupplier, Boolean status) {
+        supplierRepositoryPort.updateSupplierStatus(idSupplier,status);
+    }
+
 
     @Override
     public Partner updateSupplier(String id, UpdatePartnerDTO partnerDTO) throws DataIntegrityViolationException{
@@ -149,7 +154,7 @@ public class PartnerService implements PartnerUseCase  {
 
         PartnerMapper.updatePartnerFromDTO(partnerDTO,updatedPartner);
 
-        return supplierRepositoryPort.updateSupplier(updatedPartner);
+        return supplierRepositoryPort.updateSupplier(id,partnerDTO);
     }
 
     /************ CUSTOMER **********/
@@ -245,12 +250,13 @@ public class PartnerService implements PartnerUseCase  {
 
     @Override
     public Partner updateCustomer(String id, UpdatePartnerDTO partner) throws DataIntegrityViolationException{
-       /* Partner updatedPartner = customerRepositoryPort.findCustomerById(id)
-                .orElseThrow(() -> BillingException.notFound("Client",id));
-
-        PartnerMapper.updatePartnerFromDTO(partner,updatedPartner);*/
         return  customerRepositoryPort.updateCustomer(id,partner);
 
+    }
+
+    @Override
+    public void updateCustomerStatus(String idClient, Boolean status) {
+        customerRepositoryPort.updateCustomerStatus(idClient,status);
     }
 
 

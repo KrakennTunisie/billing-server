@@ -17,4 +17,9 @@ public class AuditLogService implements AuditLogUseCase {
     public List<AuditLog> findAuditLogsByClient(UUID idClient) {
         return auditLogRepositoryPort.findAuditLogsByPartner(idClient);
     }
+
+    @Override
+    public List<AuditLog> findAuditLogsBySupplier(UUID idSupplier) {
+        return auditLogRepositoryPort.findAuditLogsBySupplier(idSupplier);
+    }
 }

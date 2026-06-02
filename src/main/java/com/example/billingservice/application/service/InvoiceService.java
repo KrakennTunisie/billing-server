@@ -223,6 +223,11 @@ public class InvoiceService implements InvoiceUseCase, InvoiceStatsUseCase {
     }
 
     @Override
+    public List<Invoice> getClientInvoices(UUID clientId) {
+        return clientInvoicesRepositoryPort.getClientInvoices(clientId);
+    }
+
+    @Override
     public Page<InvoicePageItemDTO> getClientsInvoices(String keyword, String status, int page) {
         InvoiceStatus invoiceStatus = ParseEnum.parseEnum(status, InvoiceStatus.class);
 
@@ -363,6 +368,26 @@ public class InvoiceService implements InvoiceUseCase, InvoiceStatsUseCase {
     @Override
     public ConvertedInvoiceStats getALLSupplierInvoiceStats() {
         return supplierInvoicesRepositoryPort.getAllSupplierInvoiceCountStats(InvoiceStatus.TO_PAY);
+    }
+
+    @Override
+    public List<ClientRevenueStats> getClientRevenue(UUID idPartner, String periode) {
+        return clientInvoicesRepositoryPort.getClientRevenueByPeriod(idPartner,periode);
+    }
+
+    @Override
+    public List<ClientRevenueStats> getSupplierDespenses(UUID partner, String periode) {
+        return supplierInvoicesRepositoryPort.getSupplierDespensesByPeriod(partner,periode);
+    }
+
+    @Override
+    public List<ClientRevenueStats> getAllClientRevenue( String periode) {
+        return clientInvoicesRepositoryPort.getAllClientRevenueByPeriod(periode);
+    }
+
+    @Override
+    public List<ClientRevenueStats> getAllSupplierDespenses(UUID partner, String periode) {
+        return supplierInvoicesRepositoryPort.getAllSupplierDespensesByPeriod(partner,periode);
     }
 
 

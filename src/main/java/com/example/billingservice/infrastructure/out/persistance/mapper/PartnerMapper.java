@@ -8,6 +8,9 @@ import com.example.billingservice.domain.model.Document;
 import com.example.billingservice.domain.model.Partner;
 import com.example.billingservice.infrastructure.out.persistance.dto.*;
 import com.example.billingservice.infrastructure.out.persistance.entity.*;
+import com.example.billingservice.infrastructure.out.persistance.repository.CustomerRepository;
+import com.example.billingservice.infrastructure.out.persistance.repository.SupplierRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -23,6 +26,8 @@ public class PartnerMapper {
     private final DocumentMapper documentMapper;
     private final AddressMapper addressMapper;
     private final UploadDocumentService uploadDocumentService ;
+    private final CustomerRepository customerRepository;
+    private final SupplierRepository supplierRepository;
 
     public  PartnerEntity toEntity(Partner partner)
     {
@@ -61,8 +66,31 @@ public class PartnerMapper {
         entity.setRne(rne);
         entity.setContract(contract);
         entity.setPatente(patente);
-       /* System.out.println(entity.getBillingAddressEntity().getAddressType() + entity.getBillingAddressEntity().getStreet());
-        System.out.println(entity.getShippingAddressEntity().getAddressType() + entity.getBillingAddressEntity().getStreet());*/
+        return  entity;
+    }
+
+    public  PartnerEntity toExistEntity(Partner partner)
+    {
+
+        // Instancier la bonne classe selon le type
+        PartnerEntity entity ;
+        if (partner.getIdPartner() != null) {
+            if(partner.getPartnerType()== PartnerType.CLIENT) {
+                entity = customerRepository.findById(partner.getIdPartner())
+                        .orElseThrow(() -> new EntityNotFoundException(
+                                "Partner not found with id: " + partner.getIdPartner()
+                        ));
+            }
+            else {
+                   entity = supplierRepository.findById(partner.getIdPartner())
+                        .orElseThrow(() -> new EntityNotFoundException(
+                                "Partner not found with id: " + partner.getIdPartner()
+                        ));
+            }
+        } else {
+             entity = createEntityByPartnerType(partner.getPartnerType());
+        }
+
         return  entity;
     }
 
@@ -265,10 +293,11 @@ public class PartnerMapper {
 
         return PartnerSummaryDTO.builder()
                 .idPartner(partner.getIdPartner())
-                .name(partner.getCompanyName())
+                .companyName(partner.getCompanyName())
+                .partnerName(partner.getPartnerName())
                 .email(partner.getEmail())
-                .address(partner.getBillingAddress())
-                .phoneNumber(partner.getProfessionnalPhoneNumber())
+                .billingAddress(partner.getBillingAddress())
+                .professionnalPhoneNumber(partner.getProfessionnalPhoneNumber())
                 .partnerType(partner.getPartnerType())
                 .build();
     }

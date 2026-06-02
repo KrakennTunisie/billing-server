@@ -93,12 +93,23 @@ public class PartnerController {
     }
 
 
-    @PatchMapping("/suppliers/{id}")
+    @PatchMapping(path ="/suppliers/{id}",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Modification d'un fournisseur")
     public ResponseEntity <Partner> updateSupplier (@Parameter(description = "ID du fournisseur") @PathVariable String id ,
-                                                    @RequestBody UpdatePartnerDTO request)
+                                                    @ModelAttribute UpdatePartnerDTO request)
     {
        return ResponseEntity.status(201).body(partnerUseCase.updateSupplier(id,request)) ;
+    }
+
+    @PatchMapping(path = "/suppliers/updateStatus/{id}")
+    @Operation(summary = "Modification du statut fournisseur activé / désactivé")
+    public ResponseEntity<Void> updateStatusSupplier(
+            @Parameter(description = "ID du fournisseur")
+            @PathVariable String id,
+            @RequestParam Boolean statusClient
+    ) {
+        partnerUseCase.updateSupplierStatus(id, statusClient);
+        return ResponseEntity.noContent().build();
     }
 
 
@@ -152,5 +163,16 @@ public class PartnerController {
                                                     @ModelAttribute UpdatePartnerDTO request)
     {
         return ResponseEntity.status(201).body(partnerUseCase.updateCustomer(id,request)) ;
+    }
+
+    @PatchMapping(path = "/clients/updateStatus/{id}")
+    @Operation(summary = "Modification du statut client activé / désactivé")
+    public ResponseEntity<Void> updateStatusCustomer(
+            @Parameter(description = "ID du client")
+            @PathVariable String id,
+            @RequestParam Boolean statusClient
+    ) {
+        partnerUseCase.updateCustomerStatus(id, statusClient);
+        return ResponseEntity.noContent().build();
     }
 }

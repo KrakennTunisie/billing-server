@@ -160,4 +160,35 @@ public class CustomerPersistanceAdapter implements CustomerRepositoryPort {
             throw BillingException.badRequest("Invalid UUID format: " + id);
         }
     }
+
+    @Override
+    public void updateCustomerStatus(String idClient ,Boolean statuts) {
+        CustomerEntity entity;
+        try {
+            UUID customerId = UUID.fromString(idClient);
+
+            entity = customerRepository.findById(customerId)
+                    .orElseThrow(() -> BillingException.notFound("Client", idClient));
+            entity.setActive(statuts);
+            customerRepository.save(entity);
+            AuditLogEntity audit = new AuditLogEntity();
+            audit.setAuditEventType(AuditType.UPDATED);
+            audit.setEntityName("Partner");
+            audit.setTriggeredBy("user");
+            audit.setAuditEventTrigger(AuditEventTrigger.USER);
+            audit.setEntityId(entity.getIdPartner());
+            if(statuts) {
+                audit.setDescription("Activation du client");
+            }
+            else {
+                audit.setDescription("Désactivation du client");
+            }
+            audit.setPartner(entity);
+            audit.setEventDate(new Date());
+            auditLogRepository.save(audit);
+
+        } catch (IllegalArgumentException ex) {
+            throw BillingException.badRequest("UUID invalide : " + idClient);
+        }
+    }
 }

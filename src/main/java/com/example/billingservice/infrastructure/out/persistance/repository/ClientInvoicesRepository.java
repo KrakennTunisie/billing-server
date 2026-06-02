@@ -12,6 +12,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -225,4 +226,47 @@ AND
             UUID clientId,
             Collection<InvoiceStatus> excludedStatuses
     );
+
+    @Query("""
+    SELECT i FROM ClientInvoiceEntity i
+    WHERE
+        i.partner.idPartner = :clientId
+    AND
+        i.createdAt >= :dateDebut
+    AND
+        i.createdAt <= :dateFin
+    AND
+        i.invoiceStatus = :status
+    ORDER BY i.createdAt DESC
+""")
+    List<ClientInvoiceEntity> getClientInvoicesByPeriod(
+            @Param("clientId") UUID clientId,
+            @Param("dateDebut") LocalDateTime dateDebut,
+            @Param("dateFin") LocalDateTime dateFin,
+            @Param("status") InvoiceStatus status
+    );
+    @Query("""
+    SELECT i FROM ClientInvoiceEntity i
+    WHERE
+        i.createdAt >= :dateDebut
+    AND
+        i.createdAt <= :dateFin
+    AND
+        i.invoiceStatus = :status
+    ORDER BY i.createdAt DESC
+""")
+    List<ClientInvoiceEntity> getAllClientInvoicesByPeriod(
+
+            @Param("dateDebut") LocalDateTime dateDebut,
+            @Param("dateFin") LocalDateTime dateFin,
+            @Param("status") InvoiceStatus status
+    );
+
+    @Query("""
+    SELECT i FROM ClientInvoiceEntity i
+    WHERE
+        i.partner.idPartner = :clientId
+""")
+    List<ClientInvoiceEntity> getClientInvoices(
+            @Param("clientId") UUID clientId);
 }

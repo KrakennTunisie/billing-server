@@ -8,4 +8,6 @@ import java.util.UUID;
 public interface AuditLogRepositoryPort {
 
     public List<AuditLog> findAuditLogsByPartner(UUID idClient);
+
+    public List<AuditLog> findAuditLogsBySupplier(UUID idSupplier);
 }

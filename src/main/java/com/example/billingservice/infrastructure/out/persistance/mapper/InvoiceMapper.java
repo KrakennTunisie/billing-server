@@ -30,6 +30,7 @@ public class InvoiceMapper {
     private final PurchaseOrderUseCase purchaseOrderUseCase;
     private final AuditEventMapper invoiceEventMapper;
     private final CurrencyCalculator currencyCalculator;
+
     public InvoiceEntity toEntity(Invoice dto) {
         if (dto == null) {
             return null;
@@ -60,7 +61,7 @@ public class InvoiceMapper {
         invoice.setComplianceQRcode(dto.getComplianceQRcode());
         invoice.setInvoiceDocument(documentMapper.toEntity(dto.getInvoiceDocument(), DocumentType.INVOICE));
         invoice.setPurchaseOrder(purchaseOrderMapper.toEntity(dto.getPurchaseOrder()));
-        invoice.setPartner(partnerMapper.toEntity(dto.getPartner()));
+        invoice.setPartner(partnerMapper.toExistEntity(dto.getPartner()));
         invoice.setPurchaseOrder(purchaseOrderMapper.toEntity(dto.getPurchaseOrder()));
         invoice.setCurrency(dto.getCurrency());
 

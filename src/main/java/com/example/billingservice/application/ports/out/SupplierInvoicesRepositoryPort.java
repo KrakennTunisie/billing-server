@@ -40,4 +40,11 @@ public interface SupplierInvoicesRepositoryPort {
 
     boolean existsByInvoiceId(UUID invoiceId);
 
+    List <Invoice> getSupplierInvoices(UUID idpartner);
+
+    List<ClientRevenueStats> getSupplierDespensesByPeriod(UUID idPartner , String period);
+
+    List<ClientRevenueStats> getAllSupplierDespensesByPeriod(UUID idPartner , String period);
+
+
 }

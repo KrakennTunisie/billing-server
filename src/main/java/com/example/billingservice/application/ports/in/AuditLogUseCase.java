@@ -8,4 +8,5 @@ import java.util.UUID;
 public interface AuditLogUseCase {
 
     public List<AuditLog> findAuditLogsByClient(UUID idClient);
+    public List<AuditLog> findAuditLogsBySupplier(UUID idSupplier);
 }
