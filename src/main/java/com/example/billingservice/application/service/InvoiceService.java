@@ -175,10 +175,15 @@ public class InvoiceService implements InvoiceUseCase, InvoiceStatsUseCase {
     @Override
     public void deleteClientInvoice(UUID invoiceId) {
         if(!clientInvoicesRepositoryPort.existsByInvoiceId(invoiceId)){
-            throw BillingException.notFound("Facture Fournisseur", String.valueOf(invoiceId));
+            throw BillingException.notFound("Facture client", String.valueOf(invoiceId));
         }
-        synchronizationService.deleteInvoiceRelatedToPurchaseOrder(invoiceId);
-        clientInvoicesRepositoryPort.delete(invoiceId);
+        Invoice invoice = clientInvoicesRepositoryPort.getInvoice(invoiceId);
+        if(invoice.getPurchaseOrder() != null) {
+            synchronizationService.deleteInvoiceRelatedToPurchaseOrder(invoice);
+        }else{
+            clientInvoicesRepositoryPort.delete(invoiceId);
+        }
+
     }
 
     @Override
@@ -223,7 +228,7 @@ public class InvoiceService implements InvoiceUseCase, InvoiceStatsUseCase {
     }
 
     @Override
-    public List<Invoice> getClientInvoices(UUID clientId) {
+    public List<InvoiceSummaryDTO> getClientInvoices(UUID clientId) {
         return clientInvoicesRepositoryPort.getClientInvoices(clientId);
     }
 

@@ -12,7 +12,10 @@ import java.util.UUID;
 
 public interface CustomerRepositoryPort {
     Partner saveCustomer (Partner partner);
+
     Optional<Partner> findCustomerById(String id);
+
+    Optional<Partner> findCustomerByEmail(String email);
 
     boolean existsByIdPartner(UUID idPartner);
 

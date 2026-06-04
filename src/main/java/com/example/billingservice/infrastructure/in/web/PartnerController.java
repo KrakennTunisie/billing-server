@@ -111,6 +111,13 @@ public class PartnerController {
         partnerUseCase.updateSupplierStatus(id, statusClient);
         return ResponseEntity.noContent().build();
     }
+    @GetMapping("/suppliers-summary")
+    public ResponseEntity <List<PartnerSummaryDTO>> getAllSuppliers(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String filter) {
+
+        return ResponseEntity.ok(partnerUseCase.getSummarySuppliers(keyword, filter));
+    }
 
 
 
@@ -145,6 +152,21 @@ public class PartnerController {
     public ResponseEntity<Optional<Partner>> getCustomerById(@Parameter(description = "ID du client")@PathVariable String id)
     {
         return ResponseEntity.ok(partnerUseCase.findCustomerById(id));
+    }
+
+    @GetMapping("/clients/getByEmail/{email}")
+    @Operation(summary = "Récupérer un client")
+    public ResponseEntity<Partner> getClientByEmail(
+            @Parameter(description = "Email du partenaire")@PathVariable String email)
+    {
+        return ResponseEntity.ok(partnerUseCase.findCustomerByEmail(email).get());
+    }
+
+    @GetMapping("/clients/existByEmail/{email}")
+    @Operation(summary = "Récupérer un client")
+    public ResponseEntity<Optional<Partner>> customerExistByEmail(@Parameter(description = "Email du client")@PathVariable String email)
+    {
+        return ResponseEntity.ok(partnerUseCase.findCustomerByEmail(email));
     }
 
 

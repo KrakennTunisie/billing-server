@@ -69,6 +69,17 @@ public class CustomerPersistanceAdapter implements CustomerRepositoryPort {
     }
 
     @Override
+    public Optional<Partner> findCustomerByEmail(String email) {
+        try
+        {
+            return customerRepository.findByEmail(email)
+                    .map(p -> partnerMapper.toDomain(p,PartnerType.CLIENT)).or(() -> { throw BillingException.notFound("Client", email); });
+        } catch (IllegalArgumentException ex) {
+            throw BillingException.badRequest("email Invalid"+email);
+        }
+    }
+
+    @Override
     public boolean existsByIdPartner(UUID idPartner) {
         return customerRepository.existsByIdPartner(idPartner);
     }

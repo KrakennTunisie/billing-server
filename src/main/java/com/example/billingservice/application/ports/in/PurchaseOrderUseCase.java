@@ -32,6 +32,10 @@ public interface PurchaseOrderUseCase {
 
         boolean existsByClientPurchaseOrderId(UUID purchaseOrderId);
 
+        /** Coummun **/
+
+        List <PurchaseOrderPartnerSummaryDTO> getPurchaseOrdersByPartnerId(UUID idPartner) ;
+
         /** Supplier**/
         Page<PurchaseOrderPageItemDTO> getSupplierPurchaseOrders(String keyword , String filtre, int page);
 

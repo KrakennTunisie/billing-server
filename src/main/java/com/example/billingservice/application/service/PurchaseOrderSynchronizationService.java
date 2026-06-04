@@ -148,12 +148,9 @@ public class PurchaseOrderSynchronizationService {
         }
     }
 
-    public void deleteInvoiceRelatedToPurchaseOrder (UUID invoiceID)
+    public void deleteInvoiceRelatedToPurchaseOrder (Invoice invoice)
     {
-        Invoice invoice = clientInvoicesRepositoryPort.getInvoice(invoiceID);
 
-        if(clientInvoicesRepositoryPort.existsByPurchaseOrderId(invoice.getPurchaseOrder().getIdPurchaseOrder()))
-        {
            List <PurchaseOrderItem> poItems = invoice.getPurchaseOrder().getPurchaseOrderItems();
            List<InvoiceItem> invoiceItems = invoice.getInvoiceItems();
             for (int i = 0; i < Math.min(poItems.size(), invoiceItems.size()); i++) {
@@ -164,7 +161,6 @@ public class PurchaseOrderSynchronizationService {
 
             }
             updatePurchaseOrderStatus(invoice.getPurchaseOrder());
-            }
 
         }
     }

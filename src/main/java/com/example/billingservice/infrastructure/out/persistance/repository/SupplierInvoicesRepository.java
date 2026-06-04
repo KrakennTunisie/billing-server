@@ -238,10 +238,11 @@ AND
 
     @Query("""
     SELECT i FROM SupplierInvoiceEntity i
-    WHERE
-        i.partner.idPartner = :supplierId
+    WHERE i.partner.idPartner = :supplierId
+    ORDER BY i.issueDate DESC
 """)
     List<SupplierInvoiceEntity> getAllSupplierInvoices(
-            @Param("clientId") UUID supplierId
+            @Param("supplierId") UUID supplierId,
+            Pageable pageable
     );
 }

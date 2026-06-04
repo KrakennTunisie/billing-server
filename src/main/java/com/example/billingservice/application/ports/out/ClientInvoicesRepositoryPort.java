@@ -45,7 +45,7 @@ public interface ClientInvoicesRepositoryPort {
 
     List<ClientRevenueStats> getAllClientRevenueByPeriod( String period);
 
-    List<Invoice> getClientInvoices(UUID idPartner);
+    List<InvoiceSummaryDTO> getClientInvoices(UUID idPartner);
 
 
 }

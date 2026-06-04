@@ -102,11 +102,11 @@ public class SendEmailService implements SendEmailUseCase {
 
     @Override
     public void sendPurchaseOrderEmail(UUID purchaseOrderId, SendEmailRequest request) {
-        if(!purchaseOrderUseCase.existsByClientPurchaseOrderId(purchaseOrderId)){
+        if(!purchaseOrderUseCase.existsBySupplierPurchaseOrderId(purchaseOrderId)){
             throw BillingException.notFound("Bon de commande", String.valueOf(purchaseOrderId));
         }
 
-        PurchaseOrderDTO purchaseOrderDTO = purchaseOrderUseCase.getClientPurchaseOrderById(purchaseOrderId);
+        PurchaseOrderDTO purchaseOrderDTO = purchaseOrderUseCase.getSupplierPurchaseOrderById(purchaseOrderId);
 
         String partnerEmail = purchaseOrderDTO.getPartner().getEmail();
 

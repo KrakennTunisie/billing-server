@@ -368,9 +368,9 @@ public class SupplierInvoicesAdapter implements SupplierInvoicesRepositoryPort {
     }
 
     @Override
-    public List<Invoice> getSupplierInvoices(UUID idpartner) {
-         List <SupplierInvoiceEntity> supplierInvoices = supplierInvoicesRepository.getAllSupplierInvoices(idpartner);
-         return  supplierInvoices.stream().map(invoice-> invoiceMapper.toDomain(invoice, InvoiceType.PURCHASE)).toList();
+    public List<SummaryInvoiceDTO> getSupplierInvoices(UUID idpartner) {
+         List <SupplierInvoiceEntity> supplierInvoices = supplierInvoicesRepository.getAllSupplierInvoices(idpartner, PageRequest.of(0, 3));
+         return  supplierInvoices.stream().map(invoice-> invoiceMapper.toInvoicePageItemDTO(invoice)).toList();
 
     }
 
@@ -417,8 +417,8 @@ public class SupplierInvoicesAdapter implements SupplierInvoicesRepositoryPort {
             double totalTVA = totalTTC - totalHT;
 
             ClientRevenueStats dto = new ClientRevenueStats();
-            dto.setPeriod(current.toString());                                              // "2024-01"
-            dto.setMonthLabel(current.format(DateTimeFormatter.ofPattern("MMMM yyyy", Locale.FRENCH))); // "janvier 2024"
+            dto.setPeriod(current.toString());
+            dto.setMonthLabel(current.format(DateTimeFormatter.ofPattern("MMMM yyyy", Locale.FRENCH)));
             dto.setRevenueHT(totalHT);
             dto.setRevenueTVA(totalTVA);
             dto.setRevenueTTC(totalTTC);

@@ -179,6 +179,22 @@ public class InvoiceMapper {
 
                 .build();
     }
+    public SummaryInvoiceDTO toInvoicePageItemDTO(InvoiceEntity invoice) {
+        if (invoice == null) {
+            return null;
+        }
+
+        return SummaryInvoiceDTO.builder()
+                .idInvoice(invoice.getIdInvoice())
+                .invoiceNumber(invoice.getReference())
+                .issueDate(invoice.getIssueDate())
+                .dueDate(invoice.getDueDate())
+                .invoiceType(invoice.getInvoiceType())
+                .invoiceStatus(invoice.getInvoiceStatus())
+                .invoiceCurrency(invoice.getCurrency())
+                .totalInclTax(invoice.getTotalInclTaxTND())
+                .build();
+    }
 
     public Invoice invoiceCreateDTOtoDomain(InvoiceCreateDTO invoiceCreateDTO, Document document, String invoiceNumber) throws BillingException{
         if (invoiceCreateDTO == null) {
@@ -373,7 +389,6 @@ public class InvoiceMapper {
             throw BillingException.badRequest(exception.getMessage());
         }
     }
-
     public InvoiceSummaryDTO toSummaryDTO(Invoice invoice) {
         if (invoice == null) {
             return null;
@@ -387,6 +402,8 @@ public class InvoiceMapper {
                 .invoiceStatus(invoice.getInvoiceStatus())
                 .invoiceComplianceStatus(invoice.getInvoiceComplianceStatus())
                 .invoiceCurrency(invoice.getCurrency())
+                .invoiceDocument(invoice.getInvoiceDocument())
+                .partner(partnerMapper.toSummaryDTO(invoice.getPartner()))
                 .totalExclTaxEUR(invoice.getTotalExclTaxEUR())
                 .totalInclTaxEUR(invoice.getTotalInclTaxEUR())
                 .totalExclTaxTND(invoice.getTotalExclTaxTND())
@@ -415,6 +432,7 @@ public class InvoiceMapper {
                 .totalInclTaxTND(invoice.getTotalInclTaxTND())
                 .totalExclTaxUSD(invoice.getTotalExclTaxUSD())
                 .totalInclTaxUSD(invoice.getTotalInclTaxUSD())
+
                 .partner(partnerMapper.toSummaryDTO(invoice.getPartner()))
                 .build();
     }

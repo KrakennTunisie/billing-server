@@ -296,6 +296,7 @@ public class PartnerMapper {
                 .companyName(partner.getCompanyName())
                 .partnerName(partner.getPartnerName())
                 .email(partner.getEmail())
+                .taxRegistrationNumber(partner.getTaxRegistrationNumber())
                 .billingAddress(partner.getBillingAddress())
                 .professionnalPhoneNumber(partner.getProfessionnalPhoneNumber())
                 .partnerType(partner.getPartnerType())

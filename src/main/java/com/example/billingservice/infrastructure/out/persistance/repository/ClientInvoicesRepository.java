@@ -264,9 +264,11 @@ AND
 
     @Query("""
     SELECT i FROM ClientInvoiceEntity i
-    WHERE
-        i.partner.idPartner = :clientId
+    WHERE i.partner.idPartner = :clientId
+    ORDER BY i.issueDate DESC
 """)
     List<ClientInvoiceEntity> getClientInvoices(
-            @Param("clientId") UUID clientId);
-}
+            @Param("clientId") UUID clientId,
+            Pageable pageable
+    );
+    }

@@ -77,12 +77,6 @@ public class PurchaseOrderService implements PurchaseOrderUseCase {
                 purchaseOrderCreateDTO, purchaseOrderDocument
         );
 
-/*
-        SyncInvoiceItems.syncInvoiceItems(
-                invoice,
-                createDTO.getInvoiceItems() != null ? createDTO.getInvoiceItems() : List.of()
-        );
-*/
         System.out.println(purchaseOrder.getPurchaseOrderType());
         PurchaseOrder savedPurchaseOrder = clientPurchaseOrderPort.createPurchaseOrder(purchaseOrder);
 
@@ -172,6 +166,12 @@ public class PurchaseOrderService implements PurchaseOrderUseCase {
         return clientPurchaseOrderPort.existsByPurchaseOrderId(purchaseOrderId);
     }
 
+    /**** Coummun functions ***/
+    @Override
+    public List<PurchaseOrderPartnerSummaryDTO> getPurchaseOrdersByPartnerId(UUID idPartner) {
+        return  clientPurchaseOrderPort.getPurchaseOrderByClientId(idPartner);
+    }
+
     /** Supplier purchaseOrder **/
 
     @Override
@@ -193,9 +193,6 @@ public class PurchaseOrderService implements PurchaseOrderUseCase {
             throw BillingException.notFound("Partner", purchaseOrderCreateDTO.getPartner());
         }
 
-        String purchaseOrderNumber = generateInvoiceNumberUseCase.generate(SequenceNumberType.PURCHASE_ORDER);
-        purchaseOrderCreateDTO.setPurchaseOrderNumber(purchaseOrderNumber);
-
         Document purchaseOrderDocument = null;
         if (purchaseOrderCreateDTO.getPurchaseOrderDocument() != null && !purchaseOrderCreateDTO.getPurchaseOrderDocument().isEmpty()) {
             UploadedFile document = new UploadedFile(
@@ -215,11 +212,9 @@ public class PurchaseOrderService implements PurchaseOrderUseCase {
         PurchaseOrder purchaseOrder = purchaseOrderMapper.purchaseOrderCreateDTOtoDomain(
                 purchaseOrderCreateDTO, purchaseOrderDocument
         );
+        generateInvoiceNumberUseCase.validateNextSequence(SequenceNumberType.PURCHASE_ORDER, purchaseOrderCreateDTO.getPurchaseOrderNumber());
 
         PurchaseOrder savedPurchaseOrder = supplierPurchaseOrderPort.createPurchaseOrder(purchaseOrder);
-
-        generateInvoiceNumberUseCase.validateNextSequence(SequenceNumberType.PURCHASE_ORDER, purchaseOrderNumber);
-
 
         return purchaseOrderMapper.domainToPurchaseOrderDTO(savedPurchaseOrder);
     }

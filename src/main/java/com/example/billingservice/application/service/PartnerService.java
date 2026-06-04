@@ -145,6 +145,11 @@ public class PartnerService implements PartnerUseCase  {
         supplierRepositoryPort.updateSupplierStatus(idSupplier,status);
     }
 
+    @Override
+    public List<PartnerSummaryDTO> getSummarySuppliers(String keyword, String Country) {
+        return supplierRepositoryPort.getSummarySuppliers(keyword, Country);
+    }
+
 
     @Override
     public Partner updateSupplier(String id, UpdatePartnerDTO partnerDTO) throws DataIntegrityViolationException{
@@ -213,6 +218,11 @@ public class PartnerService implements PartnerUseCase  {
     @Override
     public Optional<Partner> findCustomerById(String id) {
         return customerRepositoryPort.findCustomerById(id);
+    }
+
+    @Override
+    public Optional<Partner> findCustomerByEmail(String email) {
+        return customerRepositoryPort.findCustomerByEmail(email);
     }
 
     @Override

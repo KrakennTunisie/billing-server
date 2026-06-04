@@ -127,11 +127,11 @@ public class InvoiceController {
         invoiceUseCase.deleteClientInvoice(UUID.fromString(id));
         return ResponseEntity.noContent().build();
     }
-    @GetMapping(CLIENT_INVOICES+"/{idClient}")
+    @GetMapping("/last"+CLIENT_INVOICES+"/{idClient}")
     @Operation(summary = "Liste des factures d'un client")
-    public ResponseEntity<List<Invoice>> getClientInvoices(@Parameter(description = "ID du client") @PathVariable UUID idClient)
+    public ResponseEntity<List<InvoiceSummaryDTO>> getClientInvoices(@Parameter(description = "ID du client") @PathVariable UUID idClient)
     {
-        List<Invoice> Clientsinvoices =  invoiceUseCase.getClientInvoices(idClient);
+        List<InvoiceSummaryDTO> Clientsinvoices =  invoiceUseCase.getClientInvoices(idClient);
         return ResponseEntity.status(200).body(Clientsinvoices);
     }
 

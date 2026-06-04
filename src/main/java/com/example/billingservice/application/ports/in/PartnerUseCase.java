@@ -36,6 +36,8 @@ public interface PartnerUseCase {
 
     void deleteSupplier(String id);
     void  updateSupplierStatus(String idSupplier, Boolean status);
+    List<PartnerSummaryDTO> getSummarySuppliers(String keyword , String Country );
+
 
 
     /**** CUSTOMER ****/
@@ -43,6 +45,9 @@ public interface PartnerUseCase {
     Optional<Partner> createCustomer(PartnerForm partner) throws IOException;
 
     Optional<Partner> findCustomerById(String id);
+
+    Optional<Partner> findCustomerByEmail(String email);
+
 
     Optional<Partner> getClientDetailsById(String idClient);
 

@@ -13,6 +13,7 @@ public class PartnerSummaryDTO {
     private UUID idPartner;
     private String partnerName;
     private String companyName;
+    private String taxRegistrationNumber;
     private String email;
     private Address billingAddress;
     private String professionnalPhoneNumber;

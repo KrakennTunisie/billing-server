@@ -10,6 +10,7 @@ import com.example.billingservice.domain.model.Partner;
 
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerDetailsDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerItemDTO;
+import com.example.billingservice.infrastructure.out.persistance.dto.PartnerSummaryDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.UpdatePartnerDTO;
 import com.example.billingservice.infrastructure.out.persistance.entity.AuditLogEntity;
 import com.example.billingservice.infrastructure.out.persistance.entity.CustomerEntity;
@@ -235,5 +236,14 @@ public class SupplierPersistanceAdapter implements SupplierRepositoryPort {
         } catch (IllegalArgumentException ex) {
             throw BillingException.badRequest("UUID invalide : " + idSupplier);
         }
+    }
+
+    @Override
+    public List<PartnerSummaryDTO> getSummarySuppliers(String keyword, String Country) {
+        List<SupplierEntity> suppliersEntities= supplierRepository.getSuppliers(keyword, Country);
+        return  suppliersEntities.stream()
+                .map(entity->partnerMapper.toDomain(entity,PartnerType.SUPPLIER))
+                .map(partnerMapper::toSummaryDTO)
+                .toList();
     }
 }

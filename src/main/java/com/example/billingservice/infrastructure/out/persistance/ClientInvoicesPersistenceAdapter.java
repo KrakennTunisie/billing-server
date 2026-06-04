@@ -474,8 +474,8 @@ public class ClientInvoicesPersistenceAdapter implements ClientInvoicesRepositor
             double totalTVA = totalTTC - totalHT;
 
             ClientRevenueStats dto = new ClientRevenueStats();
-            dto.setPeriod(current.toString());                                              // "2024-01"
-            dto.setMonthLabel(current.format(DateTimeFormatter.ofPattern("MMMM yyyy", Locale.FRENCH))); // "janvier 2024"
+            dto.setPeriod(current.toString());
+            dto.setMonthLabel(current.format(DateTimeFormatter.ofPattern("MMMM yyyy", Locale.FRENCH)));
             dto.setRevenueHT(totalHT);
             dto.setRevenueTVA(totalTVA);
             dto.setRevenueTTC(totalTTC);
@@ -489,9 +489,10 @@ public class ClientInvoicesPersistenceAdapter implements ClientInvoicesRepositor
     }
 
     @Override
-    public List<Invoice> getClientInvoices(UUID idPartner) {
-        List<ClientInvoiceEntity> invoicesEntities = clientInvoicesRepository.getClientInvoices(idPartner);
-        return  invoicesEntities.stream().map(invoiceEntity->invoiceMapper.toDomain(invoiceEntity,InvoiceType.SALE)).toList();
+    public List<InvoiceSummaryDTO> getClientInvoices(UUID idPartner) {
+        List<ClientInvoiceEntity> invoicesEntities = clientInvoicesRepository.getClientInvoices(idPartner,PageRequest.of(0, 3));
+        List <Invoice> invoices = invoicesEntities.stream().map(clientInvoiceEntity -> invoiceMapper.toDomain(clientInvoiceEntity,InvoiceType.SALE)).toList();
+        return  invoices.stream().map(invoice->invoiceMapper.toSummaryDTO(invoice)).toList();
     }
 
 
