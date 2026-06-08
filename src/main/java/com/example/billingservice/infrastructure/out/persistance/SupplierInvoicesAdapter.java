@@ -368,9 +368,10 @@ public class SupplierInvoicesAdapter implements SupplierInvoicesRepositoryPort {
     }
 
     @Override
-    public List<SummaryInvoiceDTO> getSupplierInvoices(UUID idpartner) {
+    public List<InvoiceSummaryDTO> getSupplierInvoices(UUID idpartner) {
          List <SupplierInvoiceEntity> supplierInvoices = supplierInvoicesRepository.getAllSupplierInvoices(idpartner, PageRequest.of(0, 3));
-         return  supplierInvoices.stream().map(invoice-> invoiceMapper.toInvoicePageItemDTO(invoice)).toList();
+        List <Invoice> invoices = supplierInvoices.stream().map(supplierInvoiceEntity -> invoiceMapper.toDomain(supplierInvoiceEntity,InvoiceType.PURCHASE)).toList();
+         return  invoices.stream().map(invoice-> invoiceMapper.toSummaryDTO(invoice)).toList();
 
     }
 

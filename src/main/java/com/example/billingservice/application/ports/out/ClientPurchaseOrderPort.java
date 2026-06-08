@@ -31,8 +31,8 @@ public interface ClientPurchaseOrderPort {
 
     boolean existsByPurchaseOrderId(UUID purchaseOrderId);
 
-    public List<PurchaseOrderSummaryDTO> getPurchaseOrderSummary();
+    List<PurchaseOrderSummaryDTO> getPurchaseOrderSummary();
 
-    public List<PurchaseOrderPartnerSummaryDTO> getPurchaseOrderByClientId(UUID idClient);
+    List<PurchaseOrderPartnerSummaryDTO> getPurchaseOrderByClientId(UUID idClient);
 
 }

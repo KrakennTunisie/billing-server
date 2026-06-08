@@ -4,6 +4,7 @@ import com.example.billingservice.application.Utils.InvoiceCreditNoteStatusPassa
 import com.example.billingservice.application.Utils.StatusMapper;
 import com.example.billingservice.application.ports.in.GenerateInvoiceNumberUseCase;
 import com.example.billingservice.application.ports.in.InvoiceCreditNoteUseCase;
+import com.example.billingservice.application.ports.in.PartnerUseCase;
 import com.example.billingservice.application.ports.out.ClientInvoicesRepositoryPort;
 import com.example.billingservice.application.ports.out.InvoiceCreditNoteRepositoryPort;
 import com.example.billingservice.application.ports.out.SupplierInvoicesRepositoryPort;
@@ -33,6 +34,7 @@ public class InvoiceCreditNoteService implements InvoiceCreditNoteUseCase {
     private final UploadDocumentService uploadDocumentService;
     private final InvoiceCreditNoteMapper invoiceCreditNoteMapper;
     private  final GenerateInvoiceNumberUseCase generateInvoiceNumberUseCase;
+    private final PartnerUseCase partnerUseCase;
 
 
     @Override
@@ -197,6 +199,24 @@ public class InvoiceCreditNoteService implements InvoiceCreditNoteUseCase {
     @Override
     public boolean existsInvoiceCreditNoteEntityByInvoice(UUID idInvoice) {
         return invoiceCreditNoteRepositoryPort.existsInvoiceCreditNoteEntityByInvoice(idInvoice);
+    }
+
+    @Override
+    public List<InvoiceCreditNotePageItemDTO> getCreditNoteInvoiceByPartner(String idPartner , String partnerType) {
+        if(partnerType.equals(PartnerType.CLIENT.toString()))
+        {
+            if(partnerUseCase.customerExistsByIdPartner(UUID.fromString(idPartner)))
+            {
+                return  invoiceCreditNoteRepositoryPort.getCreditNoteByClient(idPartner);
+            }
+        }else {
+            if(partnerUseCase.supplierExistsByIdPartner(UUID.fromString(idPartner)))
+            {
+                return  invoiceCreditNoteRepositoryPort.getCreditNoteBySupplier(idPartner);
+            }
+
+        }
+        return List.of();
     }
 
 

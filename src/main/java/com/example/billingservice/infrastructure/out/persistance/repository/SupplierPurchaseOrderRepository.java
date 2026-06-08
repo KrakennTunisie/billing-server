@@ -1,6 +1,7 @@
 package com.example.billingservice.infrastructure.out.persistance.repository;
 
 import com.example.billingservice.domain.enums.PurchaseOrderStatus;
+import com.example.billingservice.infrastructure.out.persistance.entity.ClientPurchaseOrderEntity;
 import com.example.billingservice.infrastructure.out.persistance.entity.PurchaseOrderEntity;
 import com.example.billingservice.infrastructure.out.persistance.entity.SupplierPurchaseOrderEntity;
 import org.springframework.data.domain.Page;
@@ -39,4 +40,13 @@ public interface SupplierPurchaseOrderRepository extends JpaRepository<SupplierP
     );
     @Query("SELECT p FROM SupplierPurchaseOrderEntity p WHERE p.purchaseOrderStatus IN :statuses")
     List<SupplierPurchaseOrderEntity> getPurchaseOrdersByStatus(@Param("statuses") List<PurchaseOrderStatus> statuses);
+    @Query("""
+    SELECT i FROM SupplierPurchaseOrderEntity  i
+    WHERE i.partner.idPartner = :supplierId
+    ORDER BY i.issueDate DESC
+""")
+    List<SupplierPurchaseOrderEntity> getSupplierPurchaseOrders(
+            @Param("supplierId") UUID supplierId,
+            Pageable pageable
+    );
 }

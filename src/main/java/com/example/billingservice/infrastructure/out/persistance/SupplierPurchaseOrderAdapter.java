@@ -6,6 +6,7 @@ import com.example.billingservice.domain.enums.PurchaseOrderType;
 import com.example.billingservice.domain.model.PurchaseOrder;
 import com.example.billingservice.infrastructure.out.persistance.dto.PurchaseOrderDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.PurchaseOrderPageItemDTO;
+import com.example.billingservice.infrastructure.out.persistance.dto.PurchaseOrderPartnerSummaryDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.PurchaseOrderSummaryDTO;
 import com.example.billingservice.infrastructure.out.persistance.entity.ClientPurchaseOrderEntity;
 import com.example.billingservice.infrastructure.out.persistance.entity.PurchaseOrderEntity;
@@ -104,5 +105,12 @@ public class SupplierPurchaseOrderAdapter implements SupplierPurchaseOrderPort {
                 .map(entity->purchaseOrderMapper.toDomain(entity,PurchaseOrderType.PURCHASE))
                 .map(purchaseOrderMapper::toSummaryDTO)
                 .toList();
+    }
+
+    @Override
+    public List<PurchaseOrderPartnerSummaryDTO> getPurchaseOrderBySupplierId(UUID idSupplier) {
+        List<SupplierPurchaseOrderEntity> purchaseOrdersEntities = supplierPurchaseOrderRepository.getSupplierPurchaseOrders(idSupplier,PageRequest.of(0, 3));
+        List <PurchaseOrder> purchaseOrders = purchaseOrdersEntities.stream().map(supplierpurchaseOrdersEntity -> purchaseOrderMapper.toDomain(supplierpurchaseOrdersEntity, PurchaseOrderType.PURCHASE)).toList();
+        return  purchaseOrders.stream().map(purchaseOrder->purchaseOrderMapper.toPurchaseOrderPartnerSummaryDTO(purchaseOrder)).toList();
     }
 }

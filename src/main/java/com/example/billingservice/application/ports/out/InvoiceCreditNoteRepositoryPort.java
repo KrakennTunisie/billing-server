@@ -6,6 +6,7 @@ import com.example.billingservice.infrastructure.out.persistance.dto.InvoiceCred
 import com.example.billingservice.infrastructure.out.persistance.dto.InvoiceCreditNotePageItemDTO;
 import org.springframework.data.domain.Page;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface InvoiceCreditNoteRepositoryPort {
@@ -30,5 +31,9 @@ public interface InvoiceCreditNoteRepositoryPort {
     InvoiceCreditNote getByInvoiceCreditNoteNumber(String invoiceCreditNoteNumber);
 
     boolean existsInvoiceCreditNoteEntityByInvoice(UUID idInvoice);
+
+    List<InvoiceCreditNotePageItemDTO> getCreditNoteByClient(String idClient);
+
+    List<InvoiceCreditNotePageItemDTO> getCreditNoteBySupplier(String idSupplier);
 
 }

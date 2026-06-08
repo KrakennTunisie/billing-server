@@ -6,6 +6,7 @@ import com.example.billingservice.infrastructure.out.persistance.dto.*;
 import org.springframework.data.domain.Page;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 
 public interface InvoiceCreditNoteUseCase {
@@ -30,5 +31,9 @@ public interface InvoiceCreditNoteUseCase {
     boolean existsByInvoiceCreditNoteId(UUID invoiceCreditNoteId);
 
     boolean existsInvoiceCreditNoteEntityByInvoice(UUID idInvoice);
+
+    List<InvoiceCreditNotePageItemDTO> getCreditNoteInvoiceByPartner(String idPartner, String partnerType);
+
+
 
 }

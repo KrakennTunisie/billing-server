@@ -4,6 +4,7 @@ import com.example.billingservice.domain.enums.PurchaseOrderStatus;
 import com.example.billingservice.domain.model.PurchaseOrder;
 import com.example.billingservice.infrastructure.out.persistance.dto.PurchaseOrderDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.PurchaseOrderPageItemDTO;
+import com.example.billingservice.infrastructure.out.persistance.dto.PurchaseOrderPartnerSummaryDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.PurchaseOrderSummaryDTO;
 import org.springframework.data.domain.Page;
 
@@ -30,5 +31,7 @@ public interface SupplierPurchaseOrderPort {
 
     boolean existsByPurchaseOrderId(UUID purchaseOrderId);
 
-    public List<PurchaseOrderSummaryDTO> getPurchaseOrderSummary();
+    List<PurchaseOrderSummaryDTO> getPurchaseOrderSummary();
+
+    List<PurchaseOrderPartnerSummaryDTO> getPurchaseOrderBySupplierId(UUID idClient);
 }

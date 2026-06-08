@@ -7,7 +7,10 @@ import com.example.billingservice.domain.exceptions.BillingException;
 import com.example.billingservice.domain.model.*;
 import com.example.billingservice.infrastructure.out.persistance.dto.*;
 import com.example.billingservice.infrastructure.out.persistance.entity.*;
+import com.example.billingservice.infrastructure.out.persistance.repository.ClientInvoicesRepository;
+import com.example.billingservice.infrastructure.out.persistance.repository.SupplierInvoicesRepository;
 import com.example.billingservice.shared.CurrencyCalculator;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -30,6 +33,8 @@ public class InvoiceMapper {
     private final PurchaseOrderUseCase purchaseOrderUseCase;
     private final AuditEventMapper invoiceEventMapper;
     private final CurrencyCalculator currencyCalculator;
+    private final ClientInvoicesRepository clientInvoicesRepository;
+    private final SupplierInvoicesRepository supplierInvoicesRepository;
 
     public InvoiceEntity toEntity(Invoice dto) {
         if (dto == null) {
@@ -75,6 +80,30 @@ public class InvoiceMapper {
         invoice.setInvoiceItems(items);
 
         return invoice;
+    }
+    public  InvoiceEntity toExistEntity(Invoice dto)
+    {
+
+        // Instancier la bonne classe selon le type
+        InvoiceEntity entity ;
+        if (dto.getIdInvoice()!= null) {
+            if(dto.getInvoiceType()== InvoiceType.SALE) {
+                entity = clientInvoicesRepository.findById(dto.getIdInvoice())
+                        .orElseThrow(() -> new EntityNotFoundException(
+                                "Invoice not found with id: " + dto.getIdInvoice()
+                        ));
+            }
+            else {
+                entity = supplierInvoicesRepository.findById(dto.getIdInvoice())
+                        .orElseThrow(() -> new EntityNotFoundException(
+                                "Invoice not found with id: " + dto.getIdInvoice()
+                        ));
+            }
+        } else {
+            entity = createEntityByInvoiceType(dto.getInvoiceType());
+        }
+
+        return  entity;
     }
 
 
@@ -455,7 +484,7 @@ public class InvoiceMapper {
 
     private InvoiceEntity createEntityByInvoiceType(InvoiceType invoiceType) {
         if (invoiceType == null) {
-            throw new IllegalArgumentException("PartnerType must not be null");
+            throw new IllegalArgumentException("InvoiceType must not be null");
         }
 
         return switch (invoiceType) {

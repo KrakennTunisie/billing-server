@@ -1,15 +1,22 @@
 package com.example.billingservice.infrastructure.out.persistance;
 
 import com.example.billingservice.application.ports.in.CreditNoteSynchronizationUseCase;
+import com.example.billingservice.application.ports.out.ClientInvoicesRepositoryPort;
 import com.example.billingservice.application.ports.out.InvoiceCreditNoteRepositoryPort;
 import com.example.billingservice.domain.enums.InvoiceCreditNoteStatus;
 import com.example.billingservice.domain.exceptions.BillingException;
 import com.example.billingservice.domain.model.InvoiceCreditNote;
 import com.example.billingservice.domain.model.InvoiceCreditNoteItem;
+import com.example.billingservice.infrastructure.out.persistance.dto.InvoiceCreditNoteDetailsDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.InvoiceCreditNotePageItemDTO;
+import com.example.billingservice.infrastructure.out.persistance.dto.InvoiceSummaryDTO;
+import com.example.billingservice.infrastructure.out.persistance.entity.ClientInvoiceEntity;
 import com.example.billingservice.infrastructure.out.persistance.entity.InvoiceCreditNoteEntity;
+import com.example.billingservice.infrastructure.out.persistance.entity.SupplierInvoiceEntity;
 import com.example.billingservice.infrastructure.out.persistance.mapper.InvoiceCreditNoteMapper;
+import com.example.billingservice.infrastructure.out.persistance.repository.ClientInvoicesRepository;
 import com.example.billingservice.infrastructure.out.persistance.repository.InvoiceCreditNoteRepository;
+import com.example.billingservice.infrastructure.out.persistance.repository.SupplierInvoicesRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
@@ -18,6 +25,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -29,6 +37,8 @@ public class InvoiceCreditNoteRepositoryAdapter implements InvoiceCreditNoteRepo
     private final InvoiceCreditNoteRepository invoiceCreditNoteRepository;
     private final InvoiceCreditNoteMapper invoiceCreditNoteMapper;
     private final CreditNoteSynchronizationUseCase creditNoteSynchronizationUseCase;
+    private final ClientInvoicesRepository clientInvoicesRepository;
+    private final SupplierInvoicesRepository supplierInvoicesRepository;
 
 
     @Override
@@ -124,6 +134,45 @@ public class InvoiceCreditNoteRepositoryAdapter implements InvoiceCreditNoteRepo
     public boolean existsInvoiceCreditNoteEntityByInvoice(UUID idInvoice) {
         return invoiceCreditNoteRepository.existsInvoiceCreditNoteEntityByInvoice_IdInvoice(idInvoice);
     }
+
+    @Override
+    public List<InvoiceCreditNotePageItemDTO> getCreditNoteByClient(String idClient) {
+        List<InvoiceCreditNoteEntity> clientsCreditNotes = new ArrayList<>();
+
+        List<ClientInvoiceEntity> clientsInvoices = clientInvoicesRepository.getClientInvoices(UUID.fromString(idClient),PageRequest.of(0, 3));
+        System.out.println(clientsInvoices.stream().collect(Collectors.toList()));
+        clientsInvoices.forEach(invoiceEntity -> {
+            List<InvoiceCreditNoteEntity> creditNotes = invoiceCreditNoteRepository
+                    .getInvoiceCreditNoteEntityByInvoice_IdInvoice(invoiceEntity.getIdInvoice());
+            clientsCreditNotes.addAll(creditNotes);
+        });
+        List<InvoiceCreditNote>  invoiceCreditNotes= clientsCreditNotes.stream()
+                .map(creditNoteEntity -> invoiceCreditNoteMapper.toDomain(creditNoteEntity))
+                .collect(Collectors.toList());
+        return invoiceCreditNotes.stream()
+                .map(creditNoteEntity -> invoiceCreditNoteMapper.toPageItemDTO(creditNoteEntity))
+                .collect(Collectors.toList());
+    }
+    @Override
+    public List<InvoiceCreditNotePageItemDTO> getCreditNoteBySupplier(String idSupplier) {
+        List<InvoiceCreditNoteEntity> suppliersCreditNotes = new ArrayList<>();
+
+        List<SupplierInvoiceEntity> suppliersInvoices = supplierInvoicesRepository.getAllSupplierInvoices(UUID.fromString(idSupplier),PageRequest.of(0, 3));
+
+        suppliersInvoices.forEach(invoiceEntity -> {
+            List<InvoiceCreditNoteEntity> creditNotes = invoiceCreditNoteRepository
+                    .getInvoiceCreditNoteEntityByInvoice_IdInvoice(invoiceEntity.getIdInvoice());
+            suppliersCreditNotes.addAll(creditNotes);
+        });
+     List<InvoiceCreditNote>  invoiceCreditNotes= suppliersCreditNotes.stream()
+                .map(creditNoteEntity -> invoiceCreditNoteMapper.toDomain(creditNoteEntity))
+                .collect(Collectors.toList());
+
+        return invoiceCreditNotes.stream()
+                .map(creditNoteEntity -> invoiceCreditNoteMapper.toPageItemDTO(creditNoteEntity))
+                .collect(Collectors.toList());
+    }
+
 
     private void synchronizeInvoiceItems(InvoiceCreditNote invoiceCreditNote){
         for (InvoiceCreditNoteItem invoiceCreditNoteItem : invoiceCreditNote.getInvoiceCreditNoteItems()){
