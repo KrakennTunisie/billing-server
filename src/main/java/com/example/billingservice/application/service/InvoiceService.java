@@ -179,10 +179,15 @@ public class InvoiceService implements InvoiceUseCase, InvoiceStatsUseCase {
     @Override
     public void deleteClientInvoice(UUID invoiceId) {
         if(!clientInvoicesRepositoryPort.existsByInvoiceId(invoiceId)){
-            throw BillingException.notFound("Facture Fournisseur", String.valueOf(invoiceId));
+            throw BillingException.notFound("Facture client", String.valueOf(invoiceId));
         }
-        synchronizationService.deleteInvoiceRelatedToPurchaseOrder(invoiceId);
-        clientInvoicesRepositoryPort.delete(invoiceId);
+        Invoice invoice = clientInvoicesRepositoryPort.getInvoice(invoiceId);
+        if(invoice.getPurchaseOrder() != null) {
+            synchronizationService.deleteInvoiceRelatedToPurchaseOrder(invoice);
+        }else{
+            clientInvoicesRepositoryPort.delete(invoiceId);
+        }
+
     }
 
     @Override
@@ -229,6 +234,11 @@ public class InvoiceService implements InvoiceUseCase, InvoiceStatsUseCase {
             throw BillingException.notFound("Fournisseur", String.valueOf(supplierId));
         }
         return supplierInvoicesRepositoryPort.getSupplierTopInvoices(supplierId);
+    }
+
+    @Override
+    public List<InvoiceSummaryDTO> getClientInvoices(UUID clientId) {
+        return clientInvoicesRepositoryPort.getClientInvoices(clientId);
     }
 
     @Override
@@ -372,6 +382,26 @@ public class InvoiceService implements InvoiceUseCase, InvoiceStatsUseCase {
     @Override
     public ConvertedInvoiceStats getALLSupplierInvoiceStats() {
         return supplierInvoicesRepositoryPort.getAllSupplierInvoiceCountStats(InvoiceStatus.TO_PAY);
+    }
+
+    @Override
+    public List<ClientRevenueStats> getClientRevenue(UUID idPartner, String periode) {
+        return clientInvoicesRepositoryPort.getClientRevenueByPeriod(idPartner,periode);
+    }
+
+    @Override
+    public List<ClientRevenueStats> getSupplierDespenses(UUID partner, String periode) {
+        return supplierInvoicesRepositoryPort.getSupplierDespensesByPeriod(partner,periode);
+    }
+
+    @Override
+    public List<ClientRevenueStats> getAllClientRevenue( String periode) {
+        return clientInvoicesRepositoryPort.getAllClientRevenueByPeriod(periode);
+    }
+
+    @Override
+    public List<ClientRevenueStats> getAllSupplierDespenses(UUID partner, String periode) {
+        return supplierInvoicesRepositoryPort.getAllSupplierDespensesByPeriod(partner,periode);
     }
 
 

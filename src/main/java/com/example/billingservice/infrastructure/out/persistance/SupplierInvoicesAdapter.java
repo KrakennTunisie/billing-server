@@ -11,12 +11,14 @@ import com.example.billingservice.infrastructure.out.persistance.dto.*;
 import com.example.billingservice.infrastructure.out.persistance.entity.ClientInvoiceEntity;
 import com.example.billingservice.infrastructure.out.persistance.entity.InvoiceEntity;
 
+import com.example.billingservice.infrastructure.out.persistance.entity.InvoiceItemEntity;
 import com.example.billingservice.infrastructure.out.persistance.entity.SupplierInvoiceEntity;
 
 import com.example.billingservice.infrastructure.out.persistance.mapper.InvoiceMapper;
 import com.example.billingservice.infrastructure.out.persistance.projections.ClientInvoiceDashboardStatsProjection;
 import com.example.billingservice.infrastructure.out.persistance.projections.PartnerInvoiceAmountStatsProjection;
 import com.example.billingservice.infrastructure.out.persistance.projections.PartnerInvoiceCountStatsProjection;
+import com.example.billingservice.infrastructure.out.persistance.repository.InvoiceItemRepository;
 import com.example.billingservice.infrastructure.out.persistance.repository.SupplierInvoicesRepository;
 import com.example.billingservice.shared.StatsHelper;
 import lombok.RequiredArgsConstructor;
@@ -29,11 +31,11 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -43,6 +45,7 @@ public class SupplierInvoicesAdapter implements SupplierInvoicesRepositoryPort {
     private final SupplierInvoicesRepository supplierInvoicesRepository;
     private final InvoiceMapper invoiceMapper;
     private final CurrencyConversionUseCase currencyConversionUseCase;
+    private final InvoiceItemRepository invoiceItemRepository;
 
     @Override
     public Page<InvoicePageItemDTO> findAllInvoices(String keyword, InvoiceStatus status, int page, InvoiceType type) {
@@ -83,11 +86,8 @@ public class SupplierInvoicesAdapter implements SupplierInvoicesRepositoryPort {
     public InvoiceDTO save(Invoice invoice) {
         SupplierInvoiceEntity entity = (SupplierInvoiceEntity) invoiceMapper.toEntity(invoice);
         SupplierInvoiceEntity savedEntity = supplierInvoicesRepository.save(entity);
-        Invoice invoice1 = invoiceMapper.toDomain(savedEntity, invoice.getInvoiceType());/*
-        entity.getInvoiceEvents().forEach(
-                invoiceEventEntity -> invoiceEventEntity.setInvoice(savedEntity)
-        );
-        jpaInvoiceEventRepository.saveAll(entity.getInvoiceEvents());*/
+        Invoice invoice1 = invoiceMapper.toDomain(savedEntity, invoice.getInvoiceType());
+
 
 
         return  invoiceMapper.toDTO(invoice1);
@@ -366,6 +366,127 @@ public class SupplierInvoicesAdapter implements SupplierInvoicesRepositoryPort {
     @Override
     public boolean existsByInvoiceId(UUID invoiceId) {
         return supplierInvoicesRepository.existsByIdInvoice(invoiceId);
+    }
+
+    @Override
+    public List<SummaryInvoiceDTO> getSupplierInvoices(UUID idpartner) {
+         List <SupplierInvoiceEntity> supplierInvoices = supplierInvoicesRepository.getAllSupplierInvoices(idpartner, PageRequest.of(0, 3));
+         return  supplierInvoices.stream().map(invoice-> invoiceMapper.toInvoicePageItemDTO(invoice)).toList();
+
+    }
+
+    @Override
+    public List<ClientRevenueStats> getSupplierDespensesByPeriod(UUID idPartner, String period) {
+        LocalDateTime dateFin   = LocalDateTime.now();
+        LocalDateTime dateDebut = dateFin.minusMonths(Long.parseLong(period));
+
+        List<SupplierInvoiceEntity> invoices = supplierInvoicesRepository
+                .getSupplierInvoicesByPeriod(idPartner, dateDebut, dateFin);
+
+        // Grouper les factures par mois
+        Map<YearMonth, List<SupplierInvoiceEntity>> facturesParMois = invoices.stream()
+                .collect(Collectors.groupingBy(
+                        invoice -> YearMonth.from(invoice.getCreatedAt())
+                ));
+
+        List<ClientRevenueStats> stats = new ArrayList<>();
+
+        // Itérer sur chaque mois de la période
+        YearMonth moisDebut = YearMonth.from(dateDebut);
+        YearMonth moisFin   = YearMonth.from(dateFin);
+
+        YearMonth current = moisDebut;
+        while (!current.isAfter(moisFin)) {
+
+            List<SupplierInvoiceEntity> facturesDuMois = facturesParMois
+                    .getOrDefault(current, Collections.emptyList());
+
+            // Calculer HT et TTC pour ce mois
+            double totalHT  = 0.0;
+            double totalTTC = 0.0;
+
+            for (SupplierInvoiceEntity invoice : facturesDuMois) {
+                List<InvoiceItemEntity> items = invoiceItemRepository
+                        .findByInvoice_IdInvoice(invoice.getIdInvoice());
+
+                for (InvoiceItemEntity item : items) {
+                    totalTTC += item.getTotalPriceIncTax();
+                    totalHT  += item.getUnityPriceEXclTax() * item.getQuantity();
+                }
+            }
+
+            double totalTVA = totalTTC - totalHT;
+
+            ClientRevenueStats dto = new ClientRevenueStats();
+            dto.setPeriod(current.toString());
+            dto.setMonthLabel(current.format(DateTimeFormatter.ofPattern("MMMM yyyy", Locale.FRENCH)));
+            dto.setRevenueHT(totalHT);
+            dto.setRevenueTVA(totalTVA);
+            dto.setRevenueTTC(totalTTC);
+            dto.setNombreFactures(facturesDuMois.size());
+
+            stats.add(dto);
+            current = current.plusMonths(1);
+        }
+
+        return stats;
+    }
+
+    @Override
+    public List<ClientRevenueStats> getAllSupplierDespensesByPeriod(UUID idPartner, String period) {
+        LocalDateTime dateFin   = LocalDateTime.now();
+        LocalDateTime dateDebut = dateFin.minusMonths(Long.parseLong(period));
+
+        List<SupplierInvoiceEntity> invoices = supplierInvoicesRepository
+                .getAllSupplierInvoicesByPeriod(idPartner, dateDebut, dateFin);
+
+        // Grouper les factures par mois
+        Map<YearMonth, List<SupplierInvoiceEntity>> facturesParMois = invoices.stream()
+                .collect(Collectors.groupingBy(
+                        invoice -> YearMonth.from(invoice.getCreatedAt())
+                ));
+
+        List<ClientRevenueStats> stats = new ArrayList<>();
+
+        // Itérer sur chaque mois de la période
+        YearMonth moisDebut = YearMonth.from(dateDebut);
+        YearMonth moisFin   = YearMonth.from(dateFin);
+
+        YearMonth current = moisDebut;
+        while (!current.isAfter(moisFin)) {
+
+            List<SupplierInvoiceEntity> facturesDuMois = facturesParMois
+                    .getOrDefault(current, Collections.emptyList());
+
+            // Calculer HT et TTC pour ce mois
+            double totalHT  = 0.0;
+            double totalTTC = 0.0;
+
+            for (SupplierInvoiceEntity invoice : facturesDuMois) {
+                List<InvoiceItemEntity> items = invoiceItemRepository
+                        .findByInvoice_IdInvoice(invoice.getIdInvoice());
+
+                for (InvoiceItemEntity item : items) {
+                    totalTTC += item.getTotalPriceIncTax();
+                    totalHT  += item.getUnityPriceEXclTax() * item.getQuantity();
+                }
+            }
+
+            double totalTVA = totalTTC - totalHT;
+
+            ClientRevenueStats dto = new ClientRevenueStats();
+            dto.setPeriod(current.toString());                                              // "2024-01"
+            dto.setMonthLabel(current.format(DateTimeFormatter.ofPattern("MMMM yyyy", Locale.FRENCH))); // "janvier 2024"
+            dto.setRevenueHT(totalHT);
+            dto.setRevenueTVA(totalTVA);
+            dto.setRevenueTTC(totalTTC);
+            dto.setNombreFactures(facturesDuMois.size());
+
+            stats.add(dto);
+            current = current.plusMonths(1);
+        }
+
+        return stats;
     }
 
 

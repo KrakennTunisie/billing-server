@@ -2,10 +2,7 @@ package com.example.billingservice.application.ports.in;
 
 import com.example.billingservice.domain.enums.InvoiceStatus;
 import com.example.billingservice.domain.model.Invoice;
-import com.example.billingservice.infrastructure.out.persistance.dto.InvoiceCreateDTO;
-import com.example.billingservice.infrastructure.out.persistance.dto.InvoiceDTO;
-import com.example.billingservice.infrastructure.out.persistance.dto.InvoicePageItemDTO;
-import com.example.billingservice.infrastructure.out.persistance.dto.InvoiceUpdateDTO;
+import com.example.billingservice.infrastructure.out.persistance.dto.*;
 import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,6 +61,7 @@ public interface InvoiceUseCase {
     List<InvoicePageItemDTO> getInvoicesToPay(String keyword);
 
     List<InvoicePageItemDTO> getSupplierTopInvoices(UUID supplierId);
+    List<InvoiceSummaryDTO>  getClientInvoices (UUID clientId);
 
 
 }

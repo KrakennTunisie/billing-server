@@ -20,6 +20,7 @@ public class AuditLogPersistenceAdapter implements AuditLogRepositoryPort {
 
     private final AuditLogRepository auditLogRepository;
     private final CustomerPersistanceAdapter customerPersistanceAdapter;
+    private final SupplierPersistanceAdapter supplierPersistanceAdapter;
     private final AuditEventMapper auditEventMapper;
 
 
@@ -32,6 +33,21 @@ public class AuditLogPersistenceAdapter implements AuditLogRepositoryPort {
             List<AuditLogEntity> auditLogEntities = auditLogRepository.findByPartner_IdPartner(idClient);
             return auditLogEntities.stream()
                     .map(entity -> auditEventMapper.toDomain(entity, PartnerType.CLIENT)) // ← passer le type
+                    .collect(Collectors.toList());
+        } catch (BillingException e) {
+            throw e;
+        }
+    }
+
+    @Override
+    public List<AuditLog> findAuditLogsBySupplier(UUID idSupplier) {
+        try {
+            if (!supplierPersistanceAdapter.existsByIdPartner(idSupplier)) {
+                throw BillingException.notFound("Fournisseur", String.valueOf(idSupplier));
+            }
+            List<AuditLogEntity> auditLogEntities = auditLogRepository.findByPartner_IdPartner(idSupplier);
+            return auditLogEntities.stream()
+                    .map(entity -> auditEventMapper.toDomain(entity, PartnerType.SUPPLIER))
                     .collect(Collectors.toList());
         } catch (BillingException e) {
             throw e;

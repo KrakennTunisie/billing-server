@@ -93,12 +93,30 @@ public class PartnerController {
     }
 
 
-    @PatchMapping("/suppliers/{id}")
+    @PatchMapping(path ="/suppliers/{id}",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Modification d'un fournisseur")
     public ResponseEntity <Partner> updateSupplier (@Parameter(description = "ID du fournisseur") @PathVariable String id ,
-                                                    @RequestBody UpdatePartnerDTO request)
+                                                    @ModelAttribute UpdatePartnerDTO request)
     {
        return ResponseEntity.status(201).body(partnerUseCase.updateSupplier(id,request)) ;
+    }
+
+    @PatchMapping(path = "/suppliers/updateStatus/{id}")
+    @Operation(summary = "Modification du statut fournisseur activé / désactivé")
+    public ResponseEntity<Void> updateStatusSupplier(
+            @Parameter(description = "ID du fournisseur")
+            @PathVariable String id,
+            @RequestParam Boolean statusClient
+    ) {
+        partnerUseCase.updateSupplierStatus(id, statusClient);
+        return ResponseEntity.noContent().build();
+    }
+    @GetMapping("/suppliers-summary")
+    public ResponseEntity <List<PartnerSummaryDTO>> getAllSuppliers(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String filter) {
+
+        return ResponseEntity.ok(partnerUseCase.getSummarySuppliers(keyword, filter));
     }
 
 
@@ -136,6 +154,21 @@ public class PartnerController {
         return ResponseEntity.ok(partnerUseCase.findCustomerById(id));
     }
 
+    @GetMapping("/clients/getByEmail/{email}")
+    @Operation(summary = "Récupérer un client")
+    public ResponseEntity<Partner> getClientByEmail(
+            @Parameter(description = "Email du partenaire")@PathVariable String email)
+    {
+        return ResponseEntity.ok(partnerUseCase.findCustomerByEmail(email).get());
+    }
+
+    @GetMapping("/clients/existByEmail/{email}")
+    @Operation(summary = "Récupérer un client")
+    public ResponseEntity<Optional<Partner>> customerExistByEmail(@Parameter(description = "Email du client")@PathVariable String email)
+    {
+        return ResponseEntity.ok(partnerUseCase.findCustomerByEmail(email));
+    }
+
 
     @DeleteMapping("/clients/{id}")
     @Operation(summary = "Suppression d'un client")
@@ -152,5 +185,16 @@ public class PartnerController {
                                                     @ModelAttribute UpdatePartnerDTO request)
     {
         return ResponseEntity.status(201).body(partnerUseCase.updateCustomer(id,request)) ;
+    }
+
+    @PatchMapping(path = "/clients/updateStatus/{id}")
+    @Operation(summary = "Modification du statut client activé / désactivé")
+    public ResponseEntity<Void> updateStatusCustomer(
+            @Parameter(description = "ID du client")
+            @PathVariable String id,
+            @RequestParam Boolean statusClient
+    ) {
+        partnerUseCase.updateCustomerStatus(id, statusClient);
+        return ResponseEntity.noContent().build();
     }
 }

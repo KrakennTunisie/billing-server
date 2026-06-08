@@ -24,4 +24,11 @@ public class AuditLogController {
                 auditLogUseCase.findAuditLogsByClient(idClient)
         );
     }
+
+    @GetMapping("/logs-suppliers/{idSupplier}")
+    public ResponseEntity<List<AuditLog>> getSupplierLogs(@PathVariable UUID idSupplier) {
+        return ResponseEntity.ok(
+                auditLogUseCase.findAuditLogsBySupplier(idSupplier)
+        );
+    }
 }

@@ -7,6 +7,7 @@ import com.example.billingservice.domain.enums.*;
 import com.example.billingservice.domain.exceptions.BillingException;
 import com.example.billingservice.domain.model.Invoice;
 
+import com.example.billingservice.domain.model.InvoiceItem;
 import com.example.billingservice.infrastructure.out.persistance.dto.*;
 import com.example.billingservice.infrastructure.out.persistance.entity.InvoiceEntity;
 import com.example.billingservice.infrastructure.out.persistance.entity.ClientInvoiceEntity;
@@ -32,11 +33,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -396,6 +397,128 @@ public class ClientInvoicesPersistenceAdapter implements ClientInvoicesRepositor
     @Override
     public boolean existsByPurchaseOrderId(UUID purchaseOrderId) {
         return clientInvoicesRepository.existsByPurchaseOrderIdPurchaseOrder(purchaseOrderId);
+    }
+
+    @Override
+    public List<ClientRevenueStats> getClientRevenueByPeriod(UUID idPartner, String period) {
+
+        LocalDateTime dateFin   = LocalDateTime.now();
+        LocalDateTime dateDebut = dateFin.minusMonths(Long.parseLong(period));
+
+        List<ClientInvoiceEntity> invoices = clientInvoicesRepository
+                .getClientInvoicesByPeriod(idPartner, dateDebut, dateFin , InvoiceStatus.PAID);
+
+        // Grouper les factures par mois
+        Map<YearMonth, List<ClientInvoiceEntity>> facturesParMois = invoices.stream()
+                .collect(Collectors.groupingBy(
+                        invoice -> YearMonth.from(invoice.getCreatedAt())
+                ));
+
+        List<ClientRevenueStats> stats = new ArrayList<>();
+
+        // Itérer sur chaque mois de la période
+        YearMonth moisDebut = YearMonth.from(dateDebut);
+        YearMonth moisFin   = YearMonth.from(dateFin);
+
+        YearMonth current = moisDebut;
+        while (!current.isAfter(moisFin)) {
+
+            List<ClientInvoiceEntity> facturesDuMois = facturesParMois
+                    .getOrDefault(current, Collections.emptyList());
+
+            // Calculer HT et TTC pour ce mois
+            double totalHT  = 0.0;
+            double totalTTC = 0.0;
+
+            for (ClientInvoiceEntity invoice : facturesDuMois) {
+                List<InvoiceItemEntity> items = invoiceItemRepository
+                        .findByInvoice_IdInvoice(invoice.getIdInvoice());
+
+                for (InvoiceItemEntity item : items) {
+                    totalTTC += item.getTotalPriceIncTax();
+                    totalHT  += item.getUnityPriceEXclTax() * item.getQuantity();
+                }
+            }
+
+            double totalTVA = totalTTC - totalHT;
+
+            ClientRevenueStats dto = new ClientRevenueStats();
+            dto.setPeriod(current.toString());                                              // "2024-01"
+            dto.setMonthLabel(current.format(DateTimeFormatter.ofPattern("MMMM yyyy", Locale.FRENCH))); // "janvier 2024"
+            dto.setRevenueHT(totalHT);
+            dto.setRevenueTVA(totalTVA);
+            dto.setRevenueTTC(totalTTC);
+            dto.setNombreFactures(facturesDuMois.size());
+
+            stats.add(dto);
+            current = current.plusMonths(1);
+        }
+
+        return stats;
+    }
+
+    @Override
+    public List<ClientRevenueStats> getAllClientRevenueByPeriod( String period) {
+        LocalDateTime dateFin   = LocalDateTime.now();
+        LocalDateTime dateDebut = dateFin.minusMonths(Long.parseLong(period));
+
+        List<ClientInvoiceEntity> invoices = clientInvoicesRepository
+                .getAllClientInvoicesByPeriod( dateDebut, dateFin,InvoiceStatus.PAID);
+
+        // Grouper les factures par mois
+        Map<YearMonth, List<ClientInvoiceEntity>> facturesParMois = invoices.stream()
+                .collect(Collectors.groupingBy(
+                        invoice -> YearMonth.from(invoice.getCreatedAt())
+                ));
+
+        List<ClientRevenueStats> stats = new ArrayList<>();
+
+        // Itérer sur chaque mois de la période
+        YearMonth moisDebut = YearMonth.from(dateDebut);
+        YearMonth moisFin   = YearMonth.from(dateFin);
+
+        YearMonth current = moisDebut;
+        while (!current.isAfter(moisFin)) {
+
+            List<ClientInvoiceEntity> facturesDuMois = facturesParMois
+                    .getOrDefault(current, Collections.emptyList());
+
+            // Calculer HT et TTC pour ce mois
+            double totalHT  = 0.0;
+            double totalTTC = 0.0;
+
+            for (ClientInvoiceEntity invoice : facturesDuMois) {
+                List<InvoiceItemEntity> items = invoiceItemRepository
+                        .findByInvoice_IdInvoice(invoice.getIdInvoice());
+
+                for (InvoiceItemEntity item : items) {
+                    totalTTC += item.getTotalPriceIncTax();
+                    totalHT  += item.getUnityPriceEXclTax() * item.getQuantity();
+                }
+            }
+
+            double totalTVA = totalTTC - totalHT;
+
+            ClientRevenueStats dto = new ClientRevenueStats();
+            dto.setPeriod(current.toString());
+            dto.setMonthLabel(current.format(DateTimeFormatter.ofPattern("MMMM yyyy", Locale.FRENCH)));
+            dto.setRevenueHT(totalHT);
+            dto.setRevenueTVA(totalTVA);
+            dto.setRevenueTTC(totalTTC);
+            dto.setNombreFactures(facturesDuMois.size());
+
+            stats.add(dto);
+            current = current.plusMonths(1);
+        }
+
+        return stats;
+    }
+
+    @Override
+    public List<InvoiceSummaryDTO> getClientInvoices(UUID idPartner) {
+        List<ClientInvoiceEntity> invoicesEntities = clientInvoicesRepository.getClientInvoices(idPartner,PageRequest.of(0, 3));
+        List <Invoice> invoices = invoicesEntities.stream().map(clientInvoiceEntity -> invoiceMapper.toDomain(clientInvoiceEntity,InvoiceType.SALE)).toList();
+        return  invoices.stream().map(invoice->invoiceMapper.toSummaryDTO(invoice)).toList();
     }
 
 

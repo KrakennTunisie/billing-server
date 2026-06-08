@@ -4,42 +4,22 @@ import com.example.billingservice.domain.enums.InvoiceComplianceStatus;
 import com.example.billingservice.domain.enums.InvoiceCurrency;
 import com.example.billingservice.domain.enums.InvoiceStatus;
 import com.example.billingservice.domain.enums.InvoiceType;
-import com.example.billingservice.domain.model.Document;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.UUID;
 
-@Builder
 @Getter
-public class InvoiceSummaryDTO {
-
+@Builder
+public class SummaryInvoiceDTO {
     private UUID idInvoice;
-
     private String invoiceNumber;
-
     private Date issueDate;
-
+    private Date dueDate;
     private InvoiceType invoiceType;
-
     private InvoiceStatus invoiceStatus;
-
-    private InvoiceComplianceStatus invoiceComplianceStatus;
-
     private InvoiceCurrency invoiceCurrency;
-
-    private Document invoiceDocument;
-
-    private PartnerSummaryDTO partner;
-
-    private Double totalExclTaxEUR;
-    private Double totalInclTaxEUR;
-    private Double totalExclTaxTND;
-    private Double totalInclTaxTND;
-    private Double totalExclTaxUSD;
-    private Double totalInclTaxUSD;
-
-    private Double remainingAmount;
-
+    private BigDecimal totalInclTax;
 }

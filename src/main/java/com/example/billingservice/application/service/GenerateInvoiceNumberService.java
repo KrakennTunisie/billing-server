@@ -27,7 +27,7 @@ public class GenerateInvoiceNumberService implements GenerateInvoiceNumberUseCas
     public void validateNextSequence(SequenceNumberType sequenceNumberType, String invoiceNumber) {
         int year = Year.now().getValue();
         long lastSequence = extractSequence(invoiceNumber);
-
+          System.out.println("Hello");
          generateNextInvoiceSequenceUseCase.storeNextSequence(sequenceNumberType, year, lastSequence);
     }
 

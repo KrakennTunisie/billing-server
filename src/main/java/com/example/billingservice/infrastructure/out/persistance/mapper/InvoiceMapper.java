@@ -30,6 +30,7 @@ public class InvoiceMapper {
     private final PurchaseOrderUseCase purchaseOrderUseCase;
     private final AuditEventMapper invoiceEventMapper;
     private final CurrencyCalculator currencyCalculator;
+
     public InvoiceEntity toEntity(Invoice dto) {
         if (dto == null) {
             return null;
@@ -61,7 +62,7 @@ public class InvoiceMapper {
         invoice.setComplianceQRcode(dto.getComplianceQRcode());
         invoice.setInvoiceDocument(documentMapper.toEntity(dto.getInvoiceDocument(), DocumentType.INVOICE));
         invoice.setPurchaseOrder(purchaseOrderMapper.toEntity(dto.getPurchaseOrder()));
-        invoice.setPartner(partnerMapper.toEntity(dto.getPartner()));
+        invoice.setPartner(partnerMapper.toExistEntity(dto.getPartner()));
         invoice.setPurchaseOrder(purchaseOrderMapper.toEntity(dto.getPurchaseOrder()));
         invoice.setCurrency(dto.getCurrency());
 
@@ -179,6 +180,22 @@ public class InvoiceMapper {
                 .purchaseOrder(purchaseOrderMapper.toSummaryDTO(invoice.getPurchaseOrder()))
                 .partner(partnerMapper.toSummaryDTO(invoice.getPartner()))
 
+                .build();
+    }
+    public SummaryInvoiceDTO toInvoicePageItemDTO(InvoiceEntity invoice) {
+        if (invoice == null) {
+            return null;
+        }
+
+        return SummaryInvoiceDTO.builder()
+                .idInvoice(invoice.getIdInvoice())
+                .invoiceNumber(invoice.getReference())
+                .issueDate(invoice.getIssueDate())
+                .dueDate(invoice.getDueDate())
+                .invoiceType(invoice.getInvoiceType())
+                .invoiceStatus(invoice.getInvoiceStatus())
+                .invoiceCurrency(invoice.getCurrency())
+                .totalInclTax(invoice.getTotalInclTaxTND())
                 .build();
     }
 
@@ -391,6 +408,8 @@ public class InvoiceMapper {
                 .invoiceStatus(invoice.getInvoiceStatus())
                 .invoiceComplianceStatus(invoice.getInvoiceComplianceStatus())
                 .invoiceCurrency(invoice.getCurrency())
+                .invoiceDocument(invoice.getInvoiceDocument())
+                .partner(partnerMapper.toSummaryDTO(invoice.getPartner()))
                 .totalExclTaxEUR(invoice.getTotalExclTaxEUR())
                 .totalInclTaxEUR(invoice.getTotalInclTaxEUR())
                 .totalExclTaxTND(invoice.getTotalExclTaxTND())
@@ -420,6 +439,7 @@ public class InvoiceMapper {
                 .totalInclTaxTND(invoice.getTotalInclTaxTND())
                 .totalExclTaxUSD(invoice.getTotalExclTaxUSD())
                 .totalInclTaxUSD(invoice.getTotalInclTaxUSD())
+
                 .remainingAmount(invoice.getRemainingAmount())
 
                 .partner(partnerMapper.toSummaryDTO(invoice.getPartner()))

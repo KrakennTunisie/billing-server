@@ -45,4 +45,11 @@ public interface ClientInvoicesRepositoryPort {
     boolean existsByInvoiceId(UUID invoiceId);
     boolean existsByPurchaseOrderId(UUID purchaseOrderId);
 
+    List<ClientRevenueStats> getClientRevenueByPeriod(UUID idPartner , String period);
+
+    List<ClientRevenueStats> getAllClientRevenueByPeriod( String period);
+
+    List<InvoiceSummaryDTO> getClientInvoices(UUID idPartner);
+
+
 }

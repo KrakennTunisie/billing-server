@@ -1,12 +1,16 @@
 package com.example.billingservice.infrastructure.out.persistance;
 
 import com.example.billingservice.application.ports.out.ClientPurchaseOrderPort;
+import com.example.billingservice.domain.enums.InvoiceType;
 import com.example.billingservice.domain.enums.PurchaseOrderStatus;
 import com.example.billingservice.domain.enums.PurchaseOrderType;
+import com.example.billingservice.domain.model.Invoice;
 import com.example.billingservice.domain.model.PurchaseOrder;
 import com.example.billingservice.infrastructure.out.persistance.dto.PurchaseOrderDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.PurchaseOrderPageItemDTO;
+import com.example.billingservice.infrastructure.out.persistance.dto.PurchaseOrderPartnerSummaryDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.PurchaseOrderSummaryDTO;
+import com.example.billingservice.infrastructure.out.persistance.entity.ClientInvoiceEntity;
 import com.example.billingservice.infrastructure.out.persistance.entity.ClientPurchaseOrderEntity;
 import com.example.billingservice.infrastructure.out.persistance.entity.PurchaseOrderEntity;
 import com.example.billingservice.infrastructure.out.persistance.mapper.PurchaseOrderMapper;
@@ -102,5 +106,12 @@ public class ClientPurchaseOrderAdapter implements ClientPurchaseOrderPort {
                 .map(entity->purchaseOrderMapper.toDomain(entity,PurchaseOrderType.PURCHASE))
                 .map(purchaseOrderMapper::toSummaryDTO)
                 .toList();
+    }
+
+    @Override
+    public List<PurchaseOrderPartnerSummaryDTO> getPurchaseOrderByClientId(UUID idClient) {
+        List<ClientPurchaseOrderEntity> purchaseOrdersEntities = clientPurchaseOrderRepository.getClientPurchaseOrders(idClient,PageRequest.of(0, 3));
+        List <PurchaseOrder> invoices = purchaseOrdersEntities.stream().map(clientInvoiceEntity -> purchaseOrderMapper.toDomain(clientInvoiceEntity, PurchaseOrderType.SALE)).toList();
+        return  invoices.stream().map(purchaseOrder->purchaseOrderMapper.toPurchaseOrderPartnerSummaryDTO(purchaseOrder)).toList();
     }
 }
