@@ -32,6 +32,8 @@ public interface InvoiceUseCase {
 
     InvoiceDTO updateClientInvoiceStatus(UUID invoiceId, InvoiceStatus invoiceStatus);
 
+    InvoiceDTO updateClientInvoiceRemainingAmount(UUID invoiceId, double paidAmount);
+
     InvoiceDTO getInvoiceById(UUID invoiceId);
 
     InvoiceDTO getInvoiceByInvoiceNumber(String invoiceNumber);
@@ -58,6 +60,8 @@ public interface InvoiceUseCase {
     boolean clientInvoiceExistsByInvoiceId(UUID invoiceId);
 
     List<InvoicePageItemDTO> getClientTopInvoices(UUID clientId);
+
+    List<InvoicePageItemDTO> getInvoicesToPay(String keyword);
 
     List<InvoicePageItemDTO> getSupplierTopInvoices(UUID supplierId);
 

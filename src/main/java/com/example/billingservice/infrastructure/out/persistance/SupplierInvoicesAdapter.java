@@ -61,7 +61,8 @@ public class SupplierInvoicesAdapter implements SupplierInvoicesRepositoryPort {
 
         } catch (DataAccessException ex) {
             throw BillingException.internalError("Erreur de fetch des factures: " + ex.getMessage());
-        }    }
+        }
+    }
 
     @Override
     public List<InvoicePageItemDTO> getSupplierTopInvoices(UUID idSupplier) {

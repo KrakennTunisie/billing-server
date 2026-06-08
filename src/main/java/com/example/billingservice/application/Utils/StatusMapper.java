@@ -13,6 +13,7 @@ public final class StatusMapper {
             case DRAFT -> "Brouillon";
             case TO_PAY -> "À Payer";
             case TO_COLLECT -> "À Encaisser";
+            case PARTIALLY_PAID -> "Payée partiellement";
             case PAID -> "Payée";
             case CANCELLED -> "Annulée";
         };

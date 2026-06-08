@@ -50,5 +50,14 @@ public class MailSenderController {
         return ResponseEntity.accepted().build();
     }
 
+    @PostMapping("/payment/{paymentId}/send-email")
+    public ResponseEntity<Void> sendPaymentEmail(
+            @PathVariable String paymentId,
+            @RequestBody SendEmailRequest request
+    ) {
+        sendEmailUseCase.sendPaymentEmail(UUID.fromString(paymentId), request);
+        return ResponseEntity.accepted().build();
+    }
+
 
 }

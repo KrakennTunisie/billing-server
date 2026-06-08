@@ -272,7 +272,7 @@ public class InvoiceCreditNoteMapper {
                 .invoiceCreditNoteStatus(invoiceCreditNote.getInvoiceCreditNoteStatus())
                 .invoiceCreditNoteComplianceStatus(invoiceCreditNote.getComplianceStatus())
                 .total(0.0)
-                .invoice(invoiceMapper.toSummaryDTO(invoiceCreditNote.getInvoice()))
+                .invoice(invoiceMapper.toDetailedSummaryDTO(invoiceCreditNote.getInvoice()))
                 .invoiceCreditNoteItems(invoiceCreditNote.getInvoiceCreditNoteItems())
                 .invoiceCreditNoteEvents(invoiceCreditNote.getInvoiceCreditNoteEvents())
                 .invoiceCreditNoteDocument(documentMapper.toDocumentSummary(invoiceCreditNote.getInvoiceCreditNoteDocument()))

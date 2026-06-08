@@ -132,6 +132,23 @@ public class ClientInvoicesPersistenceAdapter implements ClientInvoicesRepositor
     }
 
     @Override
+    public InvoiceDTO updateRemainingAmount(UUID invoiceId, double amount) {
+        ClientInvoiceEntity entity =
+                clientInvoicesRepository.getClientInvoiceEntityByIdInvoice(invoiceId);
+
+
+        entity.setRemainingAmount(Math.abs(entity.getRemainingAmount() - amount));
+
+
+        ClientInvoiceEntity saved = clientInvoicesRepository.save(entity);
+
+
+        return invoiceMapper.toDTO(
+                invoiceMapper.toDomain(saved, InvoiceType.SALE)
+        );
+    }
+
+    @Override
     public InvoiceDTO getById(UUID idInvoice) {
         ClientInvoiceEntity entity = clientInvoicesRepository.getClientInvoiceEntityByIdInvoice(idInvoice);
         Invoice invoice = invoiceMapper.toDomain(entity, InvoiceType.SALE);
@@ -343,6 +360,15 @@ public class ClientInvoicesPersistenceAdapter implements ClientInvoicesRepositor
                 totalAmountEUR,pendingAmountEUR,
                 totalAmountUSD,pendingAmountUSD,
                 countStats);
+    }
+
+    @Override
+    public List<InvoicePageItemDTO> getInvoicesToPay(String keyword) {
+        List<ClientInvoiceEntity> entities = clientInvoicesRepository.getInvoicesToPay(keyword);
+
+        return entities.stream()
+                .map(entity-> invoiceMapper.toInvoicePageItemDTO(invoiceMapper.toDomain(entity, InvoiceType.SALE)))
+                .toList();
     }
 
     @Override

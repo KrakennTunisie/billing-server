@@ -40,7 +40,7 @@ public class PartnerMapper {
         DocumentEntity contract = documentMapper.toContractEntity(partner.getContract());
 
         //Partner
-       // entity.setIdPartner(partner.getIdPartner());
+        entity.setIdPartner(partner.getIdPartner());
         entity.setActive(partner.isActive());
         entity.setEnablePortal(partner.isEnablePortal());
         entity.setPartnerName(partner.getPartnerName());

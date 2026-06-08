@@ -152,7 +152,7 @@ public class PurchaseOrderSynchronizationService {
     {
         Invoice invoice = clientInvoicesRepositoryPort.getInvoice(invoiceID);
 
-        if(clientInvoicesRepositoryPort.existsByPurchaseOrderId(invoice.getPurchaseOrder().getIdPurchaseOrder()))
+        if(invoice.getPurchaseOrder()!=null && clientInvoicesRepositoryPort.existsByPurchaseOrderId(invoice.getPurchaseOrder().getIdPurchaseOrder()))
         {
            List <PurchaseOrderItem> poItems = invoice.getPurchaseOrder().getPurchaseOrderItems();
            List<InvoiceItem> invoiceItems = invoice.getInvoiceItems();

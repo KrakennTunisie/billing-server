@@ -20,6 +20,8 @@ public interface ClientInvoicesRepositoryPort {
 
     InvoiceDTO updateStatus(UUID invoiceId, InvoiceStatus newStatus);
 
+    InvoiceDTO updateRemainingAmount(UUID invoiceId, double amount);
+
     InvoiceDTO getById(UUID idInvoice);
 
     Invoice getInvoice(UUID idInvoice);
@@ -31,6 +33,8 @@ public interface ClientInvoicesRepositoryPort {
     List<ClientInvoiceDashboardStatsMultiCurrencyDTO> getClientInvoicesDashboardStats(int year);
 
     ConvertedInvoiceStats getAllClientInvoiceCountStats(InvoiceStatus pendingStatus);
+
+    List<InvoicePageItemDTO> getInvoicesToPay(String keyword);
 
 
 

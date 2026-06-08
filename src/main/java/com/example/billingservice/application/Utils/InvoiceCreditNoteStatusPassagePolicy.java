@@ -28,7 +28,10 @@ public final class InvoiceCreditNoteStatusPassagePolicy {
 
         if (!allowed.contains(target)) {
             throw new IllegalStateException(
-                    String.format("Transition impossible: %s → %s", current, target)
+                    String.format("Transition impossible: %s → %s",
+                            StatusMapper.mapCreditNoteStatusToFrench(current),
+                            StatusMapper.mapCreditNoteStatusToFrench(target)
+                    )
             );
         }
     }

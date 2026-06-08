@@ -38,6 +38,20 @@ AND
             Pageable pageable
     );
 
+    @Query("""
+        SELECT i
+        FROM ClientInvoiceEntity i
+        LEFT JOIN i.partner p
+        WHERE  (
+            :keyword IS NULL
+            OR :keyword = ''
+            OR LOWER(i.reference) LIKE LOWER(CONCAT('%', :keyword, '%'))
+            OR LOWER(p.partnerName) LIKE LOWER(CONCAT('%', :keyword, '%'))
+        )
+        ORDER BY i.dueDate ASC, i.issueDate DESC
+    """)
+    List<ClientInvoiceEntity> getInvoicesToPay(@Param("keyword") String keyword);
+
     boolean existsByReference(String invoiceNumber);
 
     boolean existsByIdInvoice(UUID invoiceId);

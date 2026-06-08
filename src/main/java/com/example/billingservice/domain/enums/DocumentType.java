@@ -6,5 +6,6 @@ public enum DocumentType {
     RNE,
     CONTRACT,
     PURCHASE_ORDER,
+    PAYMENT,
     OTHER
 }

@@ -22,6 +22,7 @@ public class Invoice extends BaseCommercialDocument{
     private InvoiceComplianceStatus invoiceComplianceStatus;
     private String complianceQRcode;
     private PurchaseOrder purchaseOrder;
+    private Double remainingAmount;
     private List<InvoiceItem> invoiceItems;
     private List<InvoiceCreditNote> invoiceCreditNotes;
     private Document invoiceDocument;
