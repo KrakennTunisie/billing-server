@@ -28,7 +28,7 @@ public class InvoiceCreditNoteDetailsDTO {
 
     private Double total;
 
-    private InvoiceSummaryDTO invoice;
+    private InvoiceDetailedSummaryDTO invoice;
 
     private DocumentSummaryDTO invoiceCreditNoteDocument;
 

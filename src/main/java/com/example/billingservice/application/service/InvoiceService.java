@@ -30,7 +30,6 @@ public class InvoiceService implements InvoiceUseCase, InvoiceStatsUseCase {
     private final ClientInvoicesRepositoryPort clientInvoicesRepositoryPort;
     private final SupplierInvoicesRepositoryPort supplierInvoicesRepositoryPort;
     private final InvoiceCreditNoteUseCase invoiceCreditNoteUseCase;
-    private final CurrencyConversionUseCase currencyConversionUseCase;
     private final PurchaseOrderSynchronizationService synchronizationService;
 
     @Override
@@ -114,6 +113,11 @@ public class InvoiceService implements InvoiceUseCase, InvoiceStatsUseCase {
 
         InvoiceStatusPassagePolicy.checkTransition(invoiceDTO.getInvoiceStatus(), invoiceStatus);
         return clientInvoicesRepositoryPort.updateStatus(invoiceId, invoiceStatus);
+    }
+
+    @Override
+    public InvoiceDTO updateClientInvoiceRemainingAmount(UUID invoiceId, double paidAmount) {
+        return clientInvoicesRepositoryPort.updateRemainingAmount(invoiceId, paidAmount);
     }
 
     @Override
@@ -217,6 +221,11 @@ public class InvoiceService implements InvoiceUseCase, InvoiceStatsUseCase {
             throw BillingException.notFound("Client", String.valueOf(clientId));
         }
         return clientInvoicesRepositoryPort.getClientTopInvoices(clientId);
+    }
+
+    @Override
+    public List<InvoicePageItemDTO> getInvoicesToPay(String keyword) {
+        return clientInvoicesRepositoryPort.getInvoicesToPay(keyword);
     }
 
     @Override

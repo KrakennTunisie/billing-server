@@ -32,7 +32,8 @@ public class DocumentUploadHelper {
                 && documentType != DocumentType.CONTRACT
                 && documentType != DocumentType.PATENT
                 && documentType!= DocumentType.INVOICE
-                && documentType!= DocumentType.PURCHASE_ORDER) {
+                && documentType!= DocumentType.PURCHASE_ORDER
+                && documentType!= DocumentType.PAYMENT) {
             throw new InvalidDocumentTypeException(
                     "le type de document n'est pas pris en charge: " + documentType
             );

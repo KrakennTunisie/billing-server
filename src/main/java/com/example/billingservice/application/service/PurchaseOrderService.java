@@ -218,9 +218,10 @@ public class PurchaseOrderService implements PurchaseOrderUseCase {
         PurchaseOrder purchaseOrder = purchaseOrderMapper.purchaseOrderCreateDTOtoDomain(
                 purchaseOrderCreateDTO, purchaseOrderDocument
         );
-        generateInvoiceNumberUseCase.validateNextSequence(SequenceNumberType.PURCHASE_ORDER, purchaseOrderCreateDTO.getPurchaseOrderNumber());
 
         PurchaseOrder savedPurchaseOrder = supplierPurchaseOrderPort.createPurchaseOrder(purchaseOrder);
+
+        generateInvoiceNumberUseCase.validateNextSequence(SequenceNumberType.PURCHASE_ORDER, purchaseOrderCreateDTO.getPurchaseOrderNumber());
 
         return purchaseOrderMapper.domainToPurchaseOrderDTO(savedPurchaseOrder);
     }

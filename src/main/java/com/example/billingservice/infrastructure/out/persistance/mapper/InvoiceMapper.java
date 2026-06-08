@@ -47,6 +47,7 @@ public class InvoiceMapper {
         invoice.setIssueDate(dto.getIssueDate());
         invoice.setDueDate(dto.getDueDate());
         invoice.setTotalInclTaxTND(BigDecimal.valueOf(dto.getTotalInclTaxTND()));
+        invoice.setRemainingAmount(dto.getRemainingAmount());
         invoice.setInvoiceStatus(dto.getInvoiceStatus() != null ? dto.getInvoiceStatus() : InvoiceStatus.DRAFT);
         invoice.setInvoiceComplianceStatus(
                 dto.getInvoiceComplianceStatus() != null
@@ -129,6 +130,7 @@ public class InvoiceMapper {
                 .vatRate(entity.getVatRate())
                 .paymentMethod(entity.getPaymentMethod())
                 .paymentCondition(entity.getPaymentCondition())
+                .remainingAmount(entity.getRemainingAmount())
                 .exchangeRateReferenceDate(entity.getExchangeRateReferenceDate())
                 .appliedExchangeRate(entity.getAppliedExchangeRate())
                 .exchangeRateSource(entity.getExchangeRateSource())
@@ -198,6 +200,7 @@ public class InvoiceMapper {
                 .totalInclTaxTND(invoice.getTotalInclTaxTND())
                 .totalExclTaxUSD(invoice.getTotalExclTaxUSD())
                 .totalInclTaxUSD(invoice.getTotalInclTaxUSD())
+                .remainingAmount(invoice.getRemainingAmount())
 
                 .vatRate(invoice.getVatRate())
                 .appliedExchangeRate(invoice.getAppliedExchangeRate())
@@ -288,6 +291,7 @@ public class InvoiceMapper {
                     invoice.getExchangeRateReferenceDate()
             );
 
+            invoice.setRemainingAmount(formatAmount(totals, InvoiceCurrency.valueOf(invoiceCreateDTO.getInvoiceCurrency())));
 
             invoice.setTotalExclTaxEUR(totals.totalExclTaxEUR());
             invoice.setTotalInclTaxEUR(totals.totalInclTaxEUR());
@@ -325,6 +329,7 @@ public class InvoiceMapper {
                 .totalInclTaxTND(invoice.getTotalInclTaxTND())
                 .totalExclTaxUSD(invoice.getTotalExclTaxUSD())
                 .totalInclTaxUSD(invoice.getTotalInclTaxUSD())
+                .remainingAmount(invoice.getRemainingAmount())
                 .vatRate(invoice.getVatRate())
                 .paymentMethod(invoice.getPaymentMethod())
                 .paymentCondition(invoice.getPaymentCondition())
@@ -418,6 +423,7 @@ public class InvoiceMapper {
             throw BillingException.badRequest(exception.getMessage());
         }
     }
+
     public InvoiceSummaryDTO toSummaryDTO(Invoice invoice) {
         if (invoice == null) {
             return null;
@@ -439,6 +445,7 @@ public class InvoiceMapper {
                 .totalInclTaxTND(invoice.getTotalInclTaxTND())
                 .totalExclTaxUSD(invoice.getTotalExclTaxUSD())
                 .totalInclTaxUSD(invoice.getTotalInclTaxUSD())
+                .remainingAmount(invoice.getRemainingAmount())
                 .build();
     }
 
@@ -461,6 +468,8 @@ public class InvoiceMapper {
                 .totalInclTaxTND(invoice.getTotalInclTaxTND())
                 .totalExclTaxUSD(invoice.getTotalExclTaxUSD())
                 .totalInclTaxUSD(invoice.getTotalInclTaxUSD())
+
+                .remainingAmount(invoice.getRemainingAmount())
 
                 .partner(partnerMapper.toSummaryDTO(invoice.getPartner()))
                 .build();
@@ -490,6 +499,14 @@ public class InvoiceMapper {
         return switch (invoiceType) {
             case SALE -> new ClientInvoiceEntity();
             case PURCHASE -> new SupplierInvoiceEntity();
+        };
+    }
+
+    private double formatAmount(CurrencyTotals totals, InvoiceCurrency currency){
+       return switch (currency){
+            case EUR -> totals.totalInclTaxEUR();
+            case TND -> totals.totalInclTaxTND();
+            case USD -> totals.totalInclTaxUSD();
         };
     }
 

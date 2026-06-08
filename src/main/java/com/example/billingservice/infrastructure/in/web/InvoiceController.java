@@ -74,6 +74,14 @@ public class InvoiceController {
         return ResponseEntity.ok(invoiceUseCase.getClientsInvoices(keyword, filter, page));
     }
 
+
+    @Operation(summary = "Liste des factures clients")
+    @GetMapping(CLIENT_INVOICES+"/to-pay")
+    public ResponseEntity <List<InvoicePageItemDTO>> getClientsInvoicesToPay(@RequestParam(required = false) String keyword)
+    {
+        return ResponseEntity.ok(invoiceUseCase.getInvoicesToPay(keyword));
+    }
+
     @Operation(summary = "Mise à jour de facture client", description = "Mettre à jour une facture existante")
     @PatchMapping(path = CLIENT_INVOICES, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<InvoiceDTO> updateClientInvoice (@Valid @ModelAttribute InvoiceUpdateDTO form,

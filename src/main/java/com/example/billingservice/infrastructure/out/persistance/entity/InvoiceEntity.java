@@ -52,6 +52,8 @@ public abstract class InvoiceEntity extends BaseCommercialDocumentEntity{
 
     private BigDecimal totalInclTaxTND;
 
+    private Double remainingAmount;
+
     public abstract InvoiceType getInvoiceType();
 
 }
