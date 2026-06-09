@@ -11,7 +11,7 @@ public final class InvoiceStatusPassagePolicy {
             InvoiceStatus.TO_PAY, Set.of(InvoiceStatus.TO_PAY,InvoiceStatus.PARTIALLY_PAID, InvoiceStatus.PAID, InvoiceStatus.CANCELLED),
             InvoiceStatus.TO_COLLECT, Set.of(InvoiceStatus.PARTIALLY_PAID, InvoiceStatus.TO_COLLECT, InvoiceStatus.PAID, InvoiceStatus.CANCELLED),
             InvoiceStatus.PARTIALLY_PAID, Set.of(InvoiceStatus.PARTIALLY_PAID, InvoiceStatus.PAID, InvoiceStatus.CANCELLED),
-            InvoiceStatus.PAID, Set.of(InvoiceStatus.PARTIALLY_PAID),
+            InvoiceStatus.PAID, Set.of(InvoiceStatus.PARTIALLY_PAID, InvoiceStatus.PAID),
             InvoiceStatus.CANCELLED, Set.of()
     );
 

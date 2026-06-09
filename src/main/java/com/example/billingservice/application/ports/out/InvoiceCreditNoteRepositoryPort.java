@@ -32,8 +32,8 @@ public interface InvoiceCreditNoteRepositoryPort {
 
     boolean existsInvoiceCreditNoteEntityByInvoice(UUID idInvoice);
 
-    List<InvoiceCreditNotePageItemDTO> getCreditNoteByClient(String idClient);
+    Page<InvoiceCreditNotePageItemDTO> getCreditNoteByClient(UUID idClient, int page);
 
-    List<InvoiceCreditNotePageItemDTO> getCreditNoteBySupplier(String idSupplier);
+    Page<InvoiceCreditNotePageItemDTO> getCreditNoteBySupplier(UUID idSupplier, int page);
 
 }

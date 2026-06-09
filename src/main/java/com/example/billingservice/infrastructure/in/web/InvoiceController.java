@@ -137,9 +137,11 @@ public class InvoiceController {
     }
     @GetMapping("/last"+CLIENT_INVOICES+"/{idClient}")
     @Operation(summary = "Liste des factures d'un client")
-    public ResponseEntity<List<InvoiceSummaryDTO>> getClientInvoices(@Parameter(description = "ID du client") @PathVariable UUID idClient)
+    public ResponseEntity<Page<InvoicePageItemDTO>> getClientInvoices(
+            @Parameter(description = "ID du client") @PathVariable UUID idClient,
+            @RequestParam int page)
     {
-        List<InvoiceSummaryDTO> Clientsinvoices =  invoiceUseCase.getClientInvoices(idClient);
+        Page<InvoicePageItemDTO> Clientsinvoices =  invoiceUseCase.getClientInvoices(idClient, page);
         return ResponseEntity.status(200).body(Clientsinvoices);
     }
 
@@ -271,10 +273,12 @@ public class InvoiceController {
 
     @GetMapping("/last"+SUPPLIER_INVOICES+"/{idSupplier}")
     @Operation(summary = "Liste des factures d'un fournisseur")
-    public ResponseEntity<List<InvoiceSummaryDTO>> getSupplierInvoices(@Parameter(description = "ID du fournisseur") @PathVariable UUID idSupplier)
+    public ResponseEntity<Page<InvoicePageItemDTO>> getSupplierInvoices(
+            @Parameter(description = "ID du fournisseur") @PathVariable UUID idSupplier,
+            @RequestParam int page)
     {
-        List<InvoiceSummaryDTO> supplierInvoices =  invoiceUseCase.getSupplierInvoices(idSupplier);
-        return ResponseEntity.status(200).body(supplierInvoices);
+
+        return ResponseEntity.status(200).body(invoiceUseCase.getSupplierInvoices(idSupplier, page));
     }
 
 

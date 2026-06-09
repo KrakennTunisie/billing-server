@@ -13,6 +13,7 @@ import java.util.UUID;
 public interface PaymentUseCase {
     PaymentDTO getPaymentById(UUID idPayment);
     Page<PaymentPageListItemDto> getPaymentsByInvoice(UUID invoiceId, String keyword , String filtre , int page);
+    Page<PaymentPageListItemDto> getPaymentsByPartner(UUID partnerId, String keyword , String filtre , int page);
     Page<PaymentPageListItemDto> getPayments(String keyword , String filtre , int page);
     PaymentDTO createPayment(CreatePaymentDto createPaymentDto) throws IOException;
     PaymentDTO updatePayment(UUID idPayment, UpdatePaymentDTO updatePaymentDTO) throws IOException;

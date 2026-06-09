@@ -33,6 +33,6 @@ public interface ClientPurchaseOrderPort {
 
     List<PurchaseOrderSummaryDTO> getPurchaseOrderSummary();
 
-    List<PurchaseOrderPartnerSummaryDTO> getPurchaseOrderByClientId(UUID idClient);
+    Page<PurchaseOrderPageItemDTO> getPurchaseOrderByClientId(UUID idClient, int page);
 
 }

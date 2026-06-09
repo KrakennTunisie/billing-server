@@ -1,10 +1,18 @@
 package com.example.billingservice.infrastructure.out.persistance.dto;
 
+import com.example.billingservice.domain.enums.InvoiceCurrency;
 import com.example.billingservice.domain.enums.PartnerType;
+import com.example.billingservice.domain.enums.PaymentCondition;
+import com.example.billingservice.domain.model.Address;
+import com.example.billingservice.domain.model.AuditLog;
+import com.example.billingservice.domain.model.Document;
+import com.example.billingservice.domain.model.Invoice;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Builder
@@ -12,18 +20,33 @@ import java.util.UUID;
 public class PartnerDetailsDTO {
 
     private UUID idPartner;
-    private String name;
+
+    private boolean active;
+
+    private boolean enablePortal;
+
+    private String partnerName;
+    private String maritalStatus;
+    private String companyName;
+    private String displayName;
     private String email;
-    private String phoneNumber;
+    private String personnelPhoneNumber;
+    private String professionnalPhoneNumber;
+    private Address billingAddress;
+    private Address shippingAddress;
+    private String Language;
+
+    private InvoiceCurrency currency;
+    private String taxRate;
     private String taxRegistrationNumber;
-    private String country;
-    private String address;
+    private PaymentCondition paymentCondition;
     private String iban;
-    private PartnerType partnerType;
+
     private DocumentSummaryDTO rne;
     private DocumentSummaryDTO contract;
     private DocumentSummaryDTO patente;
+    private PartnerType partnerType;
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-
 }

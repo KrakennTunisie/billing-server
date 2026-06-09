@@ -158,6 +158,39 @@ public class PartnerMapper {
 
     }
 
+    public  PartnerDetailsDTO toDetailsDTO(Partner partner){
+        if(partner == null){
+            return  null;
+        }
+
+        return PartnerDetailsDTO.builder()
+                .idPartner(partner.getIdPartner())
+                .active(partner.isActive())
+                .enablePortal(partner.isEnablePortal())
+                .partnerName(partner.getPartnerName())
+                .maritalStatus(partner.getMaritalStatus())
+                .companyName(partner.getCompanyName())
+                .displayName(partner.getDisplayName())
+                .email(partner.getEmail())
+                .personnelPhoneNumber(partner.getPersonnelPhoneNumber())
+                .professionnalPhoneNumber(partner.getProfessionnalPhoneNumber())
+                .billingAddress(partner.getBillingAddress())
+                .shippingAddress(partner.getShippingAddress())
+                .Language(partner.getLanguage())
+                .currency(partner.getCurrency())
+                .taxRate(partner.getTaxRate())
+                .taxRegistrationNumber(partner.getTaxRegistrationNumber())
+                .paymentCondition(partner.getPaymentCondition())
+                .iban(partner.getIban())
+                .rne(documentMapper.toDocumentSummary(partner.getRne()))
+                .contract(documentMapper.toDocumentSummary(partner.getContract()))
+                .patente(documentMapper.toDocumentSummary(partner.getPatente()))
+                .partnerType(partner.getPartnerType())
+                .createdAt(partner.getCreatedAt())
+                .updatedAt(partner.getUpdatedAt())
+                .build();
+    }
+
     public PartnerItemDTO toItemDTO(Partner partner) {
 
         return PartnerItemDTO.builder()

@@ -28,7 +28,6 @@ public class PartnerService implements PartnerUseCase  {
 
     private final CustomerRepositoryPort customerRepositoryPort;
     private final SupplierRepositoryPort supplierRepositoryPort;
-    private final UploadDocumentService uploadDocumentService;
     private final PartnerMapper partnerMapper;
 
 
@@ -36,33 +35,33 @@ public class PartnerService implements PartnerUseCase  {
     /********* SUPPLIER ********/
 
     @Override
-    public Partner createSupplier(PartnerForm partner) throws IOException, DataIntegrityViolationException {
+    public PartnerDetailsDTO createSupplier(PartnerForm partner) throws IOException, DataIntegrityViolationException {
         if(!Objects.equals(partner.getPartnerType(), PartnerType.SUPPLIER)){
             throw BillingException
                     .badRequest("Le Type est inadéquat");
         }
-        if (this.supplierRepositoryPort.existsByName(partner.getCompanyName())){
+        if (supplierRepositoryPort.existsByName(partner.getCompanyName())){
             throw BillingException
                     .alreadyExists(
                             "Fournisseur",
                             "Nom",
                             partner.getCompanyName());
         }
-        if (this.supplierExistsByRegistrationNumber(partner.getTaxRegistrationNumber())){
+        if (supplierRepositoryPort.existsByTaxRegistrationNumber(partner.getTaxRegistrationNumber())){
             throw BillingException
                     .alreadyExists(
                             "Fournisseur",
                             "Tax Registration Number",
                             partner.getTaxRegistrationNumber());
         }
-        if (this.supplierExistsByEmail(partner.getEmail())){
+        if (customerRepositoryPort.existsByEmail(partner.getEmail())){
             throw BillingException
                     .alreadyExists(
                             "Fournisseur",
                             "Email",
                             partner.getEmail());
         }
-        if (this.supplierExistsByIban(partner.getIban())){
+        if (supplierRepositoryPort.existsByIban(partner.getIban())){
             throw BillingException
                     .alreadyExists(
                             "Fournisseur",
@@ -70,7 +69,7 @@ public class PartnerService implements PartnerUseCase  {
                             partner.getIban());
         }
         Partner  partnerModel =partnerMapper.createPartnerFromDTO(partner);
-        return supplierRepositoryPort.saveSupplier(partnerModel);
+        return partnerMapper.toDetailsDTO(supplierRepositoryPort.saveSupplier(partnerModel));
     }
 
     @Override
@@ -79,11 +78,11 @@ public class PartnerService implements PartnerUseCase  {
     }
 
     @Override
-    public Optional<Partner> getSupplierDetailsById(String idSupplier) {
+    public PartnerDetailsDTO getSupplierDetailsById(String idSupplier) {
         if(!supplierRepositoryPort.existsByIdPartner(UUID.fromString(idSupplier))){
             throw BillingException.notFound("Fournisseur", idSupplier);
         }
-        return supplierRepositoryPort.getSupplierById(UUID.fromString(idSupplier));
+        return supplierRepositoryPort.getSupplierDetailsById(UUID.fromString(idSupplier));
     }
 
     @Override
@@ -165,7 +164,7 @@ public class PartnerService implements PartnerUseCase  {
     /************ CUSTOMER **********/
 
     @Override
-    public Optional<Partner> createCustomer(PartnerForm partner) throws IOException {
+    public PartnerDetailsDTO createCustomer(PartnerForm partner) throws IOException {
         if(!Objects.equals(partner.getPartnerType(), PartnerType.CLIENT)){
             throw BillingException
                     .badRequest("Le Type est inadéquat");
@@ -177,7 +176,7 @@ public class PartnerService implements PartnerUseCase  {
                             "Nom",
                             partner.getCompanyName());
         }
-        if (this.customerExistsByRegistrationNumber(partner.getTaxRegistrationNumber())){
+        if (customerRepositoryPort.existsByTaxRegistrationNumber(partner.getTaxRegistrationNumber())){
             throw BillingException
                     .alreadyExists(
                             "Client",
@@ -185,14 +184,14 @@ public class PartnerService implements PartnerUseCase  {
                             partner.getTaxRegistrationNumber());
         }
 
-        if (this.customerExistsByEmail(partner.getEmail())){
+        if (customerRepositoryPort.existsByEmail(partner.getEmail())){
             throw BillingException
                     .alreadyExists(
                             "Client",
                             "Email",
                             partner.getEmail());
         }
-        if (this.customerExistsByIban(partner.getIban())){
+        if (customerRepositoryPort.existsByIban(partner.getIban())){
             throw BillingException
                     .alreadyExists(
                             "Client",
@@ -201,8 +200,7 @@ public class PartnerService implements PartnerUseCase  {
         }
         Partner  partnerModel = partnerMapper.createPartnerFromDTO(partner);
         Partner savedPartner = customerRepositoryPort.saveCustomer(partnerModel);
-        return Optional.ofNullable(savedPartner);
-                //customerRepositoryPort.findCustomerById(String.valueOf(savedPartner.getIdPartner()));
+        return partnerMapper.toDetailsDTO(savedPartner);
     }
 
     @Override
@@ -226,11 +224,12 @@ public class PartnerService implements PartnerUseCase  {
     }
 
     @Override
-    public Optional<Partner> getClientDetailsById(String idClient) {
+    public PartnerDetailsDTO getClientDetailsById(String idClient) {
         if(!customerRepositoryPort.existsByIdPartner(UUID.fromString(idClient))){
             throw BillingException.notFound("Client", idClient);
         }
-        return customerRepositoryPort.findCustomerById(idClient);    }
+        return customerRepositoryPort.getClientDetailsById(UUID.fromString(idClient));
+    }
 
     @Override
     public boolean customerExistsByIdPartner(UUID idPartner) {

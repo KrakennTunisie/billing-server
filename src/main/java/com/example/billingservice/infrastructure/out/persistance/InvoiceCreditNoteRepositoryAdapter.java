@@ -136,41 +136,44 @@ public class InvoiceCreditNoteRepositoryAdapter implements InvoiceCreditNoteRepo
     }
 
     @Override
-    public List<InvoiceCreditNotePageItemDTO> getCreditNoteByClient(String idClient) {
-        List<InvoiceCreditNoteEntity> clientsCreditNotes = new ArrayList<>();
+    public Page<InvoiceCreditNotePageItemDTO> getCreditNoteByClient(UUID idClient, int page) {
+        try {
 
-        List<ClientInvoiceEntity> clientsInvoices = clientInvoicesRepository.getClientInvoices(UUID.fromString(idClient),PageRequest.of(0, 3));
-        System.out.println(clientsInvoices.stream().collect(Collectors.toList()));
-        clientsInvoices.forEach(invoiceEntity -> {
-            List<InvoiceCreditNoteEntity> creditNotes = invoiceCreditNoteRepository
-                    .getInvoiceCreditNoteEntityByInvoice_IdInvoice(invoiceEntity.getIdInvoice());
-            clientsCreditNotes.addAll(creditNotes);
-        });
-        List<InvoiceCreditNote>  invoiceCreditNotes= clientsCreditNotes.stream()
-                .map(creditNoteEntity -> invoiceCreditNoteMapper.toDomain(creditNoteEntity))
-                .collect(Collectors.toList());
-        return invoiceCreditNotes.stream()
-                .map(creditNoteEntity -> invoiceCreditNoteMapper.toPageItemDTO(creditNoteEntity))
-                .collect(Collectors.toList());
+            PageRequest pageRequest = PageRequest.of(page, 5, Sort.by("issueDate").descending());
+            Page<InvoiceCreditNoteEntity> entities = invoiceCreditNoteRepository
+                    .getCreditNotesByPartnerId(idClient, pageRequest);
+
+            List<InvoiceCreditNotePageItemDTO> invoices = entities.getContent()
+                    .stream()
+                    .map(invoiceCreditNoteMapper::toDomain)
+                    .map(invoiceCreditNoteMapper::toPageItemDTO)
+                    .collect(Collectors.toList());
+
+            return new PageImpl<>(invoices, pageRequest, entities.getTotalElements());
+
+        } catch (DataAccessException ex) {
+            throw BillingException.internalError("Erreur de fetch des factures d'avoir: " + ex.getMessage());
+        }
     }
     @Override
-    public List<InvoiceCreditNotePageItemDTO> getCreditNoteBySupplier(String idSupplier) {
-        List<InvoiceCreditNoteEntity> suppliersCreditNotes = new ArrayList<>();
+    public Page<InvoiceCreditNotePageItemDTO> getCreditNoteBySupplier(UUID idSupplier, int page) {
+        try {
 
-        List<SupplierInvoiceEntity> suppliersInvoices = supplierInvoicesRepository.getAllSupplierInvoices(UUID.fromString(idSupplier),PageRequest.of(0, 3));
+            PageRequest pageRequest = PageRequest.of(page, 5, Sort.by("issueDate").descending());
+            Page<InvoiceCreditNoteEntity> entities = invoiceCreditNoteRepository
+                    .getCreditNotesByPartnerId(idSupplier, pageRequest);
 
-        suppliersInvoices.forEach(invoiceEntity -> {
-            List<InvoiceCreditNoteEntity> creditNotes = invoiceCreditNoteRepository
-                    .getInvoiceCreditNoteEntityByInvoice_IdInvoice(invoiceEntity.getIdInvoice());
-            suppliersCreditNotes.addAll(creditNotes);
-        });
-     List<InvoiceCreditNote>  invoiceCreditNotes= suppliersCreditNotes.stream()
-                .map(creditNoteEntity -> invoiceCreditNoteMapper.toDomain(creditNoteEntity))
-                .collect(Collectors.toList());
+            List<InvoiceCreditNotePageItemDTO> invoices = entities.getContent()
+                    .stream()
+                    .map(invoiceCreditNoteMapper::toDomain)
+                    .map(invoiceCreditNoteMapper::toPageItemDTO)
+                    .collect(Collectors.toList());
 
-        return invoiceCreditNotes.stream()
-                .map(creditNoteEntity -> invoiceCreditNoteMapper.toPageItemDTO(creditNoteEntity))
-                .collect(Collectors.toList());
+            return new PageImpl<>(invoices, pageRequest, entities.getTotalElements());
+
+        } catch (DataAccessException ex) {
+            throw BillingException.internalError("Erreur de fetch des factures d'avoir: " + ex.getMessage());
+        }
     }
 
 

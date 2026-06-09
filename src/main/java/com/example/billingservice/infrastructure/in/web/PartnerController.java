@@ -38,7 +38,7 @@ public class PartnerController {
 
     @Operation(summary = "Créer un fournisseur", description = "Ajoute un nouveau fournisseur")
     @PostMapping(path = "/suppliers", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity <Partner> createSupplier (@Valid @ModelAttribute PartnerForm form) throws IOException,
+    public ResponseEntity <PartnerDetailsDTO> createSupplier (@Valid @ModelAttribute PartnerForm form) throws IOException,
             DataIntegrityViolationException {
         return ResponseEntity.status(201).body(partnerUseCase.createSupplier(form));
     }
@@ -46,9 +46,9 @@ public class PartnerController {
 
     @GetMapping("/suppliers/{id}")
     @Operation(summary = "Récupérer un fournisseur")
-    public ResponseEntity<Optional<Partner>> getSupplierById(@Parameter(description = "ID du partenaire")@PathVariable String id)
+    public ResponseEntity<PartnerDetailsDTO> getSupplierById(@Parameter(description = "ID du partenaire")@PathVariable String id)
     {
-        return ResponseEntity.ok(partnerUseCase.getSupplierById(id));
+        return ResponseEntity.ok(partnerUseCase.getSupplierDetailsById(id));
     }
     @GetMapping("/suppliers/existByEmail/{email}")
     @Operation(summary = "Récupérer un fournisseur")
@@ -125,7 +125,7 @@ public class PartnerController {
     /********** CUSTOMER *************/
     @Operation(summary = "Créer un client", description = "Ajoute un nouveau client")
     @PostMapping(path = "/clients", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity <Optional<Partner>> createCustomer (@ModelAttribute PartnerForm form) throws IOException {
+    public ResponseEntity <PartnerDetailsDTO> createCustomer (@ModelAttribute PartnerForm form) throws IOException {
         return ResponseEntity.status(201).body(partnerUseCase.createCustomer(form));
     }
 
@@ -149,9 +149,9 @@ public class PartnerController {
 
     @GetMapping("/clients/{id}")
     @Operation(summary = "Récupérer un client")
-    public ResponseEntity<Optional<Partner>> getCustomerById(@Parameter(description = "ID du client")@PathVariable String id)
+    public ResponseEntity<PartnerDetailsDTO> getCustomerById(@Parameter(description = "ID du client")@PathVariable String id)
     {
-        return ResponseEntity.ok(partnerUseCase.findCustomerById(id));
+        return ResponseEntity.ok(partnerUseCase.getClientDetailsById(id));
     }
 
     @GetMapping("/clients/getByEmail/{email}")

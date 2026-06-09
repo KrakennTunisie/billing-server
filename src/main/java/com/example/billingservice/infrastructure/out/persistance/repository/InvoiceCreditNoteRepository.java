@@ -35,6 +35,16 @@ public interface InvoiceCreditNoteRepository extends JpaRepository<InvoiceCredit
             Pageable pageable
     );
 
+    @Query("""
+        SELECT cn FROM InvoiceCreditNoteEntity cn
+        WHERE
+            cn.invoice.partner.idPartner = :idPartner
+        """)
+    Page<InvoiceCreditNoteEntity> getCreditNotesByPartnerId(
+            @Param("idPartner") UUID idPartner,
+            Pageable pageable
+    );
+
     @Override
     boolean existsById(UUID uuid);
 

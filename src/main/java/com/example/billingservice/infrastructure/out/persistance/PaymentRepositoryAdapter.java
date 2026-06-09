@@ -57,6 +57,26 @@ public class PaymentRepositoryAdapter implements PaymentRepositoryPort {
     }
 
     @Override
+    public Page<PaymentPageListItemDto> getPaymentsByPartner(UUID partnerId, String keyword, String filtre, int page) {
+        try{
+
+            PageRequest pageRequest = PageRequest.of(page, 10, Sort.by("paymentDate").descending());
+            Page<PaymentEntity> entities = paymentRepository.getPaymentsByPartner(keyword,partnerId, pageRequest);
+
+            List<PaymentPageListItemDto> payments = entities.getContent()
+                    .stream()
+                    .map(paymentMapper::entityToModel)
+                    .map(paymentMapper::modelToPageListItem)
+                    .collect(Collectors.toList());
+
+            return new PageImpl<>(payments, pageRequest, entities.getTotalElements());
+
+        } catch (DataAccessException ex) {
+            throw BillingException.internalError("Erreur de fetch des factures: " + ex.getMessage());
+        }
+    }
+
+    @Override
     public Page<PaymentPageListItemDto> getPaymentsByInvoice(UUID invoiceId, String keyword , PaymentMethod paymentMethod, int page) {
         try {
 

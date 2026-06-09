@@ -87,11 +87,14 @@ public class InvoiceCreditNoteController {
     }
     @GetMapping("/getPartnerCreditNote/{idPartner}")
     @Operation(summary = "get creditNote by id partner")
-    public ResponseEntity<List<InvoiceCreditNotePageItemDTO>> getCreditNoteByIdPartner(@Parameter(description = "référence du partenaire") @PathVariable String idPartner, @Parameter(description = "Le type partenaire") @RequestParam String partnerType)
+    public ResponseEntity<Page<InvoiceCreditNotePageItemDTO>> getCreditNoteByIdPartner(
+            @Parameter(description = "référence du partenaire") @PathVariable String idPartner,
+            @RequestParam String partnerType,
+            @RequestParam int page)
     {
 
-       List<InvoiceCreditNotePageItemDTO> invoiceCreditNotes = invoiceCreditNoteUseCase.getCreditNoteInvoiceByPartner(idPartner,partnerType);
-        return ResponseEntity.status(201).body(invoiceCreditNotes);
+
+        return ResponseEntity.ok(invoiceCreditNoteUseCase.getCreditNoteInvoiceByPartner(idPartner,partnerType, page));
 
     }
 

@@ -169,12 +169,12 @@ public class PurchaseOrderService implements PurchaseOrderUseCase {
 
     /**** Coummun functions ***/
     @Override
-    public List<PurchaseOrderPartnerSummaryDTO> getPurchaseOrdersByPartnerId(UUID idPartner , String partnerType) {
+    public Page<PurchaseOrderPageItemDTO> getPurchaseOrdersByPartnerId(UUID idPartner , String partnerType, int page) {
         if(partnerType.equals(PartnerType.CLIENT.toString()))
         {
-            return  clientPurchaseOrderPort.getPurchaseOrderByClientId(idPartner);
+            return  clientPurchaseOrderPort.getPurchaseOrderByClientId(idPartner, page);
         }else {
-            return supplierPurchaseOrderPort.getPurchaseOrderBySupplierId(idPartner);
+            return supplierPurchaseOrderPort.getPurchaseOrderBySupplierId(idPartner, page);
         }
     }
 

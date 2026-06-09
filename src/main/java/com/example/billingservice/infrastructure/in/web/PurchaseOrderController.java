@@ -122,9 +122,12 @@ public class PurchaseOrderController {
 
     @GetMapping("/partner/{id}")
     @Operation (summary = "Liste des bons de commande d'un partenaire")
-    public List<PurchaseOrderPartnerSummaryDTO> getPurchaseOrderListByIdPartner(@Parameter(description = "ID du partenaire") @PathVariable String id,@Parameter(description = "Le type partenaire") @RequestParam String partnerType)
+    public ResponseEntity<Page<PurchaseOrderPageItemDTO>> getPurchaseOrderListByIdPartner(
+            @Parameter(description = "ID du partenaire") @PathVariable String id,
+            @RequestParam String partnerType,
+            @RequestParam int page)
     {
-      return  purchaseOrderUseCase.getPurchaseOrdersByPartnerId(UUID.fromString(id),partnerType) ;
+      return ResponseEntity.ok(purchaseOrderUseCase.getPurchaseOrdersByPartnerId(UUID.fromString(id),partnerType, page) );
     }
 
     /************ SUPPLIER ************/

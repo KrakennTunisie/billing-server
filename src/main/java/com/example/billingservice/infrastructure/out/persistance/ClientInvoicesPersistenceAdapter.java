@@ -66,7 +66,8 @@ public class ClientInvoicesPersistenceAdapter implements ClientInvoicesRepositor
 
         } catch (DataAccessException ex) {
             throw BillingException.internalError("Erreur de fetch des factures: " + ex.getMessage());
-        }    }
+        }
+    }
 
     @Override
     public List<InvoicePageItemDTO> getClientTopInvoices(UUID idClient) {
@@ -515,10 +516,23 @@ public class ClientInvoicesPersistenceAdapter implements ClientInvoicesRepositor
     }
 
     @Override
-    public List<InvoiceSummaryDTO> getClientInvoices(UUID idPartner) {
-        List<ClientInvoiceEntity> invoicesEntities = clientInvoicesRepository.getClientInvoices(idPartner,PageRequest.of(0, 3));
-        List <Invoice> invoices = invoicesEntities.stream().map(clientInvoiceEntity -> invoiceMapper.toDomain(clientInvoiceEntity,InvoiceType.SALE)).toList();
-        return  invoices.stream().map(invoice->invoiceMapper.toSummaryDTO(invoice)).toList();
+    public Page<InvoicePageItemDTO> getClientInvoices(UUID idPartner, int page) {
+        try {
+
+            PageRequest pageRequest = PageRequest.of(page, 5, Sort.by("issueDate").descending());
+            Page<InvoiceEntity> entities = clientInvoicesRepository.getClientInvoicesByPartner(idPartner, pageRequest);
+
+            List<InvoicePageItemDTO> invoices = entities.getContent()
+                    .stream()
+                    .map(invoiceEntity -> invoiceMapper.toDomain(invoiceEntity, InvoiceType.SALE))
+                    .map(invoiceMapper::toInvoicePageItemDTO)
+                    .collect(Collectors.toList());
+
+            return new PageImpl<>(invoices, pageRequest, entities.getTotalElements());
+
+        } catch (DataAccessException ex) {
+            throw BillingException.internalError("Erreur de fetch des factures: " + ex.getMessage());
+        }
     }
 
 

@@ -45,7 +45,7 @@ public interface SupplierPurchaseOrderRepository extends JpaRepository<SupplierP
     WHERE i.partner.idPartner = :supplierId
     ORDER BY i.issueDate DESC
 """)
-    List<SupplierPurchaseOrderEntity> getSupplierPurchaseOrders(
+    Page<SupplierPurchaseOrderEntity> getSupplierPurchaseOrders(
             @Param("supplierId") UUID supplierId,
             Pageable pageable
     );

@@ -41,6 +41,19 @@ AND
             Pageable pageable
     );
 
+    @Query("""
+SELECT i FROM SupplierInvoiceEntity i
+WHERE
+    (
+        i.partner.idPartner = :idPartner
+    )
+
+""")
+    Page<InvoiceEntity> getClientInvoicesByPartner(
+            @Param("idPartner") UUID idPartner,
+            Pageable pageable
+    );
+
     boolean existsByReference(String invoiceNumber);
 
     SupplierInvoiceEntity getSupplierInvoiceEntityByReference(String reference);

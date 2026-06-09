@@ -61,6 +61,17 @@ public class PaymentController {
         return ResponseEntity.ok(paymentUseCase.getPaymentsByInvoice(UUID.fromString(id), keyword, filter, page));
     }
 
+    @GetMapping("/partner/{id}")
+    @Operation(summary = "Récupérer les paiements d'une facture")
+    public ResponseEntity<Page<PaymentPageListItemDto>> getAllPaymentsByIdPayment(
+            @Parameter(description = "ID du partenaire")@PathVariable String id,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String filter,
+            @RequestParam int page )
+    {
+        return ResponseEntity.ok(paymentUseCase.getPaymentsByPartner(UUID.fromString(id), keyword, filter, page));
+    }
+
     @GetMapping("/{id}")
     @Operation(summary = "Récupérer un paiement")
     public ResponseEntity<PaymentDTO> getPaymentById(@Parameter(description = "ID du paiement")@PathVariable String id)

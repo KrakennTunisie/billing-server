@@ -33,5 +33,5 @@ public interface SupplierPurchaseOrderPort {
 
     List<PurchaseOrderSummaryDTO> getPurchaseOrderSummary();
 
-    List<PurchaseOrderPartnerSummaryDTO> getPurchaseOrderBySupplierId(UUID idClient);
+    Page<PurchaseOrderPageItemDTO> getPurchaseOrderBySupplierId(UUID idClient, int page);
 }

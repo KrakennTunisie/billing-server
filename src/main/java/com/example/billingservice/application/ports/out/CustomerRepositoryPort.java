@@ -1,6 +1,7 @@
 package com.example.billingservice.application.ports.out;
 
 import com.example.billingservice.domain.model.Partner;
+import com.example.billingservice.infrastructure.out.persistance.dto.PartnerDetailsDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerItemDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerSummaryDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.UpdatePartnerDTO;
@@ -12,6 +13,8 @@ import java.util.UUID;
 
 public interface CustomerRepositoryPort {
     Partner saveCustomer (Partner partner);
+
+    PartnerDetailsDTO getClientDetailsById(UUID idClient);
 
     Optional<Partner> findCustomerById(String id);
 

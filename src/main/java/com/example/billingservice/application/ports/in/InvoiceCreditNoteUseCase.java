@@ -32,7 +32,7 @@ public interface InvoiceCreditNoteUseCase {
 
     boolean existsInvoiceCreditNoteEntityByInvoice(UUID idInvoice);
 
-    List<InvoiceCreditNotePageItemDTO> getCreditNoteInvoiceByPartner(String idPartner, String partnerType);
+    Page<InvoiceCreditNotePageItemDTO> getCreditNoteInvoiceByPartner(String idPartner, String partnerType, int page);
 
 
 

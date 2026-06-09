@@ -202,21 +202,18 @@ public class InvoiceCreditNoteService implements InvoiceCreditNoteUseCase {
     }
 
     @Override
-    public List<InvoiceCreditNotePageItemDTO> getCreditNoteInvoiceByPartner(String idPartner , String partnerType) {
-        if(partnerType.equals(PartnerType.CLIENT.toString()))
+    public Page<InvoiceCreditNotePageItemDTO> getCreditNoteInvoiceByPartner(String idPartner , String partnerType, int page) {
+        if(partnerType.equals(PartnerType.CLIENT.toString()) &&
+            !partnerUseCase.customerExistsByIdPartner(UUID.fromString(idPartner)))
         {
-            if(partnerUseCase.customerExistsByIdPartner(UUID.fromString(idPartner)))
-            {
-                return  invoiceCreditNoteRepositoryPort.getCreditNoteByClient(idPartner);
-            }
-        }else {
-            if(partnerUseCase.supplierExistsByIdPartner(UUID.fromString(idPartner)))
-            {
-                return  invoiceCreditNoteRepositoryPort.getCreditNoteBySupplier(idPartner);
-            }
-
+            throw BillingException.notFound("Client", idPartner);
         }
-        return List.of();
+        if (partnerType.equals(PartnerType.SUPPLIER.toString()) &&
+                !partnerUseCase.supplierExistsByIdPartner(UUID.fromString(idPartner)))
+        {
+            throw BillingException.notFound("Fournisseur", idPartner);
+        }
+        return invoiceCreditNoteRepositoryPort.getCreditNoteByClient(UUID.fromString(idPartner), page);
     }
 
 

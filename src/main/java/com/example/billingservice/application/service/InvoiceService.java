@@ -237,13 +237,13 @@ public class InvoiceService implements InvoiceUseCase, InvoiceStatsUseCase {
     }
 
     @Override
-    public List<InvoiceSummaryDTO> getClientInvoices(UUID clientId) {
-        return clientInvoicesRepositoryPort.getClientInvoices(clientId);
+    public Page<InvoicePageItemDTO> getClientInvoices(UUID clientId, int page) {
+        return clientInvoicesRepositoryPort.getClientInvoices(clientId, page);
     }
 
     @Override
-    public List<InvoiceSummaryDTO> getSupplierInvoices(UUID supplierId) {
-        return supplierInvoicesRepositoryPort.getSupplierInvoices(supplierId);
+    public Page<InvoicePageItemDTO> getSupplierInvoices(UUID supplierId, int page) {
+        return supplierInvoicesRepositoryPort.getSupplierInvoices(supplierId, page);
     }
 
 
