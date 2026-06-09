@@ -46,9 +46,9 @@ public class PartnerController {
 
     @GetMapping("/suppliers/{id}")
     @Operation(summary = "Récupérer un fournisseur")
-    public ResponseEntity<Optional<Partner>> getSupplierById(@Parameter(description = "ID du partenaire")@PathVariable String id)
+    public ResponseEntity<PartnerDetailsDTO> getSupplierById(@Parameter(description = "ID du partenaire")@PathVariable String id)
     {
-        return ResponseEntity.ok(partnerUseCase.getSupplierById(id));
+        return ResponseEntity.ok(partnerUseCase.getSupplierDetailsById(id));
     }
     @GetMapping("/suppliers/existByEmail/{email}")
     @Operation(summary = "Récupérer un fournisseur")
@@ -149,9 +149,9 @@ public class PartnerController {
 
     @GetMapping("/clients/{id}")
     @Operation(summary = "Récupérer un client")
-    public ResponseEntity<Optional<Partner>> getCustomerById(@Parameter(description = "ID du client")@PathVariable String id)
+    public ResponseEntity<PartnerDetailsDTO> getCustomerById(@Parameter(description = "ID du client")@PathVariable String id)
     {
-        return ResponseEntity.ok(partnerUseCase.findCustomerById(id));
+        return ResponseEntity.ok(partnerUseCase.getClientDetailsById(id));
     }
 
     @GetMapping("/clients/getByEmail/{email}")

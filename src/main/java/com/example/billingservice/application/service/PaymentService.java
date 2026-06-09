@@ -45,6 +45,11 @@ public class PaymentService implements PaymentUseCase {
     }
 
     @Override
+    public Page<PaymentPageListItemDto> getPaymentsByPartner(UUID partnerId, String keyword, String filtre, int page) {
+        return paymentRepositoryPort.getPaymentsByPartner(partnerId, keyword, filtre, page);
+    }
+
+    @Override
     public Page<PaymentPageListItemDto> getPayments(String keyword, String filtre, int page) {
         PaymentMethod status = ParseEnum.parseEnum(filtre, PaymentMethod.class);
 

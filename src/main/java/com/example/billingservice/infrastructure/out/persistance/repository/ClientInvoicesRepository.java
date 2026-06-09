@@ -39,6 +39,20 @@ AND
             Pageable pageable
     );
 
+
+    @Query("""
+SELECT i FROM ClientInvoiceEntity i
+WHERE
+    (
+        i.partner.idPartner = :idPartner
+    )
+
+""")
+    Page<InvoiceEntity> getClientInvoicesByPartner(
+            @Param("idPartner") UUID idPartner,
+            Pageable pageable
+    );
+
     @Query("""
         SELECT i
         FROM ClientInvoiceEntity i

@@ -75,6 +75,12 @@ public class SupplierPersistanceAdapter implements SupplierRepositoryPort {
     }
 
     @Override
+    public PartnerDetailsDTO getSupplierDetailsById(UUID idSupplier) {
+        SupplierEntity supplierEntity = supplierRepository.getReferenceById(idSupplier);
+        return partnerMapper.toDetailsDTO(partnerMapper.toDomain(supplierEntity, PartnerType.SUPPLIER));
+    }
+
+    @Override
     public Optional<Partner> getSupplierById(UUID idSupplier) {
         try
         {

@@ -61,7 +61,7 @@ public interface InvoiceUseCase {
     List<InvoicePageItemDTO> getInvoicesToPay(String keyword);
 
     List<InvoicePageItemDTO> getSupplierTopInvoices(UUID supplierId);
-    List<InvoiceSummaryDTO>  getClientInvoices (UUID clientId);
+    Page<InvoicePageItemDTO>  getClientInvoices (UUID clientId, int page);
 
 
 }

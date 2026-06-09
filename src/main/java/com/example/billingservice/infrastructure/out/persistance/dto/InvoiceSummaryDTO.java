@@ -29,8 +29,6 @@ public class InvoiceSummaryDTO {
 
     private InvoiceCurrency invoiceCurrency;
 
-    private Document invoiceDocument;
-
     private PartnerSummaryDTO partner;
 
     private Double totalExclTaxEUR;

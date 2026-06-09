@@ -2,6 +2,7 @@ package com.example.billingservice.infrastructure.out.persistance.mapper;
 
 import com.example.billingservice.domain.enums.PartnerType;
 import com.example.billingservice.domain.model.AuditLog;
+import com.example.billingservice.infrastructure.out.persistance.dto.AuditLogDTO;
 import com.example.billingservice.infrastructure.out.persistance.entity.AuditLogEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -53,5 +54,23 @@ public class AuditEventMapper {
         entity.setTriggeredBy(domain.getTriggeredBy());
         entity.setPartner(partnerMapper.toEntity(domain.getCustomer()));
         return entity;
+    }
+
+    public AuditLogDTO toDTO(AuditLog domain){
+        if (domain == null) {
+            return null;
+        }
+
+        return AuditLogDTO.builder()
+                .idLog(domain.getIdLog())
+                .entityName(domain.getEntityName())
+                .entityId(domain.getEntityId())
+                .AuditLogType(domain.getAuditLogType())
+                .LogDate(domain.getLogDate())
+                .description(domain.getDescription())
+                .auditEventTrigger(domain.getAuditEventTrigger())
+                .triggeredBy(domain.getTriggeredBy())
+                .customer(partnerMapper.toSummaryDTO(domain.getCustomer()))
+                .build();
     }
 }

@@ -79,11 +79,11 @@ public class PartnerService implements PartnerUseCase  {
     }
 
     @Override
-    public Optional<Partner> getSupplierDetailsById(String idSupplier) {
+    public PartnerDetailsDTO getSupplierDetailsById(String idSupplier) {
         if(!supplierRepositoryPort.existsByIdPartner(UUID.fromString(idSupplier))){
             throw BillingException.notFound("Fournisseur", idSupplier);
         }
-        return supplierRepositoryPort.getSupplierById(UUID.fromString(idSupplier));
+        return supplierRepositoryPort.getSupplierDetailsById(UUID.fromString(idSupplier));
     }
 
     @Override
@@ -226,11 +226,12 @@ public class PartnerService implements PartnerUseCase  {
     }
 
     @Override
-    public Optional<Partner> getClientDetailsById(String idClient) {
+    public PartnerDetailsDTO getClientDetailsById(String idClient) {
         if(!customerRepositoryPort.existsByIdPartner(UUID.fromString(idClient))){
             throw BillingException.notFound("Client", idClient);
         }
-        return customerRepositoryPort.findCustomerById(idClient);    }
+        return customerRepositoryPort.getClientDetailsById(UUID.fromString(idClient));
+    }
 
     @Override
     public boolean customerExistsByIdPartner(UUID idPartner) {

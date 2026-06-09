@@ -13,6 +13,7 @@ import java.util.UUID;
 public interface PaymentRepositoryPort {
     Payment getPaymentById(UUID idPayment);
     Page<PaymentPageListItemDto> getPayments(String keyword , PaymentMethod paymentMethod, int page);
+    Page<PaymentPageListItemDto> getPaymentsByPartner(UUID partnerId, String keyword, String filtre, int page);
     Page<PaymentPageListItemDto> getPaymentsByInvoice(UUID invoiceId, String keyword , PaymentMethod paymentMethod , int page);
     Payment createPayment(Payment payment);
     Payment updatePayment(Payment payment);

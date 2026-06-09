@@ -6,6 +6,7 @@ import com.example.billingservice.domain.enums.AuditType;
 import com.example.billingservice.domain.enums.PartnerType;
 import com.example.billingservice.domain.exceptions.BillingException;
 import com.example.billingservice.domain.model.Partner;
+import com.example.billingservice.infrastructure.out.persistance.dto.PartnerDetailsDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerItemDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerSummaryDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.UpdatePartnerDTO;
@@ -57,11 +58,18 @@ public class CustomerPersistanceAdapter implements CustomerRepositoryPort {
     }
 
     @Override
+    public PartnerDetailsDTO getClientDetailsById(UUID idClient) {
+        CustomerEntity customerEntity = customerRepository.getReferenceById(idClient);
+        return partnerMapper.toDetailsDTO(partnerMapper.toDomain(customerEntity, PartnerType.CLIENT));
+    }
+
+    @Override
     public Optional<Partner> findCustomerById(String id) {
         try
         {
             return customerRepository.findById(UUID.fromString(id))
-                    .map(p -> partnerMapper.toDomain(p,PartnerType.CLIENT)).or(() -> { throw BillingException.notFound("Client", id); });
+                    .map(p -> partnerMapper.toDomain(p,PartnerType.CLIENT))
+                    .or(() -> { throw BillingException.notFound("Client", id); });
         } catch (IllegalArgumentException ex) {
             throw BillingException.badRequest("UUID Invalid"+id);
         }
@@ -73,7 +81,8 @@ public class CustomerPersistanceAdapter implements CustomerRepositoryPort {
         try
         {
             return customerRepository.findByEmail(email)
-                    .map(p -> partnerMapper.toDomain(p,PartnerType.CLIENT)).or(() -> { throw BillingException.notFound("Client", email); });
+                    .map(p -> partnerMapper.toDomain(p,PartnerType.CLIENT))
+                    .or(() -> { throw BillingException.notFound("Client", email); });
         } catch (IllegalArgumentException ex) {
             throw BillingException.badRequest("email Invalid"+email);
         }

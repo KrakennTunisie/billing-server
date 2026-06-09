@@ -408,7 +408,6 @@ public class InvoiceMapper {
                 .invoiceStatus(invoice.getInvoiceStatus())
                 .invoiceComplianceStatus(invoice.getInvoiceComplianceStatus())
                 .invoiceCurrency(invoice.getCurrency())
-                .invoiceDocument(invoice.getInvoiceDocument())
                 .partner(partnerMapper.toSummaryDTO(invoice.getPartner()))
                 .totalExclTaxEUR(invoice.getTotalExclTaxEUR())
                 .totalInclTaxEUR(invoice.getTotalInclTaxEUR())

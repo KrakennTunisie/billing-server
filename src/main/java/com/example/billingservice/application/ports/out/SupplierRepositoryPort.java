@@ -14,6 +14,7 @@ public interface SupplierRepositoryPort {
     Partner saveSupplier  (Partner partner) throws DataIntegrityViolationException;
     Optional<Partner> findSupplierById(String id);
 
+    PartnerDetailsDTO getSupplierDetailsById(UUID idSupplier);
     Optional<Partner> getSupplierById(UUID idSupplier);
 
     boolean existsByIdPartner(UUID idPartner);

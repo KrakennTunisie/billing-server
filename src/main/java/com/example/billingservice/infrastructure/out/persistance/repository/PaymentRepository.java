@@ -57,4 +57,25 @@ AND
             @Param("idInvoice") UUID invoiceIdInvoice,
             Pageable pageable
     );
+
+
+    @Query("""
+SELECT i FROM PaymentEntity  i
+where (
+    i.invoice.partner.idPartner = :idPartner
+)
+AND
+    (
+        :keyword IS NULL OR :keyword = '' OR
+        LOWER(i.reference) LIKE LOWER(CONCAT('%', :keyword, '%')) OR
+        LOWER(i.note) LIKE LOWER(CONCAT('%', :keyword, '%')) OR
+        LOWER(i.invoice.reference) LIKE LOWER(CONCAT('%', :keyword, '%'))
+    )
+
+""")
+    Page<PaymentEntity> getPaymentsByPartner(
+            @Param("keyword") String keyword,
+            @Param("idPartner") UUID idPartner,
+            Pageable pageable
+    );
 }

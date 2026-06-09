@@ -17,9 +17,11 @@ public interface PartnerUseCase {
 
     Partner createSupplier(PartnerForm partner) throws IOException, DataIntegrityViolationException;
 
+
+
     Optional<Partner> getSupplierById(String id);
 
-    Optional<Partner> getSupplierDetailsById(String idSupplier);
+    PartnerDetailsDTO getSupplierDetailsById(String idSupplier);
 
     PartnerItemDTO getSupplierByEmail(String email);
     boolean supplierExistsByIdPartner(UUID idPartner);
@@ -49,7 +51,7 @@ public interface PartnerUseCase {
     Optional<Partner> findCustomerByEmail(String email);
 
 
-    Optional<Partner> getClientDetailsById(String idClient);
+    PartnerDetailsDTO getClientDetailsById(String idClient);
 
     boolean customerExistsByIdPartner(UUID idPartner);
 
