@@ -18,6 +18,7 @@ public class CorsConfig {
                         .allowedOrigins("http://89.167.12.94:3000",
                                 "http://localhost:3000",
                                 "http://localhost:3001",
+                                "http://localhost:8080",
                                 "https://kerp-web.duckdns.org"
                         )
                         .allowedMethods("GET", "POST", "PUT","PATCH", "DELETE", "OPTIONS")
