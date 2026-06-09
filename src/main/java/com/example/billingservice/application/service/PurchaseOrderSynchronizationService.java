@@ -1,12 +1,15 @@
 package com.example.billingservice.application.service;
 
 
+import com.example.billingservice.application.ports.in.InvoiceUseCase;
+import com.example.billingservice.application.ports.out.ClientInvoicesRepositoryPort;
 import com.example.billingservice.application.ports.out.ClientPurchaseOrderPort;
 import com.example.billingservice.application.ports.out.InvoiceItemRepositoryPort;
 import com.example.billingservice.application.ports.out.PurchaseOrderItemRepositoryPort;
 import com.example.billingservice.domain.enums.OperationCategory;
 import com.example.billingservice.domain.enums.PurchaseOrderStatus;
 import com.example.billingservice.domain.exceptions.BillingException;
+import com.example.billingservice.domain.model.Invoice;
 import com.example.billingservice.domain.model.InvoiceItem;
 import com.example.billingservice.domain.model.PurchaseOrder;
 import com.example.billingservice.domain.model.PurchaseOrderItem;
@@ -30,6 +33,7 @@ public class PurchaseOrderSynchronizationService {
     private final ClientPurchaseOrderPort purchaseOrderPort;
     private final PurchaseOrderItemRepositoryPort purchaseOrderItemRepository;
     private final InvoiceItemRepositoryPort  invoiceItemRepositoryPort;
+    private final ClientInvoicesRepositoryPort clientInvoicesRepositoryPort;
     private final InvoiceItemMapper invoiceItemMapper;
 
     @Transactional
@@ -86,7 +90,7 @@ public class PurchaseOrderSynchronizationService {
 
     private void validateQuantity(PurchaseOrderItem poItem, Double requestedQuantity) {
         double remaining = getRemainingQuantity(poItem);
-        if (requestedQuantity > remaining) {
+        if (requestedQuantity > poItem.getQuantity()) {
           throw new BillingException(HttpStatus.CONFLICT, "","La quantité desirée a dépassée la quantité originale de produit");
         }
     }
@@ -98,8 +102,16 @@ public class PurchaseOrderSynchronizationService {
         boolean fullyInvoiced = items.stream()
                 .allMatch(item -> getRemainingQuantity(item) == 0);
 
-        if (fullyInvoiced) {
+        boolean totalInvoicedQuantity = items.stream()
+                .allMatch(item -> item.getInvoicedQuantity() == 0);
+
+        if (totalInvoicedQuantity)
+        {
+            purchaseOrderPort.updateStatus(purchaseOrder.getIdPurchaseOrder(),PurchaseOrderStatus.IN_DELIVERY);
+        }
+        else if (fullyInvoiced) {
             purchaseOrderPort.updateStatus(purchaseOrder.getIdPurchaseOrder(),PurchaseOrderStatus.FULLY_INVOICED);
+
         } else  {
             purchaseOrderPort.updateStatus(purchaseOrder.getIdPurchaseOrder(),PurchaseOrderStatus.PARTIALLY_INVOICED);
         }
@@ -111,6 +123,7 @@ public class PurchaseOrderSynchronizationService {
 
     public void updatePurchaseOrderItemInvoicedQuantity (List<InvoiceItemCreateDTO> itemsToInvoice,UUID purchaseOrderId)
     {
+        int differenceQuantity=0;
         for (InvoiceItemCreateDTO itemDTO : itemsToInvoice) {
 
             PurchaseOrderItem poItem = purchaseOrderItemRepository.getById(itemDTO.getIdPurchaseOrderItem());
@@ -118,15 +131,37 @@ public class PurchaseOrderSynchronizationService {
 
             validateQuantity(poItem, Double.valueOf(itemDTO.getQuantity()));
 
-            int differenceQuantity = Math.abs(invoiceItem.getQuantity() - itemDTO.getQuantity());
-            
-            poItem.setInvoicedQuantity(poItem.getInvoicedQuantity() + differenceQuantity);
+            if(itemDTO.getQuantity() > invoiceItem.getQuantity()) {
+
+                differenceQuantity = Math.abs(invoiceItem.getQuantity() - itemDTO.getQuantity());
+                poItem.setInvoicedQuantity(poItem.getInvoicedQuantity() + differenceQuantity);
+            }
+            if(itemDTO.getQuantity()< invoiceItem.getQuantity())
+            {
+                differenceQuantity = Math.abs(invoiceItem.getQuantity() - itemDTO.getQuantity());
+                poItem.setInvoicedQuantity(poItem.getInvoicedQuantity() - differenceQuantity);
+            }
+
             purchaseOrderItemRepository.updatedInvoicedQuantity(poItem.getIdPurchaseOrderItem(),poItem.getInvoicedQuantity());
             PurchaseOrder purchaseOrder = purchaseOrderPort.getDomainePurchaseOrderById(purchaseOrderId);
             updatePurchaseOrderStatus(purchaseOrder);
         }
     }
 
+    public void deleteInvoiceRelatedToPurchaseOrder (Invoice invoice)
+    {
 
+           List <PurchaseOrderItem> poItems = invoice.getPurchaseOrder().getPurchaseOrderItems();
+           List<InvoiceItem> invoiceItems = invoice.getInvoiceItems();
+            for (int i = 0; i < Math.min(poItems.size(), invoiceItems.size()); i++) {
+                PurchaseOrderItem poItem = poItems.get(i);
+                InvoiceItem invoiceItem = invoiceItems.get(i);
+                poItem.setInvoicedQuantity(poItem.getInvoicedQuantity() - invoiceItem.getQuantity());
+                purchaseOrderItemRepository.updatedInvoicedQuantity(poItem.getIdPurchaseOrderItem(),poItem.getInvoicedQuantity());
 
-}
+            }
+            updatePurchaseOrderStatus(invoice.getPurchaseOrder());
+
+        }
+    }
+

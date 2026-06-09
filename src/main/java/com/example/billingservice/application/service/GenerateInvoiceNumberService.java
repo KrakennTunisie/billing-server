@@ -27,17 +27,18 @@ public class GenerateInvoiceNumberService implements GenerateInvoiceNumberUseCas
     public void validateNextSequence(SequenceNumberType sequenceNumberType, String invoiceNumber) {
         int year = Year.now().getValue();
         long lastSequence = extractSequence(invoiceNumber);
-
+          System.out.println("Hello");
          generateNextInvoiceSequenceUseCase.storeNextSequence(sequenceNumberType, year, lastSequence);
     }
 
     private String formatInvoiceNumber(SequenceNumberType sequenceNumberType, int year, long sequence) {
 
-        return sequenceNumberType == SequenceNumberType.INVOICE
-                ? "FAC-" + year + "-" + String.format("%05d", sequence)
-                : sequenceNumberType == SequenceNumberType.CREDIT_NOTE
-                    ? "AV-" + year + "-" + String.format("%05d", sequence)
-                    : "BC-" + year + "-" + String.format("%05d", sequence);
+        return switch (sequenceNumberType) {
+            case INVOICE -> "FAC-" + year + "-" + String.format("%05d", sequence);
+            case CREDIT_NOTE -> "AV-" + year + "-" + String.format("%05d", sequence);
+            case PURCHASE_ORDER -> "BC-" + year + "-" + String.format("%05d", sequence);
+            case PAYMENT -> "PAY-" + year + "-" + String.format("%05d", sequence);
+        };
     }
 
 

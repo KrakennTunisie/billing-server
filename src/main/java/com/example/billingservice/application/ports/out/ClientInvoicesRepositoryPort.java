@@ -20,6 +20,8 @@ public interface ClientInvoicesRepositoryPort {
 
     InvoiceDTO updateStatus(UUID invoiceId, InvoiceStatus newStatus);
 
+    InvoiceDTO updateRemainingAmount(UUID invoiceId, double amount);
+
     InvoiceDTO getById(UUID idInvoice);
 
     Invoice getInvoice(UUID idInvoice);
@@ -32,6 +34,8 @@ public interface ClientInvoicesRepositoryPort {
 
     ConvertedInvoiceStats getAllClientInvoiceCountStats(InvoiceStatus pendingStatus);
 
+    List<InvoicePageItemDTO> getInvoicesToPay(String keyword);
+
 
 
     void delete(UUID idInvoice);
@@ -39,5 +43,13 @@ public interface ClientInvoicesRepositoryPort {
     boolean existsByInvoiceNumber(String invoiceNumber);
 
     boolean existsByInvoiceId(UUID invoiceId);
+    boolean existsByPurchaseOrderId(UUID purchaseOrderId);
+
+    List<ClientRevenueStats> getClientRevenueByPeriod(UUID idPartner , String period);
+
+    List<ClientRevenueStats> getAllClientRevenueByPeriod( String period);
+
+    Page<InvoicePageItemDTO> getClientInvoices(UUID idPartner, int page);
+
 
 }

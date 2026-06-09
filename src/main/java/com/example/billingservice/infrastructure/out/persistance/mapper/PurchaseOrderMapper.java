@@ -75,7 +75,7 @@ public class PurchaseOrderMapper {
                 .totalExclTaxUSD(totals.totalExclTaxUSD())
                 .totalInclTaxUSD(totals.totalInclTaxUSD())
                 .vatRate(entity.getVatRate())
-                .partner(partnerMapper.toDomain(entity.getPartner(), PartnerType.CLIENT))
+                .partner(partnerMapper.toDomain(entity.getPartner(), purchaseOrderType == PurchaseOrderType.SALE ? PartnerType.CLIENT :PartnerType.SUPPLIER))
                 .exchangeRateReferenceDate(entity.getExchangeRateReferenceDate())
                 .appliedExchangeRate(entity.getAppliedExchangeRate())
                 .exchangeRateSource(entity.getExchangeRateSource())
@@ -105,7 +105,7 @@ public class PurchaseOrderMapper {
         entity.setPurchaseOrderDocument(documentMapper.toEntity(domain.getPurchaseOrderDocument(), DocumentType.PURCHASE_ORDER));
         entity.setPaymentMethod(domain.getPaymentMethod());
         entity.setPaymentCondition(domain.getPaymentCondition());
-        entity.setPartner(partnerMapper.toEntity(domain.getPartner()));
+        entity.setPartner(partnerMapper.toExistEntity(domain.getPartner()));
         // map items AFTER entity is created, then set back-reference
         List<PurchaseOrderItemEntity> items = domain.getPurchaseOrderItems() != null
                 ? domain.getPurchaseOrderItems()
@@ -210,13 +210,38 @@ public class PurchaseOrderMapper {
                 .totalInclTaxTND(purchaseOrder.getTotalInclTaxTND())
                 .totalExclTaxUSD(purchaseOrder.getTotalExclTaxUSD())
                 .totalInclTaxUSD(purchaseOrder.getTotalInclTaxUSD())
-                .vatRate(purchaseOrder.getVatRate())
-                .appliedExchangeRate(purchaseOrder.getAppliedExchangeRate())
+
 
                 // ⚠️ Keep light (avoid deep mapping for page/list)
                 .partner(partnerMapper.toSummaryDTO(purchaseOrder.getPartner()))
 
                 .build();
+    }
+
+    public PurchaseOrderPartnerSummaryDTO toPurchaseOrderPartnerSummaryDTO(PurchaseOrder purchaseOrder){
+        if (purchaseOrder == null) {
+            return null;
+        }
+
+        PurchaseOrderPartnerSummaryDTO p = PurchaseOrderPartnerSummaryDTO.builder()
+                .idPurchaseOrder(purchaseOrder.getIdPurchaseOrder())
+                .purchaseOrderNumber(purchaseOrder.getReference())
+                .issueDate(purchaseOrder.getIssueDate())
+                .purchaseOrderStatus(purchaseOrder.getPurchaseOrderStatus())
+                .purchaseCurrency(purchaseOrder.getCurrency())
+
+                // currency split
+                .totalExclTaxEUR(purchaseOrder.getTotalExclTaxEUR())
+                .totalInclTaxEUR(purchaseOrder.getTotalInclTaxEUR())
+                .totalExclTaxTND(purchaseOrder.getTotalExclTaxTND())
+                .totalInclTaxTND(purchaseOrder.getTotalInclTaxTND())
+                .totalExclTaxUSD(purchaseOrder.getTotalExclTaxUSD())
+                .totalInclTaxUSD(purchaseOrder.getTotalInclTaxUSD())
+                .purchaseOrderDocument(documentMapper.toDocumentSummary(purchaseOrder.getPurchaseOrderDocument()))
+                .partner(partnerMapper.toSummaryDTO(purchaseOrder.getPartner()))
+                .build();
+        System.out.println(purchaseOrder.getPartner().getPartnerType() +"||"+ partnerMapper.toSummaryDTO(purchaseOrder.getPartner()).getPartnerType());
+        return p;
     }
 
     public PurchaseOrder updateDTOtoDomain(PurchaseOrderUpdateDTO purchaseOrderUpdateDTO, PurchaseOrder purchaseOrder, Document document){
@@ -244,7 +269,7 @@ public class PurchaseOrderMapper {
 
 
             String idPartner = String.valueOf(purchaseOrderUpdateDTO.getPartner());
-            Partner partner = getPartner(PurchaseOrderType.SALE, idPartner);
+            Partner partner = getPartner(purchaseOrderUpdateDTO.getPurchaseOrderType(), idPartner);
             purchaseOrder1.setPartner(partner);
 
 

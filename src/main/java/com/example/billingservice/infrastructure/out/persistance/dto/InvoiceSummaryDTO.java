@@ -4,6 +4,7 @@ import com.example.billingservice.domain.enums.InvoiceComplianceStatus;
 import com.example.billingservice.domain.enums.InvoiceCurrency;
 import com.example.billingservice.domain.enums.InvoiceStatus;
 import com.example.billingservice.domain.enums.InvoiceType;
+import com.example.billingservice.domain.model.Document;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -28,11 +29,15 @@ public class InvoiceSummaryDTO {
 
     private InvoiceCurrency invoiceCurrency;
 
+    private PartnerSummaryDTO partner;
+
     private Double totalExclTaxEUR;
     private Double totalInclTaxEUR;
     private Double totalExclTaxTND;
     private Double totalInclTaxTND;
     private Double totalExclTaxUSD;
     private Double totalInclTaxUSD;
+
+    private Double remainingAmount;
 
 }

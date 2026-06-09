@@ -1,6 +1,7 @@
 package com.example.billingservice.infrastructure.out.persistance.dto;
 
 import com.example.billingservice.domain.enums.PartnerType;
+import com.example.billingservice.domain.model.Address;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -10,9 +11,11 @@ import java.util.UUID;
 @Builder
 public class PartnerSummaryDTO {
     private UUID idPartner;
-    private String name;
+    private String partnerName;
+    private String companyName;
+    private String taxRegistrationNumber;
     private String email;
-    private String address;
-    private String phoneNumber;
+    private Address billingAddress;
+    private String professionnalPhoneNumber;
     private PartnerType partnerType;
 }

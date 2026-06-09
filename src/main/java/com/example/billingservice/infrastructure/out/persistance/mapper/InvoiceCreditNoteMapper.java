@@ -4,7 +4,6 @@ import com.example.billingservice.domain.enums.*;
 import com.example.billingservice.domain.model.*;
 import com.example.billingservice.infrastructure.out.persistance.dto.*;
 import com.example.billingservice.infrastructure.out.persistance.entity.InvoiceCreditNoteEntity;
-import com.example.billingservice.infrastructure.out.persistance.entity.InvoiceCreditNoteEventEntity;
 import com.example.billingservice.infrastructure.out.persistance.entity.InvoiceCreditNoteItemEntity;
 import com.example.billingservice.shared.CurrencyCalculator;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +18,7 @@ import java.util.List;
 public class InvoiceCreditNoteMapper {
     private final InvoiceMapper invoiceMapper;
     private final InvoiceCreditNoteItemMapper invoiceCreditNoteItemMapper;
-    private final InvoiceCreditNoteEventMapper invoiceCreditNoteEventMapper;
+    private final AuditEventMapper invoiceCreditNoteEventMapper;
     private final DocumentMapper documentMapper;
     private final CurrencyCalculator currencyCalculator;
 
@@ -45,13 +44,6 @@ public class InvoiceCreditNoteMapper {
                         entity.getInvoiceCreditNoteItems() != null
                                 ? entity.getInvoiceCreditNoteItems().stream()
                                 .map(invoiceCreditNoteItemMapper::toDomain)
-                                .toList()
-                                : List.of()
-                )
-                .invoiceCreditNoteEvents(
-                        entity.getInvoiceCreditNoteEvents() != null
-                                ? entity.getInvoiceCreditNoteEvents().stream()
-                                .map(invoiceCreditNoteEventMapper::toDomain)
                                 .toList()
                                 : List.of()
                 )
@@ -89,7 +81,7 @@ public class InvoiceCreditNoteMapper {
         entity.setIssueDate(domain.getIssueDate());
 
         if (domain.getInvoice() != null) {
-            entity.setInvoice(invoiceMapper.toEntity(domain.getInvoice()));
+            entity.setInvoice(invoiceMapper.toExistEntity(domain.getInvoice()));
         }
 
         List<InvoiceCreditNoteItemEntity> itemEntities = domain.getInvoiceCreditNoteItems().stream()
@@ -104,17 +96,6 @@ public class InvoiceCreditNoteMapper {
                 documentMapper.toEntity(domain.getInvoiceCreditNoteDocument(), DocumentType.INVOICE)
         );
 
-
-        List<InvoiceCreditNoteEventEntity> invoiceEventEntities = domain.getInvoiceCreditNoteEvents() != null
-                ? domain.getInvoiceCreditNoteEvents()
-                .stream()
-                .map(invoiceCreditNoteEventMapper::toEntity)
-                .toList()
-                : List.of();
-
-        invoiceEventEntities.forEach(event -> event.setInvoiceCreditNote(entity));
-
-        entity.setInvoiceCreditNoteEvents(invoiceEventEntities);
 
 
         return entity;
@@ -155,7 +136,7 @@ public class InvoiceCreditNoteMapper {
                         .invoiceCreditNoteEventType(InvoiceCreditNoteEventType.CREATED)
                         .eventDate(new Date())
                         .description("Facture d'avoir créé")
-                        .eventTrigger(InvoiceEventTrigger.USER)
+                        .eventTrigger(AuditEventTrigger.USER)
                         .triggeredBy("user: wassef ammar")
                         .build();
 
@@ -291,7 +272,7 @@ public class InvoiceCreditNoteMapper {
                 .invoiceCreditNoteStatus(invoiceCreditNote.getInvoiceCreditNoteStatus())
                 .invoiceCreditNoteComplianceStatus(invoiceCreditNote.getComplianceStatus())
                 .total(0.0)
-                .invoice(invoiceMapper.toSummaryDTO(invoiceCreditNote.getInvoice()))
+                .invoice(invoiceMapper.toDetailedSummaryDTO(invoiceCreditNote.getInvoice()))
                 .invoiceCreditNoteItems(invoiceCreditNote.getInvoiceCreditNoteItems())
                 .invoiceCreditNoteEvents(invoiceCreditNote.getInvoiceCreditNoteEvents())
                 .invoiceCreditNoteDocument(documentMapper.toDocumentSummary(invoiceCreditNote.getInvoiceCreditNoteDocument()))

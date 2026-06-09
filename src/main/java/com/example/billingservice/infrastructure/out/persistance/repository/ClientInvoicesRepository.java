@@ -12,6 +12,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -24,7 +25,7 @@ WHERE
         :keyword IS NULL OR :keyword = '' OR
         LOWER(i.reference) LIKE LOWER(CONCAT('%', :keyword, '%')) OR
         LOWER(i.partner.email) LIKE LOWER(CONCAT('%', :keyword, '%')) OR
-        LOWER(i.partner.name) LIKE LOWER(CONCAT('%', :keyword, '%'))
+        LOWER(i.partner.partnerName) LIKE LOWER(CONCAT('%', :keyword, '%'))
     )
 AND
     (
@@ -38,9 +39,38 @@ AND
             Pageable pageable
     );
 
+
+    @Query("""
+SELECT i FROM ClientInvoiceEntity i
+WHERE
+    (
+        i.partner.idPartner = :idPartner
+    )
+
+""")
+    Page<InvoiceEntity> getClientInvoicesByPartner(
+            @Param("idPartner") UUID idPartner,
+            Pageable pageable
+    );
+
+    @Query("""
+        SELECT i
+        FROM ClientInvoiceEntity i
+        LEFT JOIN i.partner p
+        WHERE  (
+            :keyword IS NULL
+            OR :keyword = ''
+            OR LOWER(i.reference) LIKE LOWER(CONCAT('%', :keyword, '%'))
+            OR LOWER(p.partnerName) LIKE LOWER(CONCAT('%', :keyword, '%'))
+        )
+        ORDER BY i.dueDate ASC, i.issueDate DESC
+    """)
+    List<ClientInvoiceEntity> getInvoicesToPay(@Param("keyword") String keyword);
+
     boolean existsByReference(String invoiceNumber);
 
     boolean existsByIdInvoice(UUID invoiceId);
+    boolean existsByPurchaseOrderIdPurchaseOrder(UUID purchaseOrderId);
 
     ClientInvoiceEntity getClientInvoiceEntityByIdInvoice(UUID idInvoice);
 
@@ -91,7 +121,7 @@ AND
     @Query("""
     SELECT
         p.idPartner AS id,
-        p.name AS client,
+        p.partnerName AS client,
         i.appliedExchangeRate AS appliedExchangeRate,
 
         COALESCE(SUM(i.totalInclTaxTND), 0) AS amount,
@@ -111,7 +141,7 @@ AND
 
     GROUP BY
         p.idPartner,
-        p.name,
+        p.partnerName,
         MONTH(i.issueDate)
 
 """)
@@ -122,7 +152,7 @@ AND
     @Query("""
     SELECT
         c.idPartner AS id,
-        c.name AS client,
+        c.partnerName AS client,
 
         COALESCE(SUM(it.totalPriceIncTax), 0) AS amount,
 
@@ -145,7 +175,7 @@ AND
 
     GROUP BY
         c.idPartner,
-        c.name,
+        c.partnerName,
         MONTH(i.issueDate),
         i.currency,
         i.appliedExchangeRate,
@@ -224,4 +254,49 @@ AND
             UUID clientId,
             Collection<InvoiceStatus> excludedStatuses
     );
-}
+
+    @Query("""
+    SELECT i FROM ClientInvoiceEntity i
+    WHERE
+        i.partner.idPartner = :clientId
+    AND
+        i.createdAt >= :dateDebut
+    AND
+        i.createdAt <= :dateFin
+    AND
+        i.invoiceStatus = :status
+    ORDER BY i.createdAt DESC
+""")
+    List<ClientInvoiceEntity> getClientInvoicesByPeriod(
+            @Param("clientId") UUID clientId,
+            @Param("dateDebut") LocalDateTime dateDebut,
+            @Param("dateFin") LocalDateTime dateFin,
+            @Param("status") InvoiceStatus status
+    );
+    @Query("""
+    SELECT i FROM ClientInvoiceEntity i
+    WHERE
+        i.createdAt >= :dateDebut
+    AND
+        i.createdAt <= :dateFin
+    AND
+        i.invoiceStatus = :status
+    ORDER BY i.createdAt DESC
+""")
+    List<ClientInvoiceEntity> getAllClientInvoicesByPeriod(
+
+            @Param("dateDebut") LocalDateTime dateDebut,
+            @Param("dateFin") LocalDateTime dateFin,
+            @Param("status") InvoiceStatus status
+    );
+
+    @Query("""
+    SELECT i FROM ClientInvoiceEntity i
+    WHERE i.partner.idPartner = :clientId
+    ORDER BY i.issueDate DESC
+""")
+    List<ClientInvoiceEntity> getClientInvoices(
+            @Param("clientId") UUID clientId,
+            Pageable pageable
+    );
+    }

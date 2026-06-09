@@ -4,6 +4,7 @@ import com.example.billingservice.application.Utils.InvoiceCreditNoteStatusPassa
 import com.example.billingservice.application.Utils.StatusMapper;
 import com.example.billingservice.application.ports.in.GenerateInvoiceNumberUseCase;
 import com.example.billingservice.application.ports.in.InvoiceCreditNoteUseCase;
+import com.example.billingservice.application.ports.in.PartnerUseCase;
 import com.example.billingservice.application.ports.out.ClientInvoicesRepositoryPort;
 import com.example.billingservice.application.ports.out.InvoiceCreditNoteRepositoryPort;
 import com.example.billingservice.application.ports.out.SupplierInvoicesRepositoryPort;
@@ -33,6 +34,7 @@ public class InvoiceCreditNoteService implements InvoiceCreditNoteUseCase {
     private final UploadDocumentService uploadDocumentService;
     private final InvoiceCreditNoteMapper invoiceCreditNoteMapper;
     private  final GenerateInvoiceNumberUseCase generateInvoiceNumberUseCase;
+    private final PartnerUseCase partnerUseCase;
 
 
     @Override
@@ -155,8 +157,8 @@ public class InvoiceCreditNoteService implements InvoiceCreditNoteUseCase {
         InvoiceCreditNoteEvent invoiceEvent = InvoiceCreditNoteEvent.builder()
                 .invoiceCreditNoteEventType(InvoiceCreditNoteEventType.UPDATED)
                 .eventDate(new Date())
-                .description("Mise à jour de satut facture : "+StatusMapper.mapCreditNoteStatusToFrench(invoiceCreditNoteStatus))
-                .eventTrigger(InvoiceEventTrigger.USER)
+                .description("Mise à jour de satut facture : "+ AuditEventTrigger.USER.name())
+                .eventTrigger(AuditEventTrigger.USER)
                 .triggeredBy("user: wassef")
                 .build();
 
@@ -197,6 +199,21 @@ public class InvoiceCreditNoteService implements InvoiceCreditNoteUseCase {
     @Override
     public boolean existsInvoiceCreditNoteEntityByInvoice(UUID idInvoice) {
         return invoiceCreditNoteRepositoryPort.existsInvoiceCreditNoteEntityByInvoice(idInvoice);
+    }
+
+    @Override
+    public Page<InvoiceCreditNotePageItemDTO> getCreditNoteInvoiceByPartner(String idPartner , String partnerType, int page) {
+        if(partnerType.equals(PartnerType.CLIENT.toString()) &&
+            !partnerUseCase.customerExistsByIdPartner(UUID.fromString(idPartner)))
+        {
+            throw BillingException.notFound("Client", idPartner);
+        }
+        if (partnerType.equals(PartnerType.SUPPLIER.toString()) &&
+                !partnerUseCase.supplierExistsByIdPartner(UUID.fromString(idPartner)))
+        {
+            throw BillingException.notFound("Fournisseur", idPartner);
+        }
+        return invoiceCreditNoteRepositoryPort.getCreditNoteByClient(UUID.fromString(idPartner), page);
     }
 
 

@@ -13,6 +13,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -26,7 +27,7 @@ WHERE
         :keyword IS NULL OR :keyword = '' OR
         LOWER(i.reference) LIKE LOWER(CONCAT('%', :keyword, '%')) OR
         LOWER(i.partner.email) LIKE LOWER(CONCAT('%', :keyword, '%')) OR
-        LOWER(i.partner.name) LIKE LOWER(CONCAT('%', :keyword, '%'))
+        LOWER(i.partner.partnerName) LIKE LOWER(CONCAT('%', :keyword, '%'))
     )
 AND
     (
@@ -37,6 +38,19 @@ AND
     Page<InvoiceEntity> getInvoices(
             @Param("keyword") String keyword,
             @Param("status") InvoiceStatus status,
+            Pageable pageable
+    );
+
+    @Query("""
+SELECT i FROM SupplierInvoiceEntity i
+WHERE
+    (
+        i.partner.idPartner = :idPartner
+    )
+
+""")
+    Page<InvoiceEntity> getClientInvoicesByPartner(
+            @Param("idPartner") UUID idPartner,
             Pageable pageable
     );
 
@@ -99,7 +113,7 @@ AND
     @Query("""
     SELECT
         c.idPartner AS id,
-        c.name AS client,
+        c.partnerName AS client,
 
         COALESCE(SUM(it.totalPriceIncTax), 0) AS amount,
 
@@ -122,7 +136,7 @@ AND
 
     GROUP BY
         c.idPartner,
-        c.name,
+        c.partnerName,
         MONTH(i.issueDate),
         i.currency,
         i.appliedExchangeRate,
@@ -200,5 +214,48 @@ AND
     List<SupplierInvoiceEntity> findTop3ByPartner_IdPartnerAndInvoiceStatusNotInOrderByIssueDateDesc(
             UUID supplierId,
             Collection<InvoiceStatus> excludedStatuses
+    );
+
+
+    @Query("""
+    SELECT i FROM SupplierInvoiceEntity i
+    WHERE
+        i.partner.idPartner = :clientId
+    AND
+        i.createdAt >= :dateDebut
+    AND
+        i.createdAt <= :dateFin
+    ORDER BY i.createdAt DESC
+""")
+    List<SupplierInvoiceEntity> getSupplierInvoicesByPeriod(
+            @Param("clientId") UUID clientId,
+            @Param("dateDebut") LocalDateTime dateDebut,
+            @Param("dateFin") LocalDateTime dateFin
+    );
+
+    @Query("""
+    SELECT i FROM SupplierInvoiceEntity i
+    WHERE
+        i.partner.idPartner = :supplierId
+    AND
+        i.createdAt >= :dateDebut
+    AND
+        i.createdAt <= :dateFin
+    ORDER BY i.createdAt DESC
+""")
+    List<SupplierInvoiceEntity> getAllSupplierInvoicesByPeriod(
+            @Param("clientId") UUID supplierId,
+            @Param("dateDebut") LocalDateTime dateDebut,
+            @Param("dateFin") LocalDateTime dateFin
+    );
+
+    @Query("""
+    SELECT i FROM SupplierInvoiceEntity i
+    WHERE i.partner.idPartner = :supplierId
+    ORDER BY i.issueDate DESC
+""")
+    List<SupplierInvoiceEntity> getAllSupplierInvoices(
+            @Param("supplierId") UUID supplierId,
+            Pageable pageable
     );
 }

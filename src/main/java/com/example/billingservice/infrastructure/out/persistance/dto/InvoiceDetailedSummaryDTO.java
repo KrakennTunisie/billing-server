@@ -36,5 +36,6 @@ public class InvoiceDetailedSummaryDTO {
     private Double totalExclTaxUSD;
     private Double totalInclTaxUSD;
 
+    private Double remainingAmount;
     private PartnerSummaryDTO partner;
 }

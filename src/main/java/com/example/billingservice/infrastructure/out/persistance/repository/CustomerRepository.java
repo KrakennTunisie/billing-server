@@ -16,11 +16,13 @@ public interface CustomerRepository extends JpaRepository<CustomerEntity, UUID> 
 
     Optional<CustomerEntity> findByTaxRegistrationNumber(String taxRegistrationNumber);
 
+    Optional<CustomerEntity> findByEmail(String email);
+
     boolean existsByIdPartner(UUID uuid);
 
     boolean existsByTaxRegistrationNumber(String taxRegistrationNumber);
 
-    boolean existsByName(String name);
+    boolean existsByPartnerName(String name);
 
     boolean existsByEmail(String email);
 
@@ -31,14 +33,18 @@ public interface CustomerRepository extends JpaRepository<CustomerEntity, UUID> 
     WHERE
         (
             :keyword IS NULL OR :keyword = '' OR
-            LOWER(p.name) LIKE LOWER(CONCAT('%', CAST(:keyword AS string), '%')) OR
+            LOWER(p.partnerName) LIKE LOWER(CONCAT('%', CAST(:keyword AS string), '%')) OR
+            LOWER(p.companyName) LIKE LOWER(CONCAT('%', CAST(:keyword AS string), '%')) OR
+            LOWER(p.displayName) LIKE LOWER(CONCAT('%', CAST(:keyword AS string), '%')) OR
             LOWER(p.email) LIKE LOWER(CONCAT('%', CAST(:keyword AS string), '%')) OR
             LOWER(p.taxRegistrationNumber) LIKE LOWER(CONCAT('%', CAST(:keyword AS string), '%'))
         )
     AND
         (
             :country IS NULL OR :country = '' OR
-            LOWER(p.country) = LOWER(CAST(:country AS string))
+            LOWER(p.billingAddressEntity.region) = LOWER(CAST(:country AS string)) OR
+            LOWER(p.shippingAddressEntity.region) = LOWER(CAST(:country AS string))
+            
         )
 """)
     Page<CustomerEntity> findCustomers(
@@ -52,14 +58,17 @@ public interface CustomerRepository extends JpaRepository<CustomerEntity, UUID> 
     WHERE
         (
             :keyword IS NULL OR :keyword = '' OR
-            LOWER(p.name) LIKE LOWER(CONCAT('%', CAST(:keyword AS string), '%')) OR
+            LOWER(p.partnerName) LIKE LOWER(CONCAT('%', CAST(:keyword AS string), '%')) OR
+            LOWER(p.companyName) LIKE LOWER(CONCAT('%', CAST(:keyword AS string), '%')) OR
+            LOWER(p.displayName) LIKE LOWER(CONCAT('%', CAST(:keyword AS string), '%')) OR
             LOWER(p.email) LIKE LOWER(CONCAT('%', CAST(:keyword AS string), '%')) OR
             LOWER(p.taxRegistrationNumber) LIKE LOWER(CONCAT('%', CAST(:keyword AS string), '%'))
         )
     AND
         (
             :country IS NULL OR :country = '' OR
-            LOWER(p.country) = LOWER(CAST(:country AS string))
+            LOWER(p.billingAddressEntity.region) = LOWER(CAST(:country AS string)) OR
+            LOWER(p.shippingAddressEntity.region) = LOWER(CAST(:country AS string))
         )
 """)
     List<CustomerEntity> getCustomers(

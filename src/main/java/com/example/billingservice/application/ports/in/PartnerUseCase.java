@@ -17,9 +17,11 @@ public interface PartnerUseCase {
 
     PartnerDetailsDTO createSupplier(PartnerForm partner) throws IOException, DataIntegrityViolationException;
 
+
+
     Optional<Partner> getSupplierById(String id);
 
-    Optional<PartnerDetailsDTO> getSupplierDetailsById(String idSupplier);
+    PartnerDetailsDTO getSupplierDetailsById(String idSupplier);
 
     PartnerItemDTO getSupplierByEmail(String email);
     boolean supplierExistsByIdPartner(UUID idPartner);
@@ -32,9 +34,12 @@ public interface PartnerUseCase {
     Page<PartnerItemDTO> getAllSuppliers(String keyword , String Country , int page);
     boolean existsBySupplierName(String name);
 
-    PartnerDetailsDTO updateSupplier (String id , UpdatePartnerDTO command) throws DataIntegrityViolationException;
+    Partner updateSupplier (String id , UpdatePartnerDTO command) throws DataIntegrityViolationException;
 
     void deleteSupplier(String id);
+    void  updateSupplierStatus(String idSupplier, Boolean status);
+    List<PartnerSummaryDTO> getSummarySuppliers(String keyword , String Country );
+
 
 
     /**** CUSTOMER ****/
@@ -43,7 +48,10 @@ public interface PartnerUseCase {
 
     Optional<Partner> findCustomerById(String id);
 
-    Optional<PartnerDetailsDTO> getClientDetailsById(String idClient);
+    Optional<Partner> findCustomerByEmail(String email);
+
+
+    PartnerDetailsDTO getClientDetailsById(String idClient);
 
     boolean customerExistsByIdPartner(UUID idPartner);
 
@@ -57,7 +65,8 @@ public interface PartnerUseCase {
 
     void deleteCustomerById(String id);
 
-    PartnerDetailsDTO updateCustomer(String id, UpdatePartnerDTO partner) throws DataIntegrityViolationException;
+    Partner updateCustomer(String id, UpdatePartnerDTO partner) throws DataIntegrityViolationException;
+    void  updateCustomerStatus(String idClient, Boolean status);
 
 
 }

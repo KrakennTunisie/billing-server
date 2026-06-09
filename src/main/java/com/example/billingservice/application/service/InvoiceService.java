@@ -16,9 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.time.LocalDate;
 import java.util.*;
 
 
@@ -33,7 +30,6 @@ public class InvoiceService implements InvoiceUseCase, InvoiceStatsUseCase {
     private final ClientInvoicesRepositoryPort clientInvoicesRepositoryPort;
     private final SupplierInvoicesRepositoryPort supplierInvoicesRepositoryPort;
     private final InvoiceCreditNoteUseCase invoiceCreditNoteUseCase;
-    private final CurrencyConversionUseCase currencyConversionUseCase;
     private final PurchaseOrderSynchronizationService synchronizationService;
 
     @Override
@@ -103,26 +99,6 @@ public class InvoiceService implements InvoiceUseCase, InvoiceStatsUseCase {
         InvoiceDTO invoiceDTO = supplierInvoicesRepositoryPort.getById(invoiceId);
 
         InvoiceStatusPassagePolicy.checkTransition(invoiceDTO.getInvoiceStatus(), invoiceStatus);
-
-        List<InvoiceEvent> invoiceEvents = invoiceDTO.getInvoiceEvents() != null
-                ? invoiceDTO.getInvoiceEvents()
-                : List.of();
-
-        InvoiceEvent invoiceEvent = InvoiceEvent.builder()
-                .invoiceEventType(InvoiceEventType.UPDATED)
-                .eventDate(new Date())
-                .description("Mise à jour de satut facture : "+InvoiceEventTrigger.USER.name())
-                .eventTrigger(InvoiceEventTrigger.USER)
-                .triggeredBy("user: wassef")
-                .build();
-
-
-        List<InvoiceEvent> updatedEvents = new ArrayList<>(invoiceEvents);
-
-        updatedEvents.add(invoiceEvent);
-
-        invoiceDTO.setInvoiceEvents(updatedEvents);
-
         return supplierInvoicesRepositoryPort.updateStatus(invoiceId, invoiceStatus);
     }
 
@@ -136,27 +112,12 @@ public class InvoiceService implements InvoiceUseCase, InvoiceStatsUseCase {
         InvoiceDTO invoiceDTO = clientInvoicesRepositoryPort.getById(invoiceId);
 
         InvoiceStatusPassagePolicy.checkTransition(invoiceDTO.getInvoiceStatus(), invoiceStatus);
-
-        List<InvoiceEvent> invoiceEvents = invoiceDTO.getInvoiceEvents() != null
-                ? invoiceDTO.getInvoiceEvents()
-                : List.of();
-
-        InvoiceEvent invoiceEvent = InvoiceEvent.builder()
-                .invoiceEventType(InvoiceEventType.UPDATED)
-                .eventDate(new Date())
-                .description("Mise à jour de satut facture : "+InvoiceEventTrigger.USER.name())
-                .eventTrigger(InvoiceEventTrigger.USER)
-                .triggeredBy("user: wassef")
-                .build();
-
-
-        List<InvoiceEvent> updatedEvents = new ArrayList<>(invoiceEvents);
-
-        updatedEvents.add(invoiceEvent);
-
-        invoiceDTO.setInvoiceEvents(updatedEvents);
-
         return clientInvoicesRepositoryPort.updateStatus(invoiceId, invoiceStatus);
+    }
+
+    @Override
+    public InvoiceDTO updateClientInvoiceRemainingAmount(UUID invoiceId, double paidAmount) {
+        return clientInvoicesRepositoryPort.updateRemainingAmount(invoiceId, paidAmount);
     }
 
     @Override
@@ -218,9 +179,15 @@ public class InvoiceService implements InvoiceUseCase, InvoiceStatsUseCase {
     @Override
     public void deleteClientInvoice(UUID invoiceId) {
         if(!clientInvoicesRepositoryPort.existsByInvoiceId(invoiceId)){
-            throw BillingException.notFound("Facture Fournisseur", String.valueOf(invoiceId));
+            throw BillingException.notFound("Facture client", String.valueOf(invoiceId));
         }
-        clientInvoicesRepositoryPort.delete(invoiceId);
+        Invoice invoice = clientInvoicesRepositoryPort.getInvoice(invoiceId);
+        if(invoice.getPurchaseOrder() != null) {
+            synchronizationService.deleteInvoiceRelatedToPurchaseOrder(invoice);
+        }else{
+            clientInvoicesRepositoryPort.delete(invoiceId);
+        }
+
     }
 
     @Override
@@ -239,6 +206,11 @@ public class InvoiceService implements InvoiceUseCase, InvoiceStatsUseCase {
     }
 
     @Override
+    public boolean existsByClientPurchaseOrderId(UUID purchaseOrderID) {
+        return clientInvoicesRepositoryPort.existsByPurchaseOrderId(purchaseOrderID);
+    }
+
+    @Override
     public boolean clientInvoiceExistsByInvoiceId(UUID invoiceId) {
         return clientInvoicesRepositoryPort.existsByInvoiceId(invoiceId);
     }
@@ -252,12 +224,28 @@ public class InvoiceService implements InvoiceUseCase, InvoiceStatsUseCase {
     }
 
     @Override
+    public List<InvoicePageItemDTO> getInvoicesToPay(String keyword) {
+        return clientInvoicesRepositoryPort.getInvoicesToPay(keyword);
+    }
+
+    @Override
     public List<InvoicePageItemDTO> getSupplierTopInvoices(UUID supplierId) {
         if(!partnerUseCase.supplierExistsByIdPartner(supplierId)){
             throw BillingException.notFound("Fournisseur", String.valueOf(supplierId));
         }
         return supplierInvoicesRepositoryPort.getSupplierTopInvoices(supplierId);
     }
+
+    @Override
+    public Page<InvoicePageItemDTO> getClientInvoices(UUID clientId, int page) {
+        return clientInvoicesRepositoryPort.getClientInvoices(clientId, page);
+    }
+
+    @Override
+    public Page<InvoicePageItemDTO> getSupplierInvoices(UUID supplierId, int page) {
+        return supplierInvoicesRepositoryPort.getSupplierInvoices(supplierId, page);
+    }
+
 
     @Override
     public Page<InvoicePageItemDTO> getClientsInvoices(String keyword, String status, int page) {
@@ -400,6 +388,26 @@ public class InvoiceService implements InvoiceUseCase, InvoiceStatsUseCase {
     @Override
     public ConvertedInvoiceStats getALLSupplierInvoiceStats() {
         return supplierInvoicesRepositoryPort.getAllSupplierInvoiceCountStats(InvoiceStatus.TO_PAY);
+    }
+
+    @Override
+    public List<ClientRevenueStats> getClientRevenue(UUID idPartner, String periode) {
+        return clientInvoicesRepositoryPort.getClientRevenueByPeriod(idPartner,periode);
+    }
+
+    @Override
+    public List<ClientRevenueStats> getSupplierDespenses(UUID partner, String periode) {
+        return supplierInvoicesRepositoryPort.getSupplierDespensesByPeriod(partner,periode);
+    }
+
+    @Override
+    public List<ClientRevenueStats> getAllClientRevenue( String periode) {
+        return clientInvoicesRepositoryPort.getAllClientRevenueByPeriod(periode);
+    }
+
+    @Override
+    public List<ClientRevenueStats> getAllSupplierDespenses(UUID partner, String periode) {
+        return supplierInvoicesRepositoryPort.getAllSupplierDespensesByPeriod(partner,periode);
     }
 
 

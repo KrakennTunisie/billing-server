@@ -6,13 +6,14 @@ import com.example.billingservice.application.ports.out.ClientInvoicesRepository
 import com.example.billingservice.domain.enums.*;
 import com.example.billingservice.domain.exceptions.BillingException;
 import com.example.billingservice.domain.model.Invoice;
-import com.example.billingservice.domain.model.InvoiceEvent;
+
+import com.example.billingservice.domain.model.InvoiceItem;
 import com.example.billingservice.infrastructure.out.persistance.dto.*;
 import com.example.billingservice.infrastructure.out.persistance.entity.InvoiceEntity;
 import com.example.billingservice.infrastructure.out.persistance.entity.ClientInvoiceEntity;
-import com.example.billingservice.infrastructure.out.persistance.entity.InvoiceEventEntity;
+
 import com.example.billingservice.infrastructure.out.persistance.entity.InvoiceItemEntity;
-import com.example.billingservice.infrastructure.out.persistance.mapper.InvoiceEventMapper;
+
 import com.example.billingservice.infrastructure.out.persistance.mapper.InvoiceMapper;
 import com.example.billingservice.infrastructure.out.persistance.projections.ClientInvoiceDashboardStatsProjection;
 import com.example.billingservice.infrastructure.out.persistance.repository.ClientInvoicesRepository;
@@ -32,11 +33,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -65,7 +66,8 @@ public class ClientInvoicesPersistenceAdapter implements ClientInvoicesRepositor
 
         } catch (DataAccessException ex) {
             throw BillingException.internalError("Erreur de fetch des factures: " + ex.getMessage());
-        }    }
+        }
+    }
 
     @Override
     public List<InvoicePageItemDTO> getClientTopInvoices(UUID idClient) {
@@ -123,19 +125,21 @@ public class ClientInvoicesPersistenceAdapter implements ClientInvoicesRepositor
         entity.setInvoiceStatus(newStatus);
 
 
-        InvoiceEventEntity event = new InvoiceEventEntity();
-                event.setInvoiceEventType(InvoiceEventType.STATUS_CHANGED);
-                event.setEventDate(new Date());
-                event.setDescription("Mise à jour du statut facture : " + StatusMapper.mapInvoiceStatusToFrench(newStatus));
-                event.setEventTrigger(InvoiceEventTrigger.USER);
-                event.setTriggeredBy("user: system");
-                event.setInvoice(entity);
+        ClientInvoiceEntity saved = clientInvoicesRepository.save(entity);
 
-        if (entity.getInvoiceEvents() == null) {
-            entity.setInvoiceEvents(new ArrayList<>());
-        }
 
-        entity.getInvoiceEvents().add(event);
+        return invoiceMapper.toDTO(
+                invoiceMapper.toDomain(saved, InvoiceType.SALE)
+        );
+    }
+
+    @Override
+    public InvoiceDTO updateRemainingAmount(UUID invoiceId, double amount) {
+        ClientInvoiceEntity entity =
+                clientInvoicesRepository.getClientInvoiceEntityByIdInvoice(invoiceId);
+
+
+        entity.setRemainingAmount(Math.abs(entity.getRemainingAmount() - amount));
 
 
         ClientInvoiceEntity saved = clientInvoicesRepository.save(entity);
@@ -354,17 +358,19 @@ public class ClientInvoicesPersistenceAdapter implements ClientInvoicesRepositor
             }
         }
 
-        System.out.println("totalAmountTND: "+totalAmountTND);
-        System.out.println("pendingAmountTND: "+pendingAmountTND);
-        System.out.println("totalAmountTND: "+totalAmountEUR);
-        System.out.println("pendingAmountTND: "+pendingAmountEUR);
-        System.out.println("totalAmountTND: "+totalAmountUSD);
-        System.out.println("pendingAmountTND: "+pendingAmountUSD);
-
         return StatsHelper.getStats(totalAmountTND,pendingAmountTND,
                 totalAmountEUR,pendingAmountEUR,
                 totalAmountUSD,pendingAmountUSD,
                 countStats);
+    }
+
+    @Override
+    public List<InvoicePageItemDTO> getInvoicesToPay(String keyword) {
+        List<ClientInvoiceEntity> entities = clientInvoicesRepository.getInvoicesToPay(keyword);
+
+        return entities.stream()
+                .map(entity-> invoiceMapper.toInvoicePageItemDTO(invoiceMapper.toDomain(entity, InvoiceType.SALE)))
+                .toList();
     }
 
     @Override
@@ -389,7 +395,145 @@ public class ClientInvoicesPersistenceAdapter implements ClientInvoicesRepositor
         return clientInvoicesRepository.existsByIdInvoice(invoiceId);
     }
 
+    @Override
+    public boolean existsByPurchaseOrderId(UUID purchaseOrderId) {
+        return clientInvoicesRepository.existsByPurchaseOrderIdPurchaseOrder(purchaseOrderId);
+    }
 
+    @Override
+    public List<ClientRevenueStats> getClientRevenueByPeriod(UUID idPartner, String period) {
+
+        LocalDateTime dateFin   = LocalDateTime.now();
+        LocalDateTime dateDebut = dateFin.minusMonths(Long.parseLong(period));
+
+        List<ClientInvoiceEntity> invoices = clientInvoicesRepository
+                .getClientInvoicesByPeriod(idPartner, dateDebut, dateFin , InvoiceStatus.PAID);
+
+        // Grouper les factures par mois
+        Map<YearMonth, List<ClientInvoiceEntity>> facturesParMois = invoices.stream()
+                .collect(Collectors.groupingBy(
+                        invoice -> YearMonth.from(invoice.getCreatedAt())
+                ));
+
+        List<ClientRevenueStats> stats = new ArrayList<>();
+
+        // Itérer sur chaque mois de la période
+        YearMonth moisDebut = YearMonth.from(dateDebut);
+        YearMonth moisFin   = YearMonth.from(dateFin);
+
+        YearMonth current = moisDebut;
+        while (!current.isAfter(moisFin)) {
+
+            List<ClientInvoiceEntity> facturesDuMois = facturesParMois
+                    .getOrDefault(current, Collections.emptyList());
+
+            // Calculer HT et TTC pour ce mois
+            double totalHT  = 0.0;
+            double totalTTC = 0.0;
+
+            for (ClientInvoiceEntity invoice : facturesDuMois) {
+                List<InvoiceItemEntity> items = invoiceItemRepository
+                        .findByInvoice_IdInvoice(invoice.getIdInvoice());
+
+                for (InvoiceItemEntity item : items) {
+                    totalTTC += item.getTotalPriceIncTax();
+                    totalHT  += item.getUnityPriceEXclTax() * item.getQuantity();
+                }
+            }
+
+            double totalTVA = totalTTC - totalHT;
+
+            ClientRevenueStats dto = new ClientRevenueStats();
+            dto.setPeriod(current.toString());                                              // "2024-01"
+            dto.setMonthLabel(current.format(DateTimeFormatter.ofPattern("MMMM yyyy", Locale.FRENCH))); // "janvier 2024"
+            dto.setRevenueHT(totalHT);
+            dto.setRevenueTVA(totalTVA);
+            dto.setRevenueTTC(totalTTC);
+            dto.setNombreFactures(facturesDuMois.size());
+
+            stats.add(dto);
+            current = current.plusMonths(1);
+        }
+
+        return stats;
+    }
+
+    @Override
+    public List<ClientRevenueStats> getAllClientRevenueByPeriod( String period) {
+        LocalDateTime dateFin   = LocalDateTime.now();
+        LocalDateTime dateDebut = dateFin.minusMonths(Long.parseLong(period));
+
+        List<ClientInvoiceEntity> invoices = clientInvoicesRepository
+                .getAllClientInvoicesByPeriod( dateDebut, dateFin,InvoiceStatus.PAID);
+
+        // Grouper les factures par mois
+        Map<YearMonth, List<ClientInvoiceEntity>> facturesParMois = invoices.stream()
+                .collect(Collectors.groupingBy(
+                        invoice -> YearMonth.from(invoice.getCreatedAt())
+                ));
+
+        List<ClientRevenueStats> stats = new ArrayList<>();
+
+        // Itérer sur chaque mois de la période
+        YearMonth moisDebut = YearMonth.from(dateDebut);
+        YearMonth moisFin   = YearMonth.from(dateFin);
+
+        YearMonth current = moisDebut;
+        while (!current.isAfter(moisFin)) {
+
+            List<ClientInvoiceEntity> facturesDuMois = facturesParMois
+                    .getOrDefault(current, Collections.emptyList());
+
+            // Calculer HT et TTC pour ce mois
+            double totalHT  = 0.0;
+            double totalTTC = 0.0;
+
+            for (ClientInvoiceEntity invoice : facturesDuMois) {
+                List<InvoiceItemEntity> items = invoiceItemRepository
+                        .findByInvoice_IdInvoice(invoice.getIdInvoice());
+
+                for (InvoiceItemEntity item : items) {
+                    totalTTC += item.getTotalPriceIncTax();
+                    totalHT  += item.getUnityPriceEXclTax() * item.getQuantity();
+                }
+            }
+
+            double totalTVA = totalTTC - totalHT;
+
+            ClientRevenueStats dto = new ClientRevenueStats();
+            dto.setPeriod(current.toString());
+            dto.setMonthLabel(current.format(DateTimeFormatter.ofPattern("MMMM yyyy", Locale.FRENCH)));
+            dto.setRevenueHT(totalHT);
+            dto.setRevenueTVA(totalTVA);
+            dto.setRevenueTTC(totalTTC);
+            dto.setNombreFactures(facturesDuMois.size());
+
+            stats.add(dto);
+            current = current.plusMonths(1);
+        }
+
+        return stats;
+    }
+
+    @Override
+    public Page<InvoicePageItemDTO> getClientInvoices(UUID idPartner, int page) {
+        try {
+
+            PageRequest pageRequest = PageRequest.of(page, 5, Sort.by("issueDate").descending());
+            Page<InvoiceEntity> entities = clientInvoicesRepository.getClientInvoicesByPartner(idPartner, pageRequest);
+
+            List<InvoicePageItemDTO> invoices = entities.getContent()
+                    .stream()
+                    .map(invoiceEntity -> invoiceMapper.toDomain(invoiceEntity, InvoiceType.SALE))
+                    .map(invoiceMapper::toInvoicePageItemDTO)
+                    .collect(Collectors.toList());
+
+            return new PageImpl<>(invoices, pageRequest, entities.getTotalElements());
+
+        } catch (DataAccessException ex) {
+            throw BillingException.internalError("Erreur de fetch des factures: " + ex.getMessage());
+        }
+    }
 
 
     public LocalDate convertToLocalDate(Date date) {

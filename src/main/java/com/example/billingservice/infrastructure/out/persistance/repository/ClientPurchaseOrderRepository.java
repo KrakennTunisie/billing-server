@@ -1,6 +1,7 @@
 package com.example.billingservice.infrastructure.out.persistance.repository;
 
 import com.example.billingservice.domain.enums.PurchaseOrderStatus;
+import com.example.billingservice.infrastructure.out.persistance.entity.ClientInvoiceEntity;
 import com.example.billingservice.infrastructure.out.persistance.entity.ClientPurchaseOrderEntity;
 import com.example.billingservice.infrastructure.out.persistance.entity.PurchaseOrderEntity;
 import org.springframework.data.domain.Page;
@@ -25,7 +26,7 @@ public interface ClientPurchaseOrderRepository extends JpaRepository<ClientPurch
                 :keyword IS NULL OR :keyword = '' OR
                 LOWER(p.reference) LIKE LOWER(CONCAT('%', :keyword, '%')) OR
                 LOWER(p.partner.email) LIKE LOWER(CONCAT('%', :keyword, '%')) OR
-                LOWER(p.partner.name) LIKE LOWER(CONCAT('%', :keyword, '%'))
+                LOWER(p.partner.partnerName) LIKE LOWER(CONCAT('%', :keyword, '%'))
             )
         AND
             (
@@ -39,4 +40,14 @@ public interface ClientPurchaseOrderRepository extends JpaRepository<ClientPurch
     );
     @Query("SELECT p FROM ClientPurchaseOrderEntity p WHERE p.purchaseOrderStatus IN :statuses")
     List<ClientPurchaseOrderEntity> getPurchaseOrdersByStatus(@Param("statuses") List<PurchaseOrderStatus> statuses);
+
+    @Query("""
+    SELECT i FROM ClientPurchaseOrderEntity  i
+    WHERE i.partner.idPartner = :clientId
+    ORDER BY i.issueDate DESC
+""")
+    Page<ClientPurchaseOrderEntity>  getClientPurchaseOrders(
+            @Param("clientId") UUID clientId,
+            Pageable pageable
+    );
 }

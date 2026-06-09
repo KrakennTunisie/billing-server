@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface InvoiceCreditNoteRepository extends JpaRepository<InvoiceCreditNoteEntity, UUID> {
@@ -34,6 +35,16 @@ public interface InvoiceCreditNoteRepository extends JpaRepository<InvoiceCredit
             Pageable pageable
     );
 
+    @Query("""
+        SELECT cn FROM InvoiceCreditNoteEntity cn
+        WHERE
+            cn.invoice.partner.idPartner = :idPartner
+        """)
+    Page<InvoiceCreditNoteEntity> getCreditNotesByPartnerId(
+            @Param("idPartner") UUID idPartner,
+            Pageable pageable
+    );
+
     @Override
     boolean existsById(UUID uuid);
 
@@ -44,5 +55,7 @@ public interface InvoiceCreditNoteRepository extends JpaRepository<InvoiceCredit
 
 
     boolean existsInvoiceCreditNoteEntityByInvoice_IdInvoice(UUID invoiceIdInvoice);
+
+    List<InvoiceCreditNoteEntity> getInvoiceCreditNoteEntityByInvoice_IdInvoice(UUID idInvoice);
 
 }

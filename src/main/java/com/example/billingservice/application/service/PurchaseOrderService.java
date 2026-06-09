@@ -6,6 +6,7 @@ import com.example.billingservice.application.ports.in.PurchaseOrderUseCase;
 import com.example.billingservice.application.ports.out.ClientPurchaseOrderPort;
 import com.example.billingservice.application.ports.out.SupplierPurchaseOrderPort;
 import com.example.billingservice.domain.enums.DocumentType;
+import com.example.billingservice.domain.enums.PartnerType;
 import com.example.billingservice.domain.enums.PurchaseOrderStatus;
 import com.example.billingservice.domain.enums.SequenceNumberType;
 import com.example.billingservice.domain.exceptions.BillingException;
@@ -77,12 +78,6 @@ public class PurchaseOrderService implements PurchaseOrderUseCase {
                 purchaseOrderCreateDTO, purchaseOrderDocument
         );
 
-/*
-        SyncInvoiceItems.syncInvoiceItems(
-                invoice,
-                createDTO.getInvoiceItems() != null ? createDTO.getInvoiceItems() : List.of()
-        );
-*/
         System.out.println(purchaseOrder.getPurchaseOrderType());
         PurchaseOrder savedPurchaseOrder = clientPurchaseOrderPort.createPurchaseOrder(purchaseOrder);
 
@@ -172,6 +167,17 @@ public class PurchaseOrderService implements PurchaseOrderUseCase {
         return clientPurchaseOrderPort.existsByPurchaseOrderId(purchaseOrderId);
     }
 
+    /**** Coummun functions ***/
+    @Override
+    public Page<PurchaseOrderPageItemDTO> getPurchaseOrdersByPartnerId(UUID idPartner , String partnerType, int page) {
+        if(partnerType.equals(PartnerType.CLIENT.toString()))
+        {
+            return  clientPurchaseOrderPort.getPurchaseOrderByClientId(idPartner, page);
+        }else {
+            return supplierPurchaseOrderPort.getPurchaseOrderBySupplierId(idPartner, page);
+        }
+    }
+
     /** Supplier purchaseOrder **/
 
     @Override
@@ -192,9 +198,6 @@ public class PurchaseOrderService implements PurchaseOrderUseCase {
         if(!partnerUseCase.supplierExistsByIdPartner(UUID.fromString(purchaseOrderCreateDTO.getPartner()))){
             throw BillingException.notFound("Partner", purchaseOrderCreateDTO.getPartner());
         }
-
-        String purchaseOrderNumber = generateInvoiceNumberUseCase.generate(SequenceNumberType.PURCHASE_ORDER);
-        purchaseOrderCreateDTO.setPurchaseOrderNumber(purchaseOrderNumber);
 
         Document purchaseOrderDocument = null;
         if (purchaseOrderCreateDTO.getPurchaseOrderDocument() != null && !purchaseOrderCreateDTO.getPurchaseOrderDocument().isEmpty()) {
@@ -218,8 +221,7 @@ public class PurchaseOrderService implements PurchaseOrderUseCase {
 
         PurchaseOrder savedPurchaseOrder = supplierPurchaseOrderPort.createPurchaseOrder(purchaseOrder);
 
-        generateInvoiceNumberUseCase.validateNextSequence(SequenceNumberType.PURCHASE_ORDER, purchaseOrderNumber);
-
+        generateInvoiceNumberUseCase.validateNextSequence(SequenceNumberType.PURCHASE_ORDER, purchaseOrderCreateDTO.getPurchaseOrderNumber());
 
         return purchaseOrderMapper.domainToPurchaseOrderDTO(savedPurchaseOrder);
     }
@@ -299,6 +301,7 @@ public class PurchaseOrderService implements PurchaseOrderUseCase {
     public boolean existsBySupplierPurchaseOrderId(UUID purchaseOrderId) {
         return supplierPurchaseOrderPort.existsByPurchaseOrderId(purchaseOrderId);
     }
+
 
 
 }

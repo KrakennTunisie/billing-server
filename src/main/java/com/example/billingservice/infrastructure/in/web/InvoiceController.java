@@ -5,6 +5,7 @@ import com.example.billingservice.application.ports.in.InvoiceUseCase;
 import com.example.billingservice.application.service.GenerateInvoiceNumberService;
 import com.example.billingservice.domain.enums.InvoiceStatus;
 import com.example.billingservice.domain.enums.SequenceNumberType;
+import com.example.billingservice.domain.model.Invoice;
 import com.example.billingservice.infrastructure.out.persistance.dto.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -73,6 +74,14 @@ public class InvoiceController {
         return ResponseEntity.ok(invoiceUseCase.getClientsInvoices(keyword, filter, page));
     }
 
+
+    @Operation(summary = "Liste des factures clients")
+    @GetMapping(CLIENT_INVOICES+"/to-pay")
+    public ResponseEntity <List<InvoicePageItemDTO>> getClientsInvoicesToPay(@RequestParam(required = false) String keyword)
+    {
+        return ResponseEntity.ok(invoiceUseCase.getInvoicesToPay(keyword));
+    }
+
     @Operation(summary = "Mise à jour de facture client", description = "Mettre à jour une facture existante")
     @PatchMapping(path = CLIENT_INVOICES, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<InvoiceDTO> updateClientInvoice (@Valid @ModelAttribute InvoiceUpdateDTO form,
@@ -126,8 +135,17 @@ public class InvoiceController {
         invoiceUseCase.deleteClientInvoice(UUID.fromString(id));
         return ResponseEntity.noContent().build();
     }
+    @GetMapping("/last"+CLIENT_INVOICES+"/{idClient}")
+    @Operation(summary = "Liste des factures d'un client")
+    public ResponseEntity<Page<InvoicePageItemDTO>> getClientInvoices(
+            @Parameter(description = "ID du client") @PathVariable UUID idClient,
+            @RequestParam int page)
+    {
+        Page<InvoicePageItemDTO> Clientsinvoices =  invoiceUseCase.getClientInvoices(idClient, page);
+        return ResponseEntity.status(200).body(Clientsinvoices);
+    }
 
-    //SUPPLIER Invoices
+    /********************** -SUPPLIER Invoices- ***************************/
 
     @Operation(summary = "Liste des factures fournisseurs")
     @GetMapping(SUPPLIER_INVOICES)
@@ -252,6 +270,17 @@ public class InvoiceController {
         ConvertedInvoiceStats convertedInvoiceStats =  invoiceStatsUseCase.getSupplierInvoiceStats(UUID.fromString(id));
         return ResponseEntity.status(200).body(convertedInvoiceStats);
     }
+
+    @GetMapping("/last"+SUPPLIER_INVOICES+"/{idSupplier}")
+    @Operation(summary = "Liste des factures d'un fournisseur")
+    public ResponseEntity<Page<InvoicePageItemDTO>> getSupplierInvoices(
+            @Parameter(description = "ID du fournisseur") @PathVariable UUID idSupplier,
+            @RequestParam int page)
+    {
+
+        return ResponseEntity.status(200).body(invoiceUseCase.getSupplierInvoices(idSupplier, page));
+    }
+
 
 
 }

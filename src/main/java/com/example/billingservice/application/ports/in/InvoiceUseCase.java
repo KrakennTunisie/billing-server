@@ -2,10 +2,7 @@ package com.example.billingservice.application.ports.in;
 
 import com.example.billingservice.domain.enums.InvoiceStatus;
 import com.example.billingservice.domain.model.Invoice;
-import com.example.billingservice.infrastructure.out.persistance.dto.InvoiceCreateDTO;
-import com.example.billingservice.infrastructure.out.persistance.dto.InvoiceDTO;
-import com.example.billingservice.infrastructure.out.persistance.dto.InvoicePageItemDTO;
-import com.example.billingservice.infrastructure.out.persistance.dto.InvoiceUpdateDTO;
+import com.example.billingservice.infrastructure.out.persistance.dto.*;
 import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +29,8 @@ public interface InvoiceUseCase {
 
     InvoiceDTO updateClientInvoiceStatus(UUID invoiceId, InvoiceStatus invoiceStatus);
 
+    InvoiceDTO updateClientInvoiceRemainingAmount(UUID invoiceId, double paidAmount);
+
     InvoiceDTO getInvoiceById(UUID invoiceId);
 
     InvoiceDTO getInvoiceByInvoiceNumber(String invoiceNumber);
@@ -53,11 +52,18 @@ public interface InvoiceUseCase {
 
     boolean existsByInvoiceId(UUID invoiceId);
 
+    boolean existsByClientPurchaseOrderId(UUID purchaseOrderID);
+
     boolean clientInvoiceExistsByInvoiceId(UUID invoiceId);
 
     List<InvoicePageItemDTO> getClientTopInvoices(UUID clientId);
 
+    List<InvoicePageItemDTO> getInvoicesToPay(String keyword);
+
     List<InvoicePageItemDTO> getSupplierTopInvoices(UUID supplierId);
+    Page<InvoicePageItemDTO>  getClientInvoices (UUID clientId, int page);
+
+    Page<InvoicePageItemDTO>  getSupplierInvoices (UUID clientId, int page);
 
 
 }

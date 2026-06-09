@@ -1,29 +1,55 @@
 package com.example.billingservice.infrastructure.out.persistance.dto;
 
 
+import com.example.billingservice.domain.enums.InvoiceCurrency;
 import com.example.billingservice.domain.enums.PartnerType;
+import com.example.billingservice.domain.enums.PaymentCondition;
+import com.example.billingservice.domain.model.Address;
+import com.example.billingservice.domain.model.AuditLog;
+import com.example.billingservice.domain.model.Document;
+import com.example.billingservice.domain.model.Invoice;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
 
 @Getter
 @AllArgsConstructor
 @Schema(description = "Données du partenaire")
 public class PartnerDTO {
-    @Schema(description = "Nom du partenaire", example = "Oumaima chelly")
-    private String name;
-    @Schema(description = "Email du partenaire", example = "oumaima@example.com")
+
+
+    private UUID idPartner;
+
+    private boolean active;
+
+    private boolean enablePortal;
+
+    private String partnerName;
+    private String maritalStatus;
+    private String companyName;
+    private String displayName;
     private String email;
-    @Schema(description = "Numéro de téléphone", example = "+21621495185")
-    private String phoneNumber;
-    @Schema(description = "Numéro Tax", example = "Tax12585")
+    private String personnelPhoneNumber;
+    private String professionnalPhoneNumber;
+    private Address billingAddress;
+    private Address shippingAddress;
+    private String Language;
+
+    private InvoiceCurrency currency;
+    private String taxRate;
     private String taxRegistrationNumber;
-    @Schema(description = "Pays", example = "Tunisie")
-    private String country;
-    @Schema(description = "Addrese", example = "Tunis, Lac2 , résidence el-wafa")
-    private String address;
-    @Schema(description = "IBAN", example = "5454d5ds53")
+    private PaymentCondition paymentCondition;
     private String iban;
-    @Schema(description = "Type de partenaire", example = "SUPPLIER")
+
+    private DocumentSummaryDTO rne;
+    private DocumentSummaryDTO contract;
+    private DocumentSummaryDTO patente;
     private PartnerType partnerType;
+
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

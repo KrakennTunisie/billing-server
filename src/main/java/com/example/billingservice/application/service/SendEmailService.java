@@ -1,9 +1,6 @@
 package com.example.billingservice.application.service;
 
-import com.example.billingservice.application.ports.in.InvoiceCreditNoteUseCase;
-import com.example.billingservice.application.ports.in.InvoiceUseCase;
-import com.example.billingservice.application.ports.in.PurchaseOrderUseCase;
-import com.example.billingservice.application.ports.in.SendEmailUseCase;
+import com.example.billingservice.application.ports.in.*;
 import com.example.billingservice.application.ports.out.ClientInvoicesRepositoryPort;
 import com.example.billingservice.application.ports.out.DocumentReaderPort;
 import com.example.billingservice.application.ports.out.EmailJobPublisherPort;
@@ -12,10 +9,7 @@ import com.example.billingservice.domain.model.Invoice;
 import com.example.billingservice.domain.model.InvoiceCreditNote;
 import com.example.billingservice.domain.model.MailAttachment;
 import com.example.billingservice.domain.model.MailJob;
-import com.example.billingservice.infrastructure.out.persistance.dto.DocumentReadFile;
-import com.example.billingservice.infrastructure.out.persistance.dto.InvoiceDTO;
-import com.example.billingservice.infrastructure.out.persistance.dto.PurchaseOrderDTO;
-import com.example.billingservice.infrastructure.out.persistance.dto.SendEmailRequest;
+import com.example.billingservice.infrastructure.out.persistance.dto.*;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +23,7 @@ public class SendEmailService implements SendEmailUseCase {
     private final InvoiceUseCase invoiceUseCase;
     private final InvoiceCreditNoteUseCase invoiceCreditNoteUseCase;
     private final PurchaseOrderUseCase purchaseOrderUseCase;
+    private final PaymentUseCase paymentUseCase;
     private final DocumentReaderPort documentReaderPort;
     private final EmailJobPublisherPort emailJobPublisherPort;
 
@@ -102,11 +97,11 @@ public class SendEmailService implements SendEmailUseCase {
 
     @Override
     public void sendPurchaseOrderEmail(UUID purchaseOrderId, SendEmailRequest request) {
-        if(!purchaseOrderUseCase.existsByClientPurchaseOrderId(purchaseOrderId)){
+        if(!purchaseOrderUseCase.existsBySupplierPurchaseOrderId(purchaseOrderId)){
             throw BillingException.notFound("Bon de commande", String.valueOf(purchaseOrderId));
         }
 
-        PurchaseOrderDTO purchaseOrderDTO = purchaseOrderUseCase.getClientPurchaseOrderById(purchaseOrderId);
+        PurchaseOrderDTO purchaseOrderDTO = purchaseOrderUseCase.getSupplierPurchaseOrderById(purchaseOrderId);
 
         String partnerEmail = purchaseOrderDTO.getPartner().getEmail();
 
@@ -124,6 +119,39 @@ public class SendEmailService implements SendEmailUseCase {
                 List.of(
                         new MailAttachment(
                                 "Bon-commande-" + purchaseOrderDTO.getPurchaseOrderNumber()+".pdf",
+                                documentReadFile.mimeType(),
+                                documentReadFile.content()
+                        )
+                )
+        );
+
+        emailJobPublisherPort.publish(job);
+    }
+
+    @Override
+    public void sendPaymentEmail(UUID paymentId, SendEmailRequest request) {
+        if(!paymentUseCase.existsByIdPayment(paymentId)){
+            throw BillingException.notFound("Paiement", String.valueOf(paymentId));
+        }
+
+        PaymentDTO paymentDTO = paymentUseCase.getPaymentById(paymentId);
+
+        String partnerEmail = paymentDTO.getInvoice().getPartner().getEmail();
+
+        if (!partnerEmail.equalsIgnoreCase(request.toEmail())) {
+            throw new RuntimeException("Email does not match invoice partner email");
+        }
+
+        DocumentReadFile documentReadFile = documentReaderPort.getFileAttachment(paymentDTO.getPaymentDocument().getIdDocument());
+
+        MailJob job = new MailJob(
+                partnerEmail,
+                request.subject(),
+                request.body(),
+                true,
+                List.of(
+                        new MailAttachment(
+                                "Paiement-" + paymentDTO.getReference()+".pdf",
                                 documentReadFile.mimeType(),
                                 documentReadFile.content()
                         )

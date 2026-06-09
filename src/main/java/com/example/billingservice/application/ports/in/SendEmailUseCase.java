@@ -11,6 +11,8 @@ public interface SendEmailUseCase {
 
     void sendPurchaseOrderEmail(UUID purchaseOrderId, SendEmailRequest request);
 
+    void sendPaymentEmail(UUID paymentId, SendEmailRequest request);
+
     void sendEmail(SendEmailRequest request);
 
 }

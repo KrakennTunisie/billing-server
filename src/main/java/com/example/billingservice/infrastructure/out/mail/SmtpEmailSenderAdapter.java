@@ -32,7 +32,7 @@ public class SmtpEmailSenderAdapter implements EmailSenderPort {
 
             helper.setTo(job.to());
             helper.setSubject(job.subject());
-            helper.setText(job.body(), job.html());
+            helper.setText(toHtmlBody(job.body()), job.html());
 
             if (hasAttachments) {
                 for (MailAttachment attachment : job.attachments()) {
@@ -50,5 +50,15 @@ public class SmtpEmailSenderAdapter implements EmailSenderPort {
         } catch (MailException e) {
             throw e;
         }
+    }
+
+    private String toHtmlBody(String message) {
+        if (message == null) {
+            return "";
+        }
+
+        return message
+                .replace("\r\n", "\n")
+                .replace("\n", "<br />");
     }
 }

@@ -7,7 +7,10 @@ import com.example.billingservice.domain.exceptions.BillingException;
 import com.example.billingservice.domain.model.*;
 import com.example.billingservice.infrastructure.out.persistance.dto.*;
 import com.example.billingservice.infrastructure.out.persistance.entity.*;
+import com.example.billingservice.infrastructure.out.persistance.repository.ClientInvoicesRepository;
+import com.example.billingservice.infrastructure.out.persistance.repository.SupplierInvoicesRepository;
 import com.example.billingservice.shared.CurrencyCalculator;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -28,8 +31,11 @@ public class InvoiceMapper {
     private final PurchaseOrderMapper purchaseOrderMapper;
     private final PartnerUseCase partnerUseCase;
     private final PurchaseOrderUseCase purchaseOrderUseCase;
-    private final InvoiceEventMapper invoiceEventMapper;
+    private final AuditEventMapper invoiceEventMapper;
     private final CurrencyCalculator currencyCalculator;
+    private final ClientInvoicesRepository clientInvoicesRepository;
+    private final SupplierInvoicesRepository supplierInvoicesRepository;
+
     public InvoiceEntity toEntity(Invoice dto) {
         if (dto == null) {
             return null;
@@ -41,6 +47,7 @@ public class InvoiceMapper {
         invoice.setIssueDate(dto.getIssueDate());
         invoice.setDueDate(dto.getDueDate());
         invoice.setTotalInclTaxTND(BigDecimal.valueOf(dto.getTotalInclTaxTND()));
+        invoice.setRemainingAmount(dto.getRemainingAmount());
         invoice.setInvoiceStatus(dto.getInvoiceStatus() != null ? dto.getInvoiceStatus() : InvoiceStatus.DRAFT);
         invoice.setInvoiceComplianceStatus(
                 dto.getInvoiceComplianceStatus() != null
@@ -60,7 +67,7 @@ public class InvoiceMapper {
         invoice.setComplianceQRcode(dto.getComplianceQRcode());
         invoice.setInvoiceDocument(documentMapper.toEntity(dto.getInvoiceDocument(), DocumentType.INVOICE));
         invoice.setPurchaseOrder(purchaseOrderMapper.toEntity(dto.getPurchaseOrder()));
-        invoice.setPartner(partnerMapper.toEntity(dto.getPartner()));
+        invoice.setPartner(partnerMapper.toExistEntity(dto.getPartner()));
         invoice.setPurchaseOrder(purchaseOrderMapper.toEntity(dto.getPurchaseOrder()));
         invoice.setCurrency(dto.getCurrency());
 
@@ -73,18 +80,31 @@ public class InvoiceMapper {
         items.forEach(item -> item.setInvoice(invoice));
         invoice.setInvoiceItems(items);
 
-        List<InvoiceEventEntity> invoiceEventEntities = dto.getInvoiceEvents() != null
-                ? dto.getInvoiceEvents()
-                .stream()
-                .map(invoiceEventMapper::toEntity)
-                .toList()
-                : List.of();
-
-        invoiceEventEntities.forEach(event -> event.setInvoice(invoice));
-        invoice.setInvoiceEvents(invoiceEventEntities);
-
-
         return invoice;
+    }
+    public  InvoiceEntity toExistEntity(Invoice dto)
+    {
+
+        // Instancier la bonne classe selon le type
+        InvoiceEntity entity ;
+        if (dto.getIdInvoice()!= null) {
+            if(dto.getInvoiceType()== InvoiceType.SALE) {
+                entity = clientInvoicesRepository.findById(dto.getIdInvoice())
+                        .orElseThrow(() -> new EntityNotFoundException(
+                                "Invoice not found with id: " + dto.getIdInvoice()
+                        ));
+            }
+            else {
+                entity = supplierInvoicesRepository.findById(dto.getIdInvoice())
+                        .orElseThrow(() -> new EntityNotFoundException(
+                                "Invoice not found with id: " + dto.getIdInvoice()
+                        ));
+            }
+        } else {
+            entity = createEntityByInvoiceType(dto.getInvoiceType());
+        }
+
+        return  entity;
     }
 
 
@@ -110,11 +130,12 @@ public class InvoiceMapper {
                 .vatRate(entity.getVatRate())
                 .paymentMethod(entity.getPaymentMethod())
                 .paymentCondition(entity.getPaymentCondition())
+                .remainingAmount(entity.getRemainingAmount())
                 .exchangeRateReferenceDate(entity.getExchangeRateReferenceDate())
                 .appliedExchangeRate(entity.getAppliedExchangeRate())
                 .exchangeRateSource(entity.getExchangeRateSource())
                 .complianceQRcode(entity.getComplianceQRcode())
-                .partner(partnerMapper.toDomain(entity.getPartner(), partnerType))
+                .partner(partnerMapper.toDomain(entity.getPartner(),PartnerType.CLIENT))// à modifier
                 .purchaseOrder(purchaseOrderMapper.toDomain(entity.getPurchaseOrder(),PurchaseOrderType.SALE))
                 .invoiceDocument(documentMapper.toDomain(entity.getInvoiceDocument()))
                 .build();
@@ -128,15 +149,6 @@ public class InvoiceMapper {
                 : List.of();
 
         dto.setInvoiceItems(items);
-
-        List<InvoiceEvent> invoiceEvents = entity.getInvoiceEvents() != null
-                ? entity.getInvoiceEvents()
-                .stream()
-                .map(invoiceEventMapper::toDomain)
-                .toList()
-                : List.of();
-        dto.setInvoiceEvents(invoiceEvents);
-
 
         double totalExclTax = items.stream()
                 .mapToDouble(item -> item.getItemTotalExclTax() != null ? item.getItemTotalExclTax() : 0.0)
@@ -188,6 +200,7 @@ public class InvoiceMapper {
                 .totalInclTaxTND(invoice.getTotalInclTaxTND())
                 .totalExclTaxUSD(invoice.getTotalExclTaxUSD())
                 .totalInclTaxUSD(invoice.getTotalInclTaxUSD())
+                .remainingAmount(invoice.getRemainingAmount())
 
                 .vatRate(invoice.getVatRate())
                 .appliedExchangeRate(invoice.getAppliedExchangeRate())
@@ -196,6 +209,22 @@ public class InvoiceMapper {
                 .purchaseOrder(purchaseOrderMapper.toSummaryDTO(invoice.getPurchaseOrder()))
                 .partner(partnerMapper.toSummaryDTO(invoice.getPartner()))
 
+                .build();
+    }
+    public SummaryInvoiceDTO toInvoicePageItemDTO(InvoiceEntity invoice) {
+        if (invoice == null) {
+            return null;
+        }
+
+        return SummaryInvoiceDTO.builder()
+                .idInvoice(invoice.getIdInvoice())
+                .invoiceNumber(invoice.getReference())
+                .issueDate(invoice.getIssueDate())
+                .dueDate(invoice.getDueDate())
+                .invoiceType(invoice.getInvoiceType())
+                .invoiceStatus(invoice.getInvoiceStatus())
+                .invoiceCurrency(invoice.getCurrency())
+                .totalInclTax(invoice.getTotalInclTaxTND())
                 .build();
     }
 
@@ -246,20 +275,6 @@ public class InvoiceMapper {
             invoice.setInvoiceItems(invoiceItems);
 
 
-            InvoiceEvent invoiceEvent = InvoiceEvent.builder()
-                    .invoiceEventType(InvoiceEventType.CREATED)
-                    .eventDate(new Date())
-                    .description("Nouvelle facture créé par : "+InvoiceEventTrigger.USER.name())
-                    .eventTrigger(InvoiceEventTrigger.USER)
-                    .triggeredBy("user: wassef")
-                    .build();
-
-            List<InvoiceEvent> invoiceEvents= new ArrayList<>();
-
-            invoiceEvents.add(invoiceEvent);
-
-            invoice.setInvoiceEvents(invoiceEvents);
-
             double totalExclTax = items.stream()
                     .mapToDouble(item -> item.getItemTotalExclTax() != null ? item.getItemTotalExclTax() : 0.0)
                     .sum();
@@ -276,6 +291,7 @@ public class InvoiceMapper {
                     invoice.getExchangeRateReferenceDate()
             );
 
+            invoice.setRemainingAmount(formatAmount(totals, InvoiceCurrency.valueOf(invoiceCreateDTO.getInvoiceCurrency())));
 
             invoice.setTotalExclTaxEUR(totals.totalExclTaxEUR());
             invoice.setTotalInclTaxEUR(totals.totalInclTaxEUR());
@@ -313,6 +329,7 @@ public class InvoiceMapper {
                 .totalInclTaxTND(invoice.getTotalInclTaxTND())
                 .totalExclTaxUSD(invoice.getTotalExclTaxUSD())
                 .totalInclTaxUSD(invoice.getTotalInclTaxUSD())
+                .remainingAmount(invoice.getRemainingAmount())
                 .vatRate(invoice.getVatRate())
                 .paymentMethod(invoice.getPaymentMethod())
                 .paymentCondition(invoice.getPaymentCondition())
@@ -325,18 +342,6 @@ public class InvoiceMapper {
                 .invoiceItems(invoice.getInvoiceItems())
                 .invoiceDocument(documentMapper.toDocumentSummary(invoice.getInvoiceDocument()))
                 .build();
-
-        List<InvoiceEvent> invoiceEvents = invoice.getInvoiceEvents() != null
-                ? invoice.getInvoiceEvents()
-                .stream()
-                .toList()
-                : List.of();
-
-        invoiceDTO.setInvoiceEvents(invoiceEvents);
-
-        //invoiceDTO.setHasInvoiceCreditNotes(invoice.getInvoiceCreditNotes().isEmpty());
-
-        invoiceEvents.forEach(e-> System.out.println(e.toString()));
 
         return invoiceDTO;
     }
@@ -376,25 +381,6 @@ public class InvoiceMapper {
             Partner partner = getPartner(invoiceDTO.getInvoiceType(), idPartner);
             invoice.setPartner(partner);
 
-
-            List<InvoiceEvent> invoiceEvents = invoiceDTO.getInvoiceEvents() != null
-                    ? invoiceDTO.getInvoiceEvents()
-                    : List.of();
-
-            InvoiceEvent invoiceEvent = InvoiceEvent.builder()
-                    .invoiceEventType(InvoiceEventType.UPDATED)
-                    .eventDate(new Date())
-                    .description("Mise à jour de facture : "+InvoiceEventTrigger.USER.name())
-                    .eventTrigger(InvoiceEventTrigger.USER)
-                    .triggeredBy("user: wassef")
-                    .build();
-
-
-            List<InvoiceEvent> updatedEvents = new ArrayList<>(invoiceEvents);
-
-            updatedEvents.add(invoiceEvent);
-
-            invoice.setInvoiceEvents(updatedEvents);
 
             List<InvoiceItem> items = invoiceUpdateDTO.getInvoiceItems() != null
                     ? invoiceUpdateDTO.getInvoiceItems()
@@ -451,12 +437,14 @@ public class InvoiceMapper {
                 .invoiceStatus(invoice.getInvoiceStatus())
                 .invoiceComplianceStatus(invoice.getInvoiceComplianceStatus())
                 .invoiceCurrency(invoice.getCurrency())
+                .partner(partnerMapper.toSummaryDTO(invoice.getPartner()))
                 .totalExclTaxEUR(invoice.getTotalExclTaxEUR())
                 .totalInclTaxEUR(invoice.getTotalInclTaxEUR())
                 .totalExclTaxTND(invoice.getTotalExclTaxTND())
                 .totalInclTaxTND(invoice.getTotalInclTaxTND())
                 .totalExclTaxUSD(invoice.getTotalExclTaxUSD())
                 .totalInclTaxUSD(invoice.getTotalInclTaxUSD())
+                .remainingAmount(invoice.getRemainingAmount())
                 .build();
     }
 
@@ -479,6 +467,9 @@ public class InvoiceMapper {
                 .totalInclTaxTND(invoice.getTotalInclTaxTND())
                 .totalExclTaxUSD(invoice.getTotalExclTaxUSD())
                 .totalInclTaxUSD(invoice.getTotalInclTaxUSD())
+
+                .remainingAmount(invoice.getRemainingAmount())
+
                 .partner(partnerMapper.toSummaryDTO(invoice.getPartner()))
                 .build();
     }
@@ -501,12 +492,20 @@ public class InvoiceMapper {
 
     private InvoiceEntity createEntityByInvoiceType(InvoiceType invoiceType) {
         if (invoiceType == null) {
-            throw new IllegalArgumentException("PartnerType must not be null");
+            throw new IllegalArgumentException("InvoiceType must not be null");
         }
 
         return switch (invoiceType) {
             case SALE -> new ClientInvoiceEntity();
             case PURCHASE -> new SupplierInvoiceEntity();
+        };
+    }
+
+    private double formatAmount(CurrencyTotals totals, InvoiceCurrency currency){
+       return switch (currency){
+            case EUR -> totals.totalInclTaxEUR();
+            case TND -> totals.totalInclTaxTND();
+            case USD -> totals.totalInclTaxUSD();
         };
     }
 

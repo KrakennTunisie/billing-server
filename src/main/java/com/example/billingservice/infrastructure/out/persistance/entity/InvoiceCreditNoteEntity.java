@@ -40,9 +40,6 @@ public class InvoiceCreditNoteEntity {
 
 
     @OneToMany(mappedBy = "invoiceCreditNote", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<InvoiceCreditNoteEventEntity> invoiceCreditNoteEvents = new ArrayList<>();
-
-    @OneToMany(mappedBy = "invoiceCreditNote", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<InvoiceCreditNoteItemEntity> invoiceCreditNoteItems;
 
     @ManyToOne(fetch = FetchType.LAZY)

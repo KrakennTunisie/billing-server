@@ -37,7 +37,7 @@ public class PurchaseOrderController {
 
     @Operation(summary = "Numéro facture suivant", description = "Générer le numéro facture suivant")
     @GetMapping(path = "/next-number")
-    public ResponseEntity <NextNumberDTO> generateNextCreditNoteNumber()
+    public ResponseEntity <NextNumberDTO> generatePurchaseOrderNumber()
     {
         NextNumberDTO nextNumberDTO = NextNumberDTO.builder()
                 .value(generateInvoiceNumberService.generate(SequenceNumberType.PURCHASE_ORDER))
@@ -45,7 +45,7 @@ public class PurchaseOrderController {
         return ResponseEntity.ok(nextNumberDTO);
     }
     @Operation(summary = "Créer un bon de commande", description = "Ajoute un nouveau bon de commande")
-    @PostMapping(path = "/", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(path = "/client", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<PurchaseOrderDTO> createPurchaseOrder (@Valid @ModelAttribute PurchaseOrderCreateDTO form,
       @RequestParam(value = "purchaseOrderItemsList", required = true) String purchaseOrderItemsJson)
             throws DataIntegrityViolationException, IOException {
@@ -115,6 +115,19 @@ public class PurchaseOrderController {
     {
         purchaseOrderUseCase.deleteClientPurchaseOrder(UUID.fromString(id));
         return ResponseEntity.noContent().build();
+    }
+
+
+    /******** Coummun *****/
+
+    @GetMapping("/partner/{id}")
+    @Operation (summary = "Liste des bons de commande d'un partenaire")
+    public ResponseEntity<Page<PurchaseOrderPageItemDTO>> getPurchaseOrderListByIdPartner(
+            @Parameter(description = "ID du partenaire") @PathVariable String id,
+            @RequestParam String partnerType,
+            @RequestParam int page)
+    {
+      return ResponseEntity.ok(purchaseOrderUseCase.getPurchaseOrdersByPartnerId(UUID.fromString(id),partnerType, page) );
     }
 
     /************ SUPPLIER ************/
@@ -189,4 +202,6 @@ public class PurchaseOrderController {
         purchaseOrderUseCase.deleteSupplierPurchaseOrder(UUID.fromString(id));
         return ResponseEntity.noContent().build();
     }
+
+
 }

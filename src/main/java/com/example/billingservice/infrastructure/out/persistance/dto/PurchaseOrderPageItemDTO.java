@@ -25,8 +25,5 @@ public class PurchaseOrderPageItemDTO {
 
     private Double totalExclTaxUSD;
     private Double totalInclTaxUSD;
-
-    private Double vatRate;
-    private Double appliedExchangeRate;
     private PartnerSummaryDTO partner;
 }

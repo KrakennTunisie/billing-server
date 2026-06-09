@@ -29,6 +29,7 @@ public class InvoiceDTO {
     private Double totalInclTaxTND;
     private Double totalExclTaxUSD;
     private Double totalInclTaxUSD;
+    private Double remainingAmount;
     private Double vatRate;
     private PaymentCondition paymentCondition;
     private PaymentMethod paymentMethod;
@@ -40,7 +41,6 @@ public class InvoiceDTO {
     private PartnerSummaryDTO partner;
 
     private List<InvoiceItem> invoiceItems;
-    private List<InvoiceEvent> invoiceEvents;
     private boolean hasInvoiceCreditNotes;
     private DocumentSummaryDTO invoiceDocument;
 }

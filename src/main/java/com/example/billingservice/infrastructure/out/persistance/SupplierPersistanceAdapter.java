@@ -2,15 +2,21 @@ package com.example.billingservice.infrastructure.out.persistance;
 
 
 import com.example.billingservice.application.ports.out.SupplierRepositoryPort;
+import com.example.billingservice.domain.enums.AuditEventTrigger;
+import com.example.billingservice.domain.enums.AuditType;
 import com.example.billingservice.domain.enums.PartnerType;
 import com.example.billingservice.domain.exceptions.BillingException;
 import com.example.billingservice.domain.model.Partner;
 
-import com.example.billingservice.infrastructure.out.persistance.dto.PartnerDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerDetailsDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerItemDTO;
+import com.example.billingservice.infrastructure.out.persistance.dto.PartnerSummaryDTO;
+import com.example.billingservice.infrastructure.out.persistance.dto.UpdatePartnerDTO;
+import com.example.billingservice.infrastructure.out.persistance.entity.AuditLogEntity;
+import com.example.billingservice.infrastructure.out.persistance.entity.CustomerEntity;
 import com.example.billingservice.infrastructure.out.persistance.entity.SupplierEntity;
 import com.example.billingservice.infrastructure.out.persistance.mapper.PartnerMapper;
+import com.example.billingservice.infrastructure.out.persistance.repository.AuditLogRepository;
 import com.example.billingservice.infrastructure.out.persistance.repository.SupplierRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataAccessException;
@@ -20,7 +26,9 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
+import org.springframework.util.function.SupplierUtils;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -32,13 +40,25 @@ public class SupplierPersistanceAdapter implements SupplierRepositoryPort {
 
     private final SupplierRepository supplierRepository;
     private final PartnerMapper partnerMapper;
+    private final AuditLogRepository auditLogRepository;
 
     @Override
-    public PartnerDetailsDTO saveSupplier(Partner partner) throws DataIntegrityViolationException{
+    public Partner saveSupplier(Partner partner) throws DataIntegrityViolationException{
 
         SupplierEntity entity = (SupplierEntity) partnerMapper.toEntity(partner);
+        SupplierEntity savedEntity = (SupplierEntity) supplierRepository.save(entity);
+        AuditLogEntity audit = new AuditLogEntity();
+        audit.setAuditEventType(AuditType.CREATED);
+        audit.setEntityName("Partner");
+        audit.setTriggeredBy("user");
+        audit.setAuditEventTrigger(AuditEventTrigger.USER);
+        audit.setEntityId(savedEntity.getIdPartner());
+        audit.setDescription("Ajout d'un nouveau partenaire");
+        audit.setEventDate(new Date());
+        audit.setPartner(savedEntity);
+        auditLogRepository.save(audit);
 
-        return partnerMapper.toDetailsDTO(partnerMapper.toDomain(supplierRepository.save(entity), PartnerType.SUPPLIER) );
+        return partnerMapper.toDomain(supplierRepository.save(entity), PartnerType.SUPPLIER) ;
 
     }
 
@@ -47,7 +67,7 @@ public class SupplierPersistanceAdapter implements SupplierRepositoryPort {
         try
         {
             return supplierRepository.findById(UUID.fromString(id))
-                    .map(p-> partnerMapper.toDomain(p, PartnerType.SUPPLIER))
+                    .map(p-> partnerMapper.toDomain(p,PartnerType.SUPPLIER))
                     .or(() -> { throw BillingException.notFound("Fournisseur", id); });
         } catch (IllegalArgumentException ex) {
             throw BillingException.badRequest("Invalid UUID "+id);
@@ -55,10 +75,21 @@ public class SupplierPersistanceAdapter implements SupplierRepositoryPort {
     }
 
     @Override
-    public Optional<PartnerDetailsDTO> getSupplierById(UUID idSupplier) {
-        return supplierRepository.findById(idSupplier)
-                .map(p->partnerMapper.toDetailsDTO(partnerMapper.toDomain(p, PartnerType.SUPPLIER)))
-                .or(() -> { throw BillingException.notFound("Fournisseur", String.valueOf(idSupplier)); });
+    public PartnerDetailsDTO getSupplierDetailsById(UUID idSupplier) {
+        SupplierEntity supplierEntity = supplierRepository.getReferenceById(idSupplier);
+        return partnerMapper.toDetailsDTO(partnerMapper.toDomain(supplierEntity, PartnerType.SUPPLIER));
+    }
+
+    @Override
+    public Optional<Partner> getSupplierById(UUID idSupplier) {
+        try
+        {
+            return supplierRepository.findById(idSupplier)
+                    .map(p-> partnerMapper.toDomain(p,PartnerType.SUPPLIER))
+                    .or(() -> { throw BillingException.notFound("Fournisseur", String.valueOf(idSupplier)); });
+        } catch (IllegalArgumentException ex) {
+            throw BillingException.badRequest("Invalid UUID "+idSupplier);
+        }
     }
 
     @Override
@@ -79,7 +110,7 @@ public class SupplierPersistanceAdapter implements SupplierRepositoryPort {
     @Override
     public PartnerItemDTO getByEmail(String email) {
         SupplierEntity supplierEntity = supplierRepository.getSupplierEntityByEmail(email);
-        Partner partner = partnerMapper.toDomain(supplierEntity, PartnerType.SUPPLIER);
+        Partner partner = partnerMapper.toDomain(supplierEntity,PartnerType.SUPPLIER);
         return partnerMapper.toItemDTO(partner);
     }
 
@@ -91,8 +122,8 @@ public class SupplierPersistanceAdapter implements SupplierRepositoryPort {
     @Override
     public Optional<Partner> findSupplierByName(String name) {
         try
-        {return supplierRepository.findByName(name)
-                    .map(p-> partnerMapper.toDomain(p, PartnerType.SUPPLIER))
+        {return supplierRepository.findByPartnerName(name)
+                    .map(p-> partnerMapper.toDomain(p,PartnerType.SUPPLIER))
                     .or(() -> { throw BillingException.notFound("Fournisseur", name); });
         } catch (IllegalArgumentException ex) {
             throw BillingException.badRequest( "bad request"+ ex);
@@ -103,7 +134,7 @@ public class SupplierPersistanceAdapter implements SupplierRepositoryPort {
     public Optional<Partner> findSupplierByEmail(String email) {
         try
         {return supplierRepository.findByEmail(email)
-                .map(p-> partnerMapper.toDomain(p, PartnerType.SUPPLIER))
+                .map(p-> partnerMapper.toDomain(p,PartnerType.SUPPLIER))
                 .or(() -> { throw BillingException.notFound("Fournisseur", email); });
         } catch (IllegalArgumentException ex) {
             throw BillingException.badRequest( "bad request"+ ex);
@@ -121,12 +152,12 @@ public class SupplierPersistanceAdapter implements SupplierRepositoryPort {
     public Page<PartnerItemDTO> findAllSuppliers(String keyword, String Country, int page) {
         try {
 
-            PageRequest pageRequest = PageRequest.of(page, 5, Sort.by("name").ascending());
+            PageRequest pageRequest = PageRequest.of(page, 5, Sort.by("partnerName").ascending());
             Page<SupplierEntity> entities = supplierRepository.findSuppliers(keyword,Country,pageRequest);
 
             List<PartnerItemDTO> partners = entities.getContent()
                     .stream()
-                    .map(p->partnerMapper.toDomain(p, PartnerType.SUPPLIER))
+                    .map(p->partnerMapper.toDomain(p,PartnerType.SUPPLIER))
                     .map(partnerMapper::toItemDTO)
                     .collect(Collectors.toList());
 
@@ -138,15 +169,23 @@ public class SupplierPersistanceAdapter implements SupplierRepositoryPort {
     }
 
     @Override
-    public PartnerDetailsDTO updateSupplier(Partner partner) throws DataIntegrityViolationException {
+    public Partner updateSupplier(String id , UpdatePartnerDTO partner) throws DataIntegrityViolationException {
 
-            SupplierEntity entity = (SupplierEntity) partnerMapper.toEntity(partner);
-
-            SupplierEntity savedSupplier = supplierRepository.save(entity);
-
-            return partnerMapper.toDetailsDTO(partnerMapper.toDomain(savedSupplier, PartnerType.SUPPLIER));
-
-
+        SupplierEntity managedEntity = supplierRepository.findById(UUID.fromString(id))
+                .orElseThrow(() -> BillingException.notFound("Fournisseur", id));
+        SupplierEntity entity = (SupplierEntity) partnerMapper.updateEntity(partner,managedEntity);
+        Partner updatedPartner =  partnerMapper.toDomain(supplierRepository.save(entity),PartnerType.SUPPLIER);
+        AuditLogEntity audit = new AuditLogEntity();
+        audit.setAuditEventType(AuditType.CREATED);
+        audit.setEntityName("Partner");
+        audit.setTriggeredBy("user");
+        audit.setAuditEventTrigger(AuditEventTrigger.USER);
+        audit.setEntityId(entity.getIdPartner());
+        audit.setDescription("Modification d'un partenaire");
+        audit.setEventDate(new Date());
+        audit.setPartner(entity);
+        auditLogRepository.save(audit);
+        return updatedPartner;
     }
 
     @Override
@@ -154,16 +193,63 @@ public class SupplierPersistanceAdapter implements SupplierRepositoryPort {
 
         try {
             UUID uuid = UUID.fromString(id);
-
             if (!supplierRepository.existsById(uuid)) {
                 throw BillingException.notFound("Supplier", id);
             }
-
+            Optional<SupplierEntity> partnerToDelete = supplierRepository.findById(UUID.fromString(id));
+            AuditLogEntity audit = new AuditLogEntity();
+            audit.setAuditEventType(AuditType.DELETED);
+            audit.setEntityName("Partner");
+            audit.setTriggeredBy("user");
+            audit.setAuditEventTrigger(AuditEventTrigger.USER);
+            audit.setEntityId(partnerToDelete.get().getIdPartner());
+            audit.setDescription("Suppression d'un partenaire");
+            audit.setEventDate(new Date());
+            auditLogRepository.save(audit);
             supplierRepository.deleteById(uuid);
 
         } catch (IllegalArgumentException ex) {
             throw BillingException.badRequest("Invalid UUID format: " + id);
         }
 
+    }
+
+    @Override
+    public void updateSupplierStatus(String idSupplier, Boolean status) {
+        SupplierEntity entity;
+        try {
+            UUID supplierId = UUID.fromString(idSupplier);
+            entity = supplierRepository.findById(supplierId)
+                    .orElseThrow(() -> BillingException.notFound("Fournisseur", idSupplier));
+            entity.setActive(status);
+            supplierRepository.save(entity);
+            AuditLogEntity audit = new AuditLogEntity();
+            audit.setAuditEventType(AuditType.UPDATED);
+            audit.setEntityName("Partner");
+            audit.setTriggeredBy("user");
+            audit.setAuditEventTrigger(AuditEventTrigger.USER);
+            audit.setEntityId(entity.getIdPartner());
+            if(status) {
+                audit.setDescription("Activation du fournisseur");
+            }
+            else {
+                audit.setDescription("Désactivation du fournisseur");
+            }
+            audit.setPartner(entity);
+            audit.setEventDate(new Date());
+            auditLogRepository.save(audit);
+
+        } catch (IllegalArgumentException ex) {
+            throw BillingException.badRequest("UUID invalide : " + idSupplier);
+        }
+    }
+
+    @Override
+    public List<PartnerSummaryDTO> getSummarySuppliers(String keyword, String Country) {
+        List<SupplierEntity> suppliersEntities= supplierRepository.getSuppliers(keyword, Country);
+        return  suppliersEntities.stream()
+                .map(entity->partnerMapper.toDomain(entity,PartnerType.SUPPLIER))
+                .map(partnerMapper::toSummaryDTO)
+                .toList();
     }
 }

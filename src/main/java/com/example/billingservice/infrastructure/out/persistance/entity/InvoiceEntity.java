@@ -44,9 +44,6 @@ public abstract class InvoiceEntity extends BaseCommercialDocumentEntity{
     private PurchaseOrderEntity purchaseOrder;
 
 
-    @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL)
-    private List<InvoiceEventEntity> invoiceEvents = new ArrayList<>();
-
     @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<InvoiceItemEntity> invoiceItems;
 
@@ -54,6 +51,8 @@ public abstract class InvoiceEntity extends BaseCommercialDocumentEntity{
     private List<InvoiceCreditNoteEntity> invoiceCreditNotes;
 
     private BigDecimal totalInclTaxTND;
+
+    private Double remainingAmount;
 
     public abstract InvoiceType getInvoiceType();
 

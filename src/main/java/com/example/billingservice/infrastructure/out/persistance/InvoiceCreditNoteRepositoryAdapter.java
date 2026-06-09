@@ -1,15 +1,22 @@
 package com.example.billingservice.infrastructure.out.persistance;
 
 import com.example.billingservice.application.ports.in.CreditNoteSynchronizationUseCase;
+import com.example.billingservice.application.ports.out.ClientInvoicesRepositoryPort;
 import com.example.billingservice.application.ports.out.InvoiceCreditNoteRepositoryPort;
 import com.example.billingservice.domain.enums.InvoiceCreditNoteStatus;
 import com.example.billingservice.domain.exceptions.BillingException;
 import com.example.billingservice.domain.model.InvoiceCreditNote;
 import com.example.billingservice.domain.model.InvoiceCreditNoteItem;
+import com.example.billingservice.infrastructure.out.persistance.dto.InvoiceCreditNoteDetailsDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.InvoiceCreditNotePageItemDTO;
+import com.example.billingservice.infrastructure.out.persistance.dto.InvoiceSummaryDTO;
+import com.example.billingservice.infrastructure.out.persistance.entity.ClientInvoiceEntity;
 import com.example.billingservice.infrastructure.out.persistance.entity.InvoiceCreditNoteEntity;
+import com.example.billingservice.infrastructure.out.persistance.entity.SupplierInvoiceEntity;
 import com.example.billingservice.infrastructure.out.persistance.mapper.InvoiceCreditNoteMapper;
+import com.example.billingservice.infrastructure.out.persistance.repository.ClientInvoicesRepository;
 import com.example.billingservice.infrastructure.out.persistance.repository.InvoiceCreditNoteRepository;
+import com.example.billingservice.infrastructure.out.persistance.repository.SupplierInvoicesRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
@@ -18,6 +25,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -29,6 +37,8 @@ public class InvoiceCreditNoteRepositoryAdapter implements InvoiceCreditNoteRepo
     private final InvoiceCreditNoteRepository invoiceCreditNoteRepository;
     private final InvoiceCreditNoteMapper invoiceCreditNoteMapper;
     private final CreditNoteSynchronizationUseCase creditNoteSynchronizationUseCase;
+    private final ClientInvoicesRepository clientInvoicesRepository;
+    private final SupplierInvoicesRepository supplierInvoicesRepository;
 
 
     @Override
@@ -124,6 +134,48 @@ public class InvoiceCreditNoteRepositoryAdapter implements InvoiceCreditNoteRepo
     public boolean existsInvoiceCreditNoteEntityByInvoice(UUID idInvoice) {
         return invoiceCreditNoteRepository.existsInvoiceCreditNoteEntityByInvoice_IdInvoice(idInvoice);
     }
+
+    @Override
+    public Page<InvoiceCreditNotePageItemDTO> getCreditNoteByClient(UUID idClient, int page) {
+        try {
+
+            PageRequest pageRequest = PageRequest.of(page, 5, Sort.by("issueDate").descending());
+            Page<InvoiceCreditNoteEntity> entities = invoiceCreditNoteRepository
+                    .getCreditNotesByPartnerId(idClient, pageRequest);
+
+            List<InvoiceCreditNotePageItemDTO> invoices = entities.getContent()
+                    .stream()
+                    .map(invoiceCreditNoteMapper::toDomain)
+                    .map(invoiceCreditNoteMapper::toPageItemDTO)
+                    .collect(Collectors.toList());
+
+            return new PageImpl<>(invoices, pageRequest, entities.getTotalElements());
+
+        } catch (DataAccessException ex) {
+            throw BillingException.internalError("Erreur de fetch des factures d'avoir: " + ex.getMessage());
+        }
+    }
+    @Override
+    public Page<InvoiceCreditNotePageItemDTO> getCreditNoteBySupplier(UUID idSupplier, int page) {
+        try {
+
+            PageRequest pageRequest = PageRequest.of(page, 5, Sort.by("issueDate").descending());
+            Page<InvoiceCreditNoteEntity> entities = invoiceCreditNoteRepository
+                    .getCreditNotesByPartnerId(idSupplier, pageRequest);
+
+            List<InvoiceCreditNotePageItemDTO> invoices = entities.getContent()
+                    .stream()
+                    .map(invoiceCreditNoteMapper::toDomain)
+                    .map(invoiceCreditNoteMapper::toPageItemDTO)
+                    .collect(Collectors.toList());
+
+            return new PageImpl<>(invoices, pageRequest, entities.getTotalElements());
+
+        } catch (DataAccessException ex) {
+            throw BillingException.internalError("Erreur de fetch des factures d'avoir: " + ex.getMessage());
+        }
+    }
+
 
     private void synchronizeInvoiceItems(InvoiceCreditNote invoiceCreditNote){
         for (InvoiceCreditNoteItem invoiceCreditNoteItem : invoiceCreditNote.getInvoiceCreditNoteItems()){

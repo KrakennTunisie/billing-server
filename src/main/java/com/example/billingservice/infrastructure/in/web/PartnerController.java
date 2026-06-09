@@ -46,7 +46,7 @@ public class PartnerController {
 
     @GetMapping("/suppliers/{id}")
     @Operation(summary = "Récupérer un fournisseur")
-    public ResponseEntity<Optional<PartnerDetailsDTO>> getSupplierById(@Parameter(description = "ID du fournisseur")@PathVariable String id)
+    public ResponseEntity<PartnerDetailsDTO> getSupplierById(@Parameter(description = "ID du partenaire")@PathVariable String id)
     {
         return ResponseEntity.ok(partnerUseCase.getSupplierDetailsById(id));
     }
@@ -93,12 +93,30 @@ public class PartnerController {
     }
 
 
-    @PatchMapping("/suppliers/{id}")
+    @PatchMapping(path ="/suppliers/{id}",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Modification d'un fournisseur")
-    public ResponseEntity <PartnerDetailsDTO> updateSupplier (@Parameter(description = "ID du fournisseur") @PathVariable String id ,
-                                                    @RequestBody UpdatePartnerDTO request)
+    public ResponseEntity <Partner> updateSupplier (@Parameter(description = "ID du fournisseur") @PathVariable String id ,
+                                                    @ModelAttribute UpdatePartnerDTO request)
     {
        return ResponseEntity.status(201).body(partnerUseCase.updateSupplier(id,request)) ;
+    }
+
+    @PatchMapping(path = "/suppliers/updateStatus/{id}")
+    @Operation(summary = "Modification du statut fournisseur activé / désactivé")
+    public ResponseEntity<Void> updateStatusSupplier(
+            @Parameter(description = "ID du fournisseur")
+            @PathVariable String id,
+            @RequestParam Boolean statusClient
+    ) {
+        partnerUseCase.updateSupplierStatus(id, statusClient);
+        return ResponseEntity.noContent().build();
+    }
+    @GetMapping("/suppliers-summary")
+    public ResponseEntity <List<PartnerSummaryDTO>> getAllSuppliers(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String filter) {
+
+        return ResponseEntity.ok(partnerUseCase.getSummarySuppliers(keyword, filter));
     }
 
 
@@ -131,9 +149,24 @@ public class PartnerController {
 
     @GetMapping("/clients/{id}")
     @Operation(summary = "Récupérer un client")
-    public ResponseEntity<Optional<PartnerDetailsDTO>> getCustomerById(@Parameter(description = "ID du client")@PathVariable String id)
+    public ResponseEntity<PartnerDetailsDTO> getCustomerById(@Parameter(description = "ID du client")@PathVariable String id)
     {
         return ResponseEntity.ok(partnerUseCase.getClientDetailsById(id));
+    }
+
+    @GetMapping("/clients/getByEmail/{email}")
+    @Operation(summary = "Récupérer un client")
+    public ResponseEntity<Partner> getClientByEmail(
+            @Parameter(description = "Email du partenaire")@PathVariable String email)
+    {
+        return ResponseEntity.ok(partnerUseCase.findCustomerByEmail(email).get());
+    }
+
+    @GetMapping("/clients/existByEmail/{email}")
+    @Operation(summary = "Récupérer un client")
+    public ResponseEntity<Optional<Partner>> customerExistByEmail(@Parameter(description = "Email du client")@PathVariable String email)
+    {
+        return ResponseEntity.ok(partnerUseCase.findCustomerByEmail(email));
     }
 
 
@@ -146,11 +179,22 @@ public class PartnerController {
     }
 
 
-    @PatchMapping("/clients/{id}")
+    @PatchMapping(path = "/clients/{id}",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Modification client")
-    public ResponseEntity <PartnerDetailsDTO> updateCustomer (@Parameter(description = "ID du client") @PathVariable String id ,
-                                                    @RequestBody UpdatePartnerDTO request)
+    public ResponseEntity <Partner> updateCustomer (@Parameter(description = "ID du client") @PathVariable String id ,
+                                                    @ModelAttribute UpdatePartnerDTO request)
     {
         return ResponseEntity.status(201).body(partnerUseCase.updateCustomer(id,request)) ;
+    }
+
+    @PatchMapping(path = "/clients/updateStatus/{id}")
+    @Operation(summary = "Modification du statut client activé / désactivé")
+    public ResponseEntity<Void> updateStatusCustomer(
+            @Parameter(description = "ID du client")
+            @PathVariable String id,
+            @RequestParam Boolean statusClient
+    ) {
+        partnerUseCase.updateCustomerStatus(id, statusClient);
+        return ResponseEntity.noContent().build();
     }
 }

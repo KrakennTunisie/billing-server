@@ -85,6 +85,18 @@ public class InvoiceCreditNoteController {
         return ResponseEntity.status(201).body(invoiceDTO);
 
     }
+    @GetMapping("/getPartnerCreditNote/{idPartner}")
+    @Operation(summary = "get creditNote by id partner")
+    public ResponseEntity<Page<InvoiceCreditNotePageItemDTO>> getCreditNoteByIdPartner(
+            @Parameter(description = "référence du partenaire") @PathVariable String idPartner,
+            @RequestParam String partnerType,
+            @RequestParam int page)
+    {
+
+
+        return ResponseEntity.ok(invoiceCreditNoteUseCase.getCreditNoteInvoiceByPartner(idPartner,partnerType, page));
+
+    }
 
     @PatchMapping("/{invoiceCreditNoteNumber}/status")
     public ResponseEntity<InvoiceCreditNoteDetailsDTO> updateStatus(
@@ -108,4 +120,6 @@ public class InvoiceCreditNoteController {
         invoiceCreditNoteUseCase.deleteInvoiceCreditNote(UUID.fromString(id));
         return ResponseEntity.noContent().build();
     }
+
+
 }

@@ -4,6 +4,7 @@ import com.example.billingservice.domain.model.Partner;
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerDetailsDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerItemDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerSummaryDTO;
+import com.example.billingservice.infrastructure.out.persistance.dto.UpdatePartnerDTO;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -11,10 +12,13 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface CustomerRepositoryPort {
-    PartnerDetailsDTO saveCustomer (Partner partner);
+    Partner saveCustomer (Partner partner);
+
+    PartnerDetailsDTO getClientDetailsById(UUID idClient);
+
     Optional<Partner> findCustomerById(String id);
 
-    Optional<PartnerDetailsDTO> findClientById( UUID idClient);
+    Optional<Partner> findCustomerByEmail(String email);
 
     boolean existsByIdPartner(UUID idPartner);
 
@@ -31,7 +35,8 @@ public interface CustomerRepositoryPort {
 
     List<PartnerSummaryDTO> getSummaryClients(String keyword , String Country);
 
-    PartnerDetailsDTO updateCustomer (Partner partner);
+    Partner updateCustomer (String id,UpdatePartnerDTO partner);
 
     void deleteCustomerById(String id);
+    void updateCustomerStatus(String idClient ,Boolean statuts);
 }
