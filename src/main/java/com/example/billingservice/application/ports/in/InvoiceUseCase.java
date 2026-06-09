@@ -63,5 +63,7 @@ public interface InvoiceUseCase {
     List<InvoicePageItemDTO> getSupplierTopInvoices(UUID supplierId);
     Page<InvoicePageItemDTO>  getClientInvoices (UUID clientId, int page);
 
+    Page<InvoicePageItemDTO>  getSupplierInvoices (UUID clientId, int page);
+
 
 }

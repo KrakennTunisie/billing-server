@@ -15,7 +15,7 @@ public interface PartnerUseCase {
 
     /****** Supplier *****/
 
-    Partner createSupplier(PartnerForm partner) throws IOException, DataIntegrityViolationException;
+    PartnerDetailsDTO createSupplier(PartnerForm partner) throws IOException, DataIntegrityViolationException;
 
 
 
@@ -44,7 +44,7 @@ public interface PartnerUseCase {
 
     /**** CUSTOMER ****/
 
-    Optional<Partner> createCustomer(PartnerForm partner) throws IOException;
+    PartnerDetailsDTO createCustomer(PartnerForm partner) throws IOException;
 
     Optional<Partner> findCustomerById(String id);
 

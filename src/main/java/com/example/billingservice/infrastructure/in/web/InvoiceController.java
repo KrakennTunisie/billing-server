@@ -271,5 +271,16 @@ public class InvoiceController {
         return ResponseEntity.status(200).body(convertedInvoiceStats);
     }
 
+    @GetMapping("/last"+SUPPLIER_INVOICES+"/{idSupplier}")
+    @Operation(summary = "Liste des factures d'un fournisseur")
+    public ResponseEntity<Page<InvoicePageItemDTO>> getSupplierInvoices(
+            @Parameter(description = "ID du fournisseur") @PathVariable UUID idSupplier,
+            @RequestParam int page)
+    {
+
+        return ResponseEntity.status(200).body(invoiceUseCase.getSupplierInvoices(idSupplier, page));
+    }
+
+
 
 }

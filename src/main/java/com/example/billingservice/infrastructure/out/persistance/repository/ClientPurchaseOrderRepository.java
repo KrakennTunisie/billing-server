@@ -46,7 +46,7 @@ public interface ClientPurchaseOrderRepository extends JpaRepository<ClientPurch
     WHERE i.partner.idPartner = :clientId
     ORDER BY i.issueDate DESC
 """)
-    List<ClientPurchaseOrderEntity> getClientPurchaseOrders(
+    Page<ClientPurchaseOrderEntity>  getClientPurchaseOrders(
             @Param("clientId") UUID clientId,
             Pageable pageable
     );

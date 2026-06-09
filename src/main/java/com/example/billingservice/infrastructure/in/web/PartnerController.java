@@ -38,7 +38,7 @@ public class PartnerController {
 
     @Operation(summary = "Créer un fournisseur", description = "Ajoute un nouveau fournisseur")
     @PostMapping(path = "/suppliers", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity <Partner> createSupplier (@Valid @ModelAttribute PartnerForm form) throws IOException,
+    public ResponseEntity <PartnerDetailsDTO> createSupplier (@Valid @ModelAttribute PartnerForm form) throws IOException,
             DataIntegrityViolationException {
         return ResponseEntity.status(201).body(partnerUseCase.createSupplier(form));
     }
@@ -125,7 +125,7 @@ public class PartnerController {
     /********** CUSTOMER *************/
     @Operation(summary = "Créer un client", description = "Ajoute un nouveau client")
     @PostMapping(path = "/clients", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity <Optional<Partner>> createCustomer (@ModelAttribute PartnerForm form) throws IOException {
+    public ResponseEntity <PartnerDetailsDTO> createCustomer (@ModelAttribute PartnerForm form) throws IOException {
         return ResponseEntity.status(201).body(partnerUseCase.createCustomer(form));
     }
 

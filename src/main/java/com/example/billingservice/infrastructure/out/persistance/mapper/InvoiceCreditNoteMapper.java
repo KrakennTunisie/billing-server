@@ -81,7 +81,7 @@ public class InvoiceCreditNoteMapper {
         entity.setIssueDate(domain.getIssueDate());
 
         if (domain.getInvoice() != null) {
-            entity.setInvoice(invoiceMapper.toEntity(domain.getInvoice()));
+            entity.setInvoice(invoiceMapper.toExistEntity(domain.getInvoice()));
         }
 
         List<InvoiceCreditNoteItemEntity> itemEntities = domain.getInvoiceCreditNoteItems().stream()

@@ -369,9 +369,23 @@ public class SupplierInvoicesAdapter implements SupplierInvoicesRepositoryPort {
     }
 
     @Override
-    public List<SummaryInvoiceDTO> getSupplierInvoices(UUID idpartner) {
-         List <SupplierInvoiceEntity> supplierInvoices = supplierInvoicesRepository.getAllSupplierInvoices(idpartner, PageRequest.of(0, 3));
-         return  supplierInvoices.stream().map(invoice-> invoiceMapper.toInvoicePageItemDTO(invoice)).toList();
+    public Page<InvoicePageItemDTO> getSupplierInvoices(UUID idpartner, int page) {
+        try {
+            PageRequest pageRequest = PageRequest.of(page, 10, Sort.by("issueDate").descending());
+
+            Page<InvoiceEntity> entities = supplierInvoicesRepository.getClientInvoicesByPartner(idpartner, pageRequest);
+
+            List<InvoicePageItemDTO> invoices = entities.getContent()
+                    .stream()
+                    .map(invoiceEntity -> invoiceMapper.toDomain(invoiceEntity, InvoiceType.PURCHASE))
+                    .map(invoiceMapper::toInvoicePageItemDTO)
+                    .collect(Collectors.toList());
+
+            return new PageImpl<>(invoices, pageRequest, entities.getTotalElements());
+
+        } catch (DataAccessException ex) {
+            throw BillingException.internalError("Erreur de fetch des factures: " + ex.getMessage());
+        }
 
     }
 

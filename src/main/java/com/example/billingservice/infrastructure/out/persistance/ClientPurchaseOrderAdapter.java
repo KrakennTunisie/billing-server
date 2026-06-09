@@ -4,6 +4,7 @@ import com.example.billingservice.application.ports.out.ClientPurchaseOrderPort;
 import com.example.billingservice.domain.enums.InvoiceType;
 import com.example.billingservice.domain.enums.PurchaseOrderStatus;
 import com.example.billingservice.domain.enums.PurchaseOrderType;
+import com.example.billingservice.domain.exceptions.BillingException;
 import com.example.billingservice.domain.model.Invoice;
 import com.example.billingservice.domain.model.PurchaseOrder;
 import com.example.billingservice.infrastructure.out.persistance.dto.PurchaseOrderDTO;
@@ -16,6 +17,7 @@ import com.example.billingservice.infrastructure.out.persistance.entity.Purchase
 import com.example.billingservice.infrastructure.out.persistance.mapper.PurchaseOrderMapper;
 import com.example.billingservice.infrastructure.out.persistance.repository.ClientPurchaseOrderRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -109,9 +111,23 @@ public class ClientPurchaseOrderAdapter implements ClientPurchaseOrderPort {
     }
 
     @Override
-    public List<PurchaseOrderPartnerSummaryDTO> getPurchaseOrderByClientId(UUID idClient) {
-        List<ClientPurchaseOrderEntity> purchaseOrdersEntities = clientPurchaseOrderRepository.getClientPurchaseOrders(idClient,PageRequest.of(0, 3));
-        List <PurchaseOrder> invoices = purchaseOrdersEntities.stream().map(clientInvoiceEntity -> purchaseOrderMapper.toDomain(clientInvoiceEntity, PurchaseOrderType.SALE)).toList();
-        return  invoices.stream().map(purchaseOrder->purchaseOrderMapper.toPurchaseOrderPartnerSummaryDTO(purchaseOrder)).toList();
+    public Page<PurchaseOrderPageItemDTO> getPurchaseOrderByClientId(UUID idClient, int page) {
+
+        try{
+
+            PageRequest pageRequest = PageRequest.of(page, 5, Sort.by("issueDate").descending());
+            Page<ClientPurchaseOrderEntity> entities = clientPurchaseOrderRepository.getClientPurchaseOrders(idClient, pageRequest);
+
+            List<PurchaseOrderPageItemDTO> purchaseOrders = entities.getContent()
+                    .stream()
+                    .map(entity -> purchaseOrderMapper.toDomain(entity, PurchaseOrderType.SALE))
+                    .map(purchaseOrderMapper::domainToPageItem)
+                    .collect(Collectors.toList());
+            return new PageImpl<>(purchaseOrders, pageRequest, entities.getTotalElements());
+        }
+        catch (DataAccessException ex){
+          throw BillingException.internalError("Erreur de fetch des bons de commandes: " + ex.getMessage());
+
+        }
     }
 }

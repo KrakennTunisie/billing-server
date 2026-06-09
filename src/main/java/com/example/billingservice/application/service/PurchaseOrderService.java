@@ -6,6 +6,7 @@ import com.example.billingservice.application.ports.in.PurchaseOrderUseCase;
 import com.example.billingservice.application.ports.out.ClientPurchaseOrderPort;
 import com.example.billingservice.application.ports.out.SupplierPurchaseOrderPort;
 import com.example.billingservice.domain.enums.DocumentType;
+import com.example.billingservice.domain.enums.PartnerType;
 import com.example.billingservice.domain.enums.PurchaseOrderStatus;
 import com.example.billingservice.domain.enums.SequenceNumberType;
 import com.example.billingservice.domain.exceptions.BillingException;
@@ -168,8 +169,13 @@ public class PurchaseOrderService implements PurchaseOrderUseCase {
 
     /**** Coummun functions ***/
     @Override
-    public List<PurchaseOrderPartnerSummaryDTO> getPurchaseOrdersByPartnerId(UUID idPartner) {
-        return  clientPurchaseOrderPort.getPurchaseOrderByClientId(idPartner);
+    public Page<PurchaseOrderPageItemDTO> getPurchaseOrdersByPartnerId(UUID idPartner , String partnerType, int page) {
+        if(partnerType.equals(PartnerType.CLIENT.toString()))
+        {
+            return  clientPurchaseOrderPort.getPurchaseOrderByClientId(idPartner, page);
+        }else {
+            return supplierPurchaseOrderPort.getPurchaseOrderBySupplierId(idPartner, page);
+        }
     }
 
     /** Supplier purchaseOrder **/
@@ -295,6 +301,7 @@ public class PurchaseOrderService implements PurchaseOrderUseCase {
     public boolean existsBySupplierPurchaseOrderId(UUID purchaseOrderId) {
         return supplierPurchaseOrderPort.existsByPurchaseOrderId(purchaseOrderId);
     }
+
 
 
 }

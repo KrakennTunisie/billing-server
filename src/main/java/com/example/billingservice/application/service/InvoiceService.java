@@ -242,6 +242,12 @@ public class InvoiceService implements InvoiceUseCase, InvoiceStatsUseCase {
     }
 
     @Override
+    public Page<InvoicePageItemDTO> getSupplierInvoices(UUID supplierId, int page) {
+        return supplierInvoicesRepositoryPort.getSupplierInvoices(supplierId, page);
+    }
+
+
+    @Override
     public Page<InvoicePageItemDTO> getClientsInvoices(String keyword, String status, int page) {
         InvoiceStatus invoiceStatus = ParseEnum.parseEnum(status, InvoiceStatus.class);
 
