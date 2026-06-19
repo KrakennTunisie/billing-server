@@ -16,9 +16,9 @@ public class CorsConfig {
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
                         .allowedOrigins("http://89.167.12.94:3000",
-                                "http://localhost:3000",
                                 "http://localhost:3001",
-                                "http://localhost:8080",
+                                "http://localhost:8089",
+                                "https://kerp-app.duckdns.org",
                                 "https://kerp-web.duckdns.org"
                         )
                         .allowedMethods("GET", "POST", "PUT","PATCH", "DELETE", "OPTIONS")
