@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -14,6 +15,10 @@ public interface InvoiceUseCase {
     Page<InvoicePageItemDTO> getClientsInvoices(String keyword , String status , int page);
 
     Page<InvoicePageItemDTO> getSuppliersInvoices(String keyword , String status , int page);
+
+    List<InvoicePageItemDTO> getClientsOverdueInvoices(Date date);
+
+    List<InvoicePageItemDTO> getSuppliersOverdueInvoices(Date date);
 
     InvoiceDTO createInvoice(InvoiceCreateDTO invoice) throws IOException;
 
@@ -32,6 +37,10 @@ public interface InvoiceUseCase {
     InvoiceDTO updateClientInvoiceRemainingAmount(UUID invoiceId, double paidAmount);
 
     InvoiceDTO getInvoiceById(UUID invoiceId);
+
+    InvoicePageItemDTO getClientInvoiceItemById(UUID idInvoice);
+
+    InvoicePageItemDTO getSupplierInvoiceItemById(UUID idInvoice);
 
     InvoiceDTO getInvoiceByInvoiceNumber(String invoiceNumber);
 

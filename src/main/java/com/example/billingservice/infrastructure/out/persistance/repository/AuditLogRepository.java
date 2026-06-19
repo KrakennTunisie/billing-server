@@ -11,4 +11,6 @@ public interface AuditLogRepository extends JpaRepository<AuditLogEntity, UUID> 
 
     List<AuditLogEntity> findByPartner_IdPartner(UUID idClient);
 
+    List<AuditLogEntity> findAuditLogEntitiesByPartner_IdPartnerOrderByEventDateDesc(UUID idClient);
+
 }

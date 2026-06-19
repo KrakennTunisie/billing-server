@@ -13,11 +13,15 @@ import com.example.billingservice.infrastructure.out.persistance.repository.Supp
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 
 @Component
@@ -36,13 +40,17 @@ public class PartnerMapper {
         PartnerEntity entity = createEntityByPartnerType(partner.getPartnerType());
 
         //RNE
-        DocumentEntity rne = documentMapper.toRneEntity(partner.getRne());
+        List<DocumentEntity> rne = partner.getRne().stream()
+                .map(documentMapper::toRneEntity)
+                .toList();
 
         //Patente
         DocumentEntity patente = documentMapper.toPatenteEntity(partner.getPatente());
 
         //Contract
-        DocumentEntity contract = documentMapper.toContractEntity(partner.getContract());
+        List<DocumentEntity> contract = partner.getContract().stream()
+                .map(documentMapper::toContractEntity)
+                .toList();
 
         //Partner
         entity.setIdPartner(partner.getIdPartner());
@@ -125,12 +133,29 @@ public class PartnerMapper {
     public Partner toDomain(PartnerEntity entity, PartnerType type)
     {
 
-        //RNE
-        Document rne =documentMapper.toDomain(entity.getRne());
+
         //Patente
         Document patente = documentMapper.toDomain(entity.getPatente());
-        //Contrat
-        Document contrat = documentMapper.toDomain(entity.getContract());
+
+        List<Document> rne = entity.getRne().stream()
+                .map(documentMapper::toDomain)
+                .collect(Collectors.collectingAndThen(
+                        Collectors.toList(),
+                        list -> {
+                            Collections.reverse(list);
+                            return list;
+                        }
+                ));
+
+        List<Document> contrat = entity.getContract().stream()
+                .map(documentMapper::toDomain)
+                .collect(Collectors.collectingAndThen(
+                        Collectors.toList(),
+                        list -> {
+                            Collections.reverse(list);
+                            return list;
+                        }
+                ));
 
         return Partner.builder()
                 .idPartner(entity.getIdPartner())
@@ -163,6 +188,13 @@ public class PartnerMapper {
             return  null;
         }
 
+        List<DocumentSummaryDTO> RNEs = partner.getRne().stream()
+                .map(documentMapper::toDocumentSummary)
+                .toList();
+        List<DocumentSummaryDTO> contracts = partner.getContract().stream()
+                .map(documentMapper::toDocumentSummary)
+                .toList();
+
         return PartnerDetailsDTO.builder()
                 .idPartner(partner.getIdPartner())
                 .active(partner.isActive())
@@ -182,8 +214,8 @@ public class PartnerMapper {
                 .taxRegistrationNumber(partner.getTaxRegistrationNumber())
                 .paymentCondition(partner.getPaymentCondition())
                 .iban(partner.getIban())
-                .rne(documentMapper.toDocumentSummary(partner.getRne()))
-                .contract(documentMapper.toDocumentSummary(partner.getContract()))
+                .rne(RNEs)
+                .contract(contracts)
                 .patente(documentMapper.toDocumentSummary(partner.getPatente()))
                 .partnerType(partner.getPartnerType())
                 .createdAt(partner.getCreatedAt())
@@ -195,6 +227,7 @@ public class PartnerMapper {
 
         return PartnerItemDTO.builder()
                 .idPartner(partner.getIdPartner())
+                .maritalStatus(partner.getMaritalStatus())
                 .partnerName(partner.getPartnerName())
                 .companyName(partner.getCompanyName())
                 .email(partner.getEmail())
@@ -295,6 +328,8 @@ public class PartnerMapper {
         Document uploadedRne = uploadDocumentService.upload(dto.getTaxRegistrationNumber(), DocumentType.RNE, rne);
         Document uploadedContract = uploadDocumentService.upload(dto.getTaxRegistrationNumber(), DocumentType.CONTRACT, contract);
         Document uploadedPatente = uploadDocumentService.upload(dto.getTaxRegistrationNumber(), DocumentType.PATENT, patente);
+        List<Document> RNEs = new ArrayList<>(List.of(uploadedRne));
+        List<Document> Contracts = new ArrayList<>(List.of(uploadedContract));
         System.out.println(dto.getEnablePortal());
         return Partner.builder()
                 .active(Boolean.parseBoolean(dto.getActive()))
@@ -315,7 +350,9 @@ public class PartnerMapper {
                 .paymentCondition(dto.getPaymentCondition())
                 .taxRate(dto.getTaxRate())
                 .iban(dto.getIban())
-                .rne(uploadedRne).contract(uploadedContract).patente(uploadedPatente)
+                .rne(RNEs)
+                .contract(Contracts)
+                .patente(uploadedPatente)
                 .build();
     }
 
@@ -326,6 +363,7 @@ public class PartnerMapper {
 
         return PartnerSummaryDTO.builder()
                 .idPartner(partner.getIdPartner())
+                .maritalStatus(partner.getMaritalStatus())
                 .companyName(partner.getCompanyName())
                 .partnerName(partner.getPartnerName())
                 .email(partner.getEmail())
@@ -346,5 +384,8 @@ public class PartnerMapper {
             case SUPPLIER -> new SupplierEntity();
         };
     }
+
+
+
 
 }

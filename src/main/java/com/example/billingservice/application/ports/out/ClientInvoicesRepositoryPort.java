@@ -6,6 +6,7 @@ import com.example.billingservice.domain.model.Invoice;
 import com.example.billingservice.infrastructure.out.persistance.dto.*;
 import org.springframework.data.domain.Page;
 
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -13,6 +14,8 @@ public interface ClientInvoicesRepositoryPort {
     Page<InvoicePageItemDTO> findAllInvoices(String keyword , InvoiceStatus status , int page, InvoiceType type);
 
     List<InvoicePageItemDTO> getClientTopInvoices(UUID idClient);
+
+    List<InvoicePageItemDTO> getOverdueInvoices(Date date);
 
     InvoiceDTO save(Invoice invoice);
 
@@ -23,6 +26,8 @@ public interface ClientInvoicesRepositoryPort {
     InvoiceDTO updateRemainingAmount(UUID invoiceId, double amount);
 
     InvoiceDTO getById(UUID idInvoice);
+
+    InvoicePageItemDTO getInvoiceItemById(UUID idInvoice);
 
     Invoice getInvoice(UUID idInvoice);
 
