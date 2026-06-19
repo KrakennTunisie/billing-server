@@ -6,6 +6,7 @@ import com.example.billingservice.domain.enums.AuditEventTrigger;
 import com.example.billingservice.domain.enums.AuditType;
 import com.example.billingservice.domain.enums.PartnerType;
 import com.example.billingservice.domain.exceptions.BillingException;
+import com.example.billingservice.domain.model.Document;
 import com.example.billingservice.domain.model.Partner;
 
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerDetailsDTO;
@@ -14,7 +15,9 @@ import com.example.billingservice.infrastructure.out.persistance.dto.PartnerSumm
 import com.example.billingservice.infrastructure.out.persistance.dto.UpdatePartnerDTO;
 import com.example.billingservice.infrastructure.out.persistance.entity.AuditLogEntity;
 import com.example.billingservice.infrastructure.out.persistance.entity.CustomerEntity;
+import com.example.billingservice.infrastructure.out.persistance.entity.DocumentEntity;
 import com.example.billingservice.infrastructure.out.persistance.entity.SupplierEntity;
+import com.example.billingservice.infrastructure.out.persistance.mapper.DocumentMapper;
 import com.example.billingservice.infrastructure.out.persistance.mapper.PartnerMapper;
 import com.example.billingservice.infrastructure.out.persistance.repository.AuditLogRepository;
 import com.example.billingservice.infrastructure.out.persistance.repository.SupplierRepository;
@@ -41,6 +44,7 @@ public class SupplierPersistanceAdapter implements SupplierRepositoryPort {
     private final SupplierRepository supplierRepository;
     private final PartnerMapper partnerMapper;
     private final AuditLogRepository auditLogRepository;
+    private final DocumentMapper documentMapper;
 
     @Override
     public Partner saveSupplier(Partner partner) throws DataIntegrityViolationException{
@@ -72,6 +76,35 @@ public class SupplierPersistanceAdapter implements SupplierRepositoryPort {
         } catch (IllegalArgumentException ex) {
             throw BillingException.badRequest("Invalid UUID "+id);
         }
+    }
+
+    @Override
+    public PartnerDetailsDTO addDocumentToClient(UUID idClient, Document document) {
+        SupplierEntity supplierEntity = supplierRepository.getReferenceById(idClient);
+
+        DocumentEntity documentEntity =
+                documentMapper.toEntity(document, document.getDocumentType());
+
+        switch (document.getDocumentType()) {
+
+            case RNE -> {
+                supplierEntity.getRne().add(documentEntity);
+
+            }
+
+            case CONTRACT -> {
+                supplierEntity.getContract().add(documentEntity);
+
+            }
+
+            default -> throw new IllegalArgumentException(
+                    "Unsupported document type: " + document.getDocumentType()
+            );
+        }
+
+        supplierRepository.save(supplierEntity);
+
+        return partnerMapper.toDetailsDTO(partnerMapper.toDomain(supplierEntity, PartnerType.SUPPLIER));
     }
 
     @Override

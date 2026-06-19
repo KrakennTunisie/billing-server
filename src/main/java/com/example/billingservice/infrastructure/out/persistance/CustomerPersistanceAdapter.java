@@ -5,6 +5,7 @@ import com.example.billingservice.domain.enums.AuditEventTrigger;
 import com.example.billingservice.domain.enums.AuditType;
 import com.example.billingservice.domain.enums.PartnerType;
 import com.example.billingservice.domain.exceptions.BillingException;
+import com.example.billingservice.domain.model.Document;
 import com.example.billingservice.domain.model.Partner;
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerDetailsDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerItemDTO;
@@ -12,6 +13,8 @@ import com.example.billingservice.infrastructure.out.persistance.dto.PartnerSumm
 import com.example.billingservice.infrastructure.out.persistance.dto.UpdatePartnerDTO;
 import com.example.billingservice.infrastructure.out.persistance.entity.AuditLogEntity;
 import com.example.billingservice.infrastructure.out.persistance.entity.CustomerEntity;
+import com.example.billingservice.infrastructure.out.persistance.entity.DocumentEntity;
+import com.example.billingservice.infrastructure.out.persistance.mapper.DocumentMapper;
 import com.example.billingservice.infrastructure.out.persistance.mapper.PartnerMapper;
 import com.example.billingservice.infrastructure.out.persistance.repository.AuditLogRepository;
 import com.example.billingservice.infrastructure.out.persistance.repository.CustomerRepository;
@@ -23,10 +26,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -36,6 +36,7 @@ public class CustomerPersistanceAdapter implements CustomerRepositoryPort {
     private final PartnerMapper partnerMapper;
     private final CustomerRepository customerRepository;
     private final AuditLogRepository auditLogRepository;
+    private final DocumentMapper documentMapper;
 
     @Override
     public Partner saveCustomer(Partner partner) {
@@ -60,6 +61,35 @@ public class CustomerPersistanceAdapter implements CustomerRepositoryPort {
     @Override
     public PartnerDetailsDTO getClientDetailsById(UUID idClient) {
         CustomerEntity customerEntity = customerRepository.getReferenceById(idClient);
+        return partnerMapper.toDetailsDTO(partnerMapper.toDomain(customerEntity, PartnerType.CLIENT));
+    }
+
+    @Override
+    public PartnerDetailsDTO addDocumentToClient(UUID idClient, Document document) {
+        CustomerEntity customerEntity = customerRepository.getReferenceById(idClient);
+
+        DocumentEntity documentEntity =
+                documentMapper.toEntity(document, document.getDocumentType());
+
+        switch (document.getDocumentType()) {
+
+            case RNE -> {
+                customerEntity.getRne().add(documentEntity);
+
+            }
+
+            case CONTRACT -> {
+                customerEntity.getContract().add(documentEntity);
+
+            }
+
+            default -> throw new IllegalArgumentException(
+                    "Unsupported document type: " + document.getDocumentType()
+            );
+        }
+
+        customerRepository.save(customerEntity);
+
         return partnerMapper.toDetailsDTO(partnerMapper.toDomain(customerEntity, PartnerType.CLIENT));
     }
 

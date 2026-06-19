@@ -13,12 +13,14 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
 public class DocumentMapper {
 
     private final DocumentContentMapper documentContentMapper;
+
     public Document toDomain(DocumentEntity entity) {
         if (entity == null) {
             return null;
@@ -109,9 +111,10 @@ public class DocumentMapper {
     }
 
     public DocumentSummaryDTO toDocumentSummary(Document document){
-        if(document==null){
+        if(document==null ){
             return null;
         }
+
 
         return DocumentSummaryDTO.builder()
                 .idDocument(document.getIdDocument())

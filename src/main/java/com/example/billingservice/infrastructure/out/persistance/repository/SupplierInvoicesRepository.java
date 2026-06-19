@@ -15,6 +15,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -257,5 +258,17 @@ WHERE
     List<SupplierInvoiceEntity> getAllSupplierInvoices(
             @Param("supplierId") UUID supplierId,
             Pageable pageable
+    );
+
+    @Query("""
+    SELECT i FROM SupplierInvoiceEntity i
+    WHERE i.invoiceStatus IN (
+        com.example.billingservice.domain.enums.InvoiceStatus.PARTIALLY_PAID,
+        com.example.billingservice.domain.enums.InvoiceStatus.TO_PAY
+        )
+    AND i.dueDate < :referenceDate
+""")
+    List<SupplierInvoiceEntity> getOverdueInvoices(
+            @Param("referenceDate") Date referenceDate
     );
 }

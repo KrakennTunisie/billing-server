@@ -2,6 +2,7 @@ package com.example.billingservice.infrastructure.in.web;
 
 
 import com.example.billingservice.application.ports.in.PartnerUseCase;
+import com.example.billingservice.domain.enums.DocumentType;
 import com.example.billingservice.domain.exceptions.BillingException;
 import com.example.billingservice.domain.model.Partner;
 import com.example.billingservice.infrastructure.out.persistance.dto.*;
@@ -15,14 +16,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
-
-
-
-
+import java.util.UUID;
 
 
 @Tag(name= "Partner API", description = "Gestion des clients et fournisseurs")
@@ -41,6 +40,23 @@ public class PartnerController {
     public ResponseEntity <PartnerDetailsDTO> createSupplier (@Valid @ModelAttribute PartnerForm form) throws IOException,
             DataIntegrityViolationException {
         return ResponseEntity.status(201).body(partnerUseCase.createSupplier(form));
+    }
+
+
+    @Operation(summary = "Ajouter un document au fournisseur", description = "Ajoute un nouveau document au fournisseur")
+    @PostMapping(path = "/suppliers/documents/upload/{idPartner}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity <PartnerDetailsDTO> addSupplierDocument (
+            @PathVariable String idPartner,
+            @RequestParam String partnerDocumentType,
+            @RequestBody MultipartFile document) throws IOException,
+            DataIntegrityViolationException {
+
+        return ResponseEntity.status(201).body(
+                partnerUseCase
+                .addSupplierDocument(
+                        UUID.fromString(idPartner),
+                        document, DocumentType.valueOf(partnerDocumentType))
+        );
     }
 
 
@@ -127,6 +143,22 @@ public class PartnerController {
     @PostMapping(path = "/clients", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity <PartnerDetailsDTO> createCustomer (@ModelAttribute PartnerForm form) throws IOException {
         return ResponseEntity.status(201).body(partnerUseCase.createCustomer(form));
+    }
+
+    @Operation(summary = "Ajouter un document au Client", description = "Ajoute un nouveau document au Client")
+    @PostMapping(path = "/clients/documents/upload/{idPartner}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity <PartnerDetailsDTO> addClientDocument (
+            @PathVariable String idPartner,
+            @RequestParam String partnerDocumentType,
+            @RequestBody MultipartFile document) throws IOException,
+            DataIntegrityViolationException {
+
+        return ResponseEntity.status(201).body(
+                partnerUseCase
+                        .addClientDocument(
+                                UUID.fromString(idPartner),
+                                document, DocumentType.valueOf(partnerDocumentType))
+        );
     }
 
     @GetMapping("/clients")

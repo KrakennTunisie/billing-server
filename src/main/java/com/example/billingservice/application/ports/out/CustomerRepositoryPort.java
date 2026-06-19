@@ -1,5 +1,6 @@
 package com.example.billingservice.application.ports.out;
 
+import com.example.billingservice.domain.model.Document;
 import com.example.billingservice.domain.model.Partner;
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerDetailsDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerItemDTO;
@@ -15,6 +16,8 @@ public interface CustomerRepositoryPort {
     Partner saveCustomer (Partner partner);
 
     PartnerDetailsDTO getClientDetailsById(UUID idClient);
+
+    PartnerDetailsDTO addDocumentToClient(UUID idClient, Document document);
 
     Optional<Partner> findCustomerById(String id);
 

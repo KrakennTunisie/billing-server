@@ -83,6 +83,16 @@ public class SupplierInvoicesAdapter implements SupplierInvoicesRepositoryPort {
     }
 
     @Override
+    public List<InvoicePageItemDTO> getOverdueInvoices(Date date) {
+        List<SupplierInvoiceEntity> invoiceEntities = supplierInvoicesRepository.getOverdueInvoices(date);
+        List<InvoicePageItemDTO> invoicePageItems = invoiceEntities.stream()
+                .map(invoice->invoiceMapper.toDomain(invoice, InvoiceType.PURCHASE))
+                .map(invoiceMapper::toInvoicePageItemDTO)
+                .toList();
+        return invoicePageItems;
+    }
+
+    @Override
     public InvoiceDTO save(Invoice invoice) {
         SupplierInvoiceEntity entity = (SupplierInvoiceEntity) invoiceMapper.toEntity(invoice);
         SupplierInvoiceEntity savedEntity = supplierInvoicesRepository.save(entity);
@@ -127,7 +137,16 @@ public class SupplierInvoicesAdapter implements SupplierInvoicesRepositoryPort {
         SupplierInvoiceEntity entity = supplierInvoicesRepository.getSupplierInvoiceEntityByIdInvoice(idInvoice);
         Invoice invoice = invoiceMapper.toDomain(entity, InvoiceType.PURCHASE);
 
-        return invoiceMapper.toDTO(invoice);    }
+        return invoiceMapper.toDTO(invoice);
+    }
+
+    @Override
+    public InvoicePageItemDTO getInvoiceItemById(UUID idInvoice) {
+        SupplierInvoiceEntity entity = supplierInvoicesRepository.getSupplierInvoiceEntityByIdInvoice(idInvoice);
+        Invoice invoice = invoiceMapper.toDomain(entity, InvoiceType.PURCHASE);
+
+        return invoiceMapper.toInvoicePageItemDTO(invoice);
+    }
 
     @Override
     public InvoiceDTO getInvoiceByInvoiceNumber(String invoiceNumber) {
@@ -412,32 +431,45 @@ public class SupplierInvoicesAdapter implements SupplierInvoicesRepositoryPort {
         YearMonth current = moisDebut;
         while (!current.isAfter(moisFin)) {
 
-            List<SupplierInvoiceEntity> facturesDuMois = facturesParMois
+            List<SupplierInvoiceEntity> invoicesThisMonth = facturesParMois
                     .getOrDefault(current, Collections.emptyList());
 
             // Calculer HT et TTC pour ce mois
-            double totalHT  = 0.0;
-            double totalTTC = 0.0;
+            double paidHT = 0.0, paidTTC = 0.0;
+            double overdueHT = 0.0, overdueTTC = 0.0;
 
-            for (SupplierInvoiceEntity invoice : facturesDuMois) {
+            for (SupplierInvoiceEntity invoice : invoicesThisMonth) {
                 List<InvoiceItemEntity> items = invoiceItemRepository
                         .findByInvoice_IdInvoice(invoice.getIdInvoice());
 
                 for (InvoiceItemEntity item : items) {
-                    totalTTC += item.getTotalPriceIncTax();
-                    totalHT  += item.getUnityPriceEXclTax() * item.getQuantity();
+                    double ht = item.getUnityPriceEXclTax() * item.getQuantity();
+                    double ttc = item.getTotalPriceIncTax();
+
+                    if (invoice.getInvoiceStatus() == InvoiceStatus.PAID) {
+                        paidHT  += ht;
+                        paidTTC += ttc;
+                    } else if (invoice.getInvoiceStatus() == InvoiceStatus.OVERDUE) {
+                        overdueHT  += ht;
+                        overdueTTC += ttc;
+                    }
                 }
             }
 
-            double totalTVA = totalTTC - totalHT;
-
             ClientRevenueStats dto = new ClientRevenueStats();
-            dto.setPeriod(current.toString());
-            dto.setMonthLabel(current.format(DateTimeFormatter.ofPattern("MMMM yyyy", Locale.FRENCH)));
-            dto.setRevenueHT(totalHT);
-            dto.setRevenueTVA(totalTVA);
-            dto.setRevenueTTC(totalTTC);
-            dto.setNombreFactures(facturesDuMois.size());
+            dto.setPeriod(current.toString());                                              // "2024-01"
+            dto.setMonthLabel(current.format(DateTimeFormatter.ofPattern("MMMM yyyy", Locale.FRENCH))); // "janvier 2024"
+            // Paid totals
+            dto.setRevenueHT(paidHT);
+            dto.setRevenueTTC(paidTTC);
+            dto.setRevenueTVA(paidTTC - paidHT);
+
+            // Overdue totals
+            dto.setOverdueHT(overdueHT);
+            dto.setOverdueTTC(overdueTTC);
+            dto.setOverdueTVA(overdueTTC - overdueHT);
+
+            dto.setNombreFactures(invoicesThisMonth.size());
 
             stats.add(dto);
             current = current.plusMonths(1);

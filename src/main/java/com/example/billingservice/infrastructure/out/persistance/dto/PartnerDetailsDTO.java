@@ -42,8 +42,8 @@ public class PartnerDetailsDTO {
     private PaymentCondition paymentCondition;
     private String iban;
 
-    private DocumentSummaryDTO rne;
-    private DocumentSummaryDTO contract;
+    private List<DocumentSummaryDTO> rne;
+    private List<DocumentSummaryDTO> contract;
     private DocumentSummaryDTO patente;
     private PartnerType partnerType;
 

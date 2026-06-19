@@ -64,15 +64,10 @@ public class PaymentService implements PaymentUseCase {
             throw BillingException.notFound("Facture Client", createPaymentDto.getInvoiceNumber());
         }
 
-        if(paymentRepositoryPort.existsByReference(createPaymentDto.getPaymentNumber())){
-            throw BillingException.notFound("Paiement", createPaymentDto.getPaymentNumber());
-        }
-
-        if(!invoicePaymentSnchronizeUseCase.validatePaymentAmount(
+        invoicePaymentSnchronizeUseCase.applyPayment(
                 UUID.fromString(createPaymentDto.getInvoiceNumber()),
-                createPaymentDto.getAmount().doubleValue())){
-            throw BillingException.badRequest("Le montant à payé est supérieur au montant restant");
-        }
+                createPaymentDto.getAmount()
+        );
 
         String paymentNumber = generateInvoiceNumberUseCase.generate(SequenceNumberType.PAYMENT);
 
@@ -101,11 +96,6 @@ public class PaymentService implements PaymentUseCase {
 
         generateInvoiceNumberUseCase.validateNextSequence(SequenceNumberType.PAYMENT, paymentNumber);
 
-        invoicePaymentSnchronizeUseCase.validatePayment(
-                UUID.fromString(createPaymentDto.getInvoiceNumber()),
-                createPaymentDto.getAmount().doubleValue()
-        );
-
         return paymentMapper.modelToPaymentDTO(createdPayment);
     }
 
@@ -116,11 +106,11 @@ public class PaymentService implements PaymentUseCase {
             throw BillingException.notFound("Paiement", String.valueOf(idPayment));
         }
 
-        if(!invoicePaymentSnchronizeUseCase.validatePaymentAmount(
+        invoicePaymentSnchronizeUseCase.applyPayment(
                 UUID.fromString(updatePaymentDTO.getInvoiceNumber()),
-                updatePaymentDTO.getAmount().doubleValue())){
-            throw BillingException.badRequest("Le montant à payé est supérieur au montant restant");
-        }
+                updatePaymentDTO.getAmount()
+        );
+
 
         Document paymentDocument = null;
         if (updatePaymentDTO.getPaymentDocument() != null && !updatePaymentDTO.getPaymentDocument().isEmpty()) {
@@ -142,11 +132,6 @@ public class PaymentService implements PaymentUseCase {
 
         Payment updatedPayment = paymentRepositoryPort.updatePayment(payment);
 
-        invoicePaymentSnchronizeUseCase.validatePayment(
-                UUID.fromString(updatePaymentDTO.getInvoiceNumber()),
-                updatePaymentDTO.getAmount().doubleValue()
-        );
-
         return paymentMapper.modelToPaymentDTO(updatedPayment);
     }
 
@@ -159,13 +144,10 @@ public class PaymentService implements PaymentUseCase {
 
         PaymentDTO paymentDTO = getPaymentById(idPayment);
 
-        if(!invoicePaymentSnchronizeUseCase.validatePaymentAmount(
+        invoicePaymentSnchronizeUseCase.applyPayment(
                 paymentDTO.getInvoice().getIdInvoice(),
-                paymentDTO.getAmount().doubleValue())){
-            throw BillingException.badRequest("Le montant à payé est supérieur au montant restant");
-        }
-
-        invoicePaymentSnchronizeUseCase.validatePayment(paymentDTO.getInvoice().getIdInvoice(), paymentDTO.getAmount().doubleValue());
+                paymentDTO.getAmount().negate()
+        );
 
         paymentRepositoryPort.deletePayment(idPayment);
 

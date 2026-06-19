@@ -15,6 +15,7 @@ public final class StatusMapper {
             case TO_COLLECT -> "À Encaisser";
             case PARTIALLY_PAID -> "Payée partiellement";
             case PAID -> "Payée";
+            case OVERDUE -> "En retard";
             case CANCELLED -> "Annulée";
         };
     }

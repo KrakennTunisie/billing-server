@@ -3,10 +3,13 @@ package com.example.billingservice.application.service;
 import com.example.billingservice.application.ports.in.InvoicePaymentSnchronizeUseCase;
 import com.example.billingservice.application.ports.in.InvoiceUseCase;
 import com.example.billingservice.domain.enums.InvoiceStatus;
+import com.example.billingservice.domain.exceptions.BillingException;
 import com.example.billingservice.infrastructure.out.persistance.dto.InvoiceDTO;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -15,31 +18,49 @@ import java.util.UUID;
 public class InvoicePaymentSynchronizeService implements InvoicePaymentSnchronizeUseCase {
     private final InvoiceUseCase invoiceUseCase;
 
+    @Transactional
     @Override
-    public boolean validatePaymentAmount(UUID invoiceId, Double amount) {
-        InvoiceDTO invoiceDTO =  invoiceUseCase.getClientInvoiceById(invoiceId);
+    public void applyPayment(UUID invoiceId, BigDecimal amount) {
 
-        double remainingAmount = invoiceDTO.getRemainingAmount() - amount;
+        InvoiceDTO invoice = invoiceUseCase.getClientInvoiceById(invoiceId);
 
-        return remainingAmount >= 0  || remainingAmount <= getTotal(invoiceDTO);
+        BigDecimal total = BigDecimal.valueOf(getTotal(invoice));
+
+        BigDecimal oldRemaining = BigDecimal.valueOf(invoice.getRemainingAmount());
+
+        BigDecimal paidAmount = total.subtract(oldRemaining);
+
+        BigDecimal remaining = total.subtract(paidAmount.add(amount));
+
+        if (remaining.compareTo(BigDecimal.ZERO) < 0) {
+            throw BillingException.badRequest("Payment exceeds invoice amount");
+        }
+        invoiceUseCase.updateClientInvoiceRemainingAmount(
+                invoiceId,
+                remaining.doubleValue()
+        );
+
+        invoiceUseCase.updateClientInvoiceStatus(
+                invoiceId,
+                determineStatus(total, remaining)
+        );
     }
 
-    @Override
-    public void validatePayment(UUID invoiceId, Double amount) {
-        InvoiceDTO invoiceDTO =  invoiceUseCase.getClientInvoiceById(invoiceId);
+    private InvoiceStatus determineStatus(
+            BigDecimal total,
+            BigDecimal remaining){
 
-        invoiceUseCase.updateClientInvoiceRemainingAmount(invoiceId, amount);
+        if(remaining.compareTo(BigDecimal.ZERO)==0)
+            return InvoiceStatus.PAID;
 
-        if(Objects.equals(invoiceDTO.getRemainingAmount(), amount)){
-            invoiceUseCase.updateClientInvoiceStatus(invoiceId, InvoiceStatus.PAID);
-        }
-        else {
-            invoiceUseCase.updateClientInvoiceStatus(invoiceId, InvoiceStatus.PARTIALLY_PAID);
-        }
+        if(remaining.compareTo(total)==0)
+            return InvoiceStatus.TO_COLLECT;
+
+        return InvoiceStatus.PARTIALLY_PAID;
     }
 
     private double getTotal(InvoiceDTO invoiceDTO){
-       return switch (invoiceDTO.getInvoiceCurrency()){
+        return switch (invoiceDTO.getInvoiceCurrency()){
             case USD -> invoiceDTO.getTotalInclTaxUSD();
             case TND -> invoiceDTO.getTotalInclTaxTND();
             case EUR -> invoiceDTO.getTotalInclTaxEUR();

@@ -102,9 +102,9 @@ public abstract class PartnerEntity {
 
 
     // RNE document
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "rne_document_id")
-    private DocumentEntity rne;
+    private List<DocumentEntity> rne;
 
     // PATENT document
     @OneToOne(cascade = CascadeType.ALL)
@@ -112,9 +112,9 @@ public abstract class PartnerEntity {
     private DocumentEntity patente;
 
     // Contact document
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "contract_document_id")
-    private DocumentEntity contract;
+    private List<DocumentEntity>  contract;
 
 
     @OneToMany(mappedBy = "partner", cascade = CascadeType.ALL, orphanRemoval = true)

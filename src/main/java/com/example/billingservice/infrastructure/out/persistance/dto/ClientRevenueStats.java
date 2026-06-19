@@ -15,5 +15,8 @@ public class ClientRevenueStats {
     private Double revenueHT;
     private Double revenueTVA;
     private Double revenueTTC;
+    private Double overdueHT;
+    private Double overdueTVA;
+    private Double overdueTTC;
     private long nombreFactures;
 }

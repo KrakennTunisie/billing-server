@@ -22,6 +22,7 @@ public class EmailJobConsumer {
         try {
             emailSenderPort.sendEmail(job);
             log.info("Mail sent successfully. to={}, subject={}", job.to(), job.subject());
+
         } catch (Exception e) {
             log.error("Mail sending failed. to={}, subject={}, error={}",
                     job.to(), job.subject(), e.getMessage(), e);

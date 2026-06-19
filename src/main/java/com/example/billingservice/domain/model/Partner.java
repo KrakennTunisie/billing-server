@@ -59,9 +59,9 @@ public class Partner {
     @Schema(description = "IBAN", example = "FR7630006000011234567890189")
     private String iban;
     @Schema(description = "Document RNE")
-    private Document rne;
+    private List<Document> rne;
     @Schema(description = "Document Contrat")
-    private Document contract;
+    private List<Document> contract;
     @Schema(description = "Document Patente")
     private Document patente;
     @Schema(description = "Type de partenaire", example = "SUPPLIER")
