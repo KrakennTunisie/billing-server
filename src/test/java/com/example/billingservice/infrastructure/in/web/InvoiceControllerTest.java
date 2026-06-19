@@ -83,6 +83,7 @@ class InvoiceControllerTest {
 
         mockMvc = MockMvcBuilders
                 .standaloneSetup(invoiceController)
+                .setControllerAdvice(new GlobalExceptionHandler())
                 .build();
     }
 
