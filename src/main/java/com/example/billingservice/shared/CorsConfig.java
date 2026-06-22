@@ -12,7 +12,7 @@ public class CorsConfig {
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {
 
-            @Override
+          /*  @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
                         .allowedOrigins("http://89.167.12.94:3000",
@@ -25,7 +25,7 @@ public class CorsConfig {
                         .allowedHeaders("*")
                         .allowCredentials(true);
             }
-
+*/
             @Override
             public void addResourceHandlers(ResourceHandlerRegistry registry) {
                 registry.addResourceHandler("/api/storage/**")
