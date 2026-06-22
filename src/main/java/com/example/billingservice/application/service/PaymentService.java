@@ -67,7 +67,7 @@ public class PaymentService implements PaymentUseCase {
         invoicePaymentSnchronizeUseCase.applyPayment(
                 UUID.fromString(createPaymentDto.getInvoiceNumber()),
                 createPaymentDto.getAmount()
-        );
+         );
 
         String paymentNumber = generateInvoiceNumberUseCase.generate(SequenceNumberType.PAYMENT);
 
