@@ -12,11 +12,12 @@ public class CorsConfig {
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {
 
-            @Override
+           /* @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
                         .allowedOrigins("http://89.167.12.94:3000",
                                 "http://localhost:3001",
+                                "http://localhost:3000",
                                 "http://localhost:8089",
                                 "https://kerp-app.duckdns.org",
                                 "https://kerp-web.duckdns.org"
@@ -24,7 +25,7 @@ public class CorsConfig {
                         .allowedMethods("GET", "POST", "PUT","PATCH", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
                         .allowCredentials(true);
-            }
+            }*/
 
             @Override
             public void addResourceHandlers(ResourceHandlerRegistry registry) {
