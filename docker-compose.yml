@@ -16,19 +16,21 @@ services:
     networks:
       - ms-net
     environment:
-      SPRING_CONFIG_IMPORT: configserver:http://config-server:8888
-      SPRING_RABBITMQ_HOST: rabbitmq
-      SPRING_RABBITMQ_PORT: 5672
-      SPRING_RABBITMQ_USERNAME: guest
-      SPRING_RABBITMQ_PASSWORD: guest
+      SPRING_PROFILES_ACTIVE: prod
+      EXCHANGERATE: ${EXCHANGERATE}
+      GMAILPASSWORD: ${GMAILPASSWORD}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      RABBITMQ_USER: ${RABBITMQ_USER}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
 
   billing-db:
     image: postgres:18
     container_name: billing-db
     environment:
       POSTGRES_DB: billing_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
       - "5432:5432"
     restart: unless-stopped
@@ -45,8 +47,8 @@ services:
     networks:
       - ms-net
     environment:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
     healthcheck:
       test: [ "CMD", "rabbitmq-diagnostics", "ping" ]
       interval: 10s
