@@ -98,6 +98,13 @@ public class InvoiceController {
         return ResponseEntity.status(201).body(invoiceUseCase.updateClientInvoice(form));
     }
 
+    @GetMapping(CLIENT_INVOICES+"/item/{id}")
+    @Operation(summary = "Détails d'une facture client")
+    public ResponseEntity<InvoicePageItemDTO> getClientInvoiceItemById(@Parameter(description = "ID du facture") @PathVariable String id)
+    {
+        InvoicePageItemDTO invoiceDTO =  invoiceUseCase.getClientInvoiceItemById(UUID.fromString(id));
+        return ResponseEntity.status(201).body(invoiceDTO);
+    }
     @GetMapping(CLIENT_INVOICES+"/{id}")
     @Operation(summary = "Détails d'une facture client")
     public ResponseEntity<InvoiceDTO> getClientInvoiceById(@Parameter(description = "ID du facture") @PathVariable String id)
@@ -171,6 +178,14 @@ public class InvoiceController {
         return ResponseEntity.status(201).body(invoiceUseCase.createInvoice(form));
     }
 
+    @GetMapping(SUPPLIER_INVOICES+"/item/{id}")
+    @Operation(summary = "Détails d'une facture client")
+    public ResponseEntity<InvoicePageItemDTO> getSupplierInvoiceItemById(@Parameter(description = "ID du facture") @PathVariable String id)
+    {
+        InvoicePageItemDTO invoiceDTO =  invoiceUseCase.getSupplierInvoiceItemById(UUID.fromString(id));
+        return ResponseEntity.status(201).body(invoiceDTO);
+
+    }
 
     @GetMapping(SUPPLIER_INVOICES+"/{id}")
     @Operation(summary = "Détails d'une facture client")

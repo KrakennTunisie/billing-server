@@ -4,6 +4,7 @@ import com.example.billingservice.application.ports.in.*;
 import com.example.billingservice.application.ports.out.ClientInvoicesRepositoryPort;
 import com.example.billingservice.application.ports.out.DocumentReaderPort;
 import com.example.billingservice.application.ports.out.EmailJobPublisherPort;
+import com.example.billingservice.application.ports.out.MailJobRepositoryPort;
 import com.example.billingservice.domain.exceptions.BillingException;
 import com.example.billingservice.domain.model.Invoice;
 import com.example.billingservice.domain.model.InvoiceCreditNote;
@@ -26,6 +27,7 @@ public class SendEmailService implements SendEmailUseCase {
     private final PaymentUseCase paymentUseCase;
     private final DocumentReaderPort documentReaderPort;
     private final EmailJobPublisherPort emailJobPublisherPort;
+    private final MailJobRepositoryPort mailJobRepositoryPort;
 
     @Override
     public void sendInvoiceEmail(UUID invoiceId, SendEmailRequest request) {
@@ -45,6 +47,7 @@ public class SendEmailService implements SendEmailUseCase {
         DocumentReadFile documentReadFile = documentReaderPort.getFileAttachment(invoice.getInvoiceDocument().getIdDocument());
 
         MailJob job = new MailJob(
+              //  UUID.randomUUID(),
                 partnerEmail,
                 request.subject(),
                 request.body(),
@@ -52,13 +55,16 @@ public class SendEmailService implements SendEmailUseCase {
                 List.of(
                         new MailAttachment(
                                 "facture-" + invoice.getInvoiceNumber()+".pdf",
+                                invoice.getInvoiceDocument().getStorageURL(),
                                 documentReadFile.mimeType(),
                                 documentReadFile.content()
                         )
                 )
         );
+        mailJobRepositoryPort.save(job);
 
         emailJobPublisherPort.publish(job);
+      //  mailJobRepositoryPort.save(job);
     }
 
     @Override
@@ -79,6 +85,7 @@ public class SendEmailService implements SendEmailUseCase {
         DocumentReadFile documentReadFile = documentReaderPort.getFileAttachment(invoiceCreditNote.getInvoiceCreditNoteDocument().getIdDocument());
 
         MailJob job = new MailJob(
+               // UUID.randomUUID(),
                 partnerEmail,
                 request.subject(),
                 request.body(),
@@ -86,13 +93,17 @@ public class SendEmailService implements SendEmailUseCase {
                 List.of(
                         new MailAttachment(
                                 "facture-" + invoiceCreditNote.getInvoiceCreditNoteNumber()+".pdf",
+                                invoiceCreditNote.getInvoiceCreditNoteDocument().getStorageURL(),
                                 documentReadFile.mimeType(),
                                 documentReadFile.content()
                         )
                 )
         );
+        mailJobRepositoryPort.save(job);
 
         emailJobPublisherPort.publish(job);
+       // mailJobRepositoryPort.save(job);
+
     }
 
     @Override
@@ -112,6 +123,7 @@ public class SendEmailService implements SendEmailUseCase {
         DocumentReadFile documentReadFile = documentReaderPort.getFileAttachment(purchaseOrderDTO.getPurchaseOrderDocument().getIdDocument());
 
         MailJob job = new MailJob(
+               // UUID.randomUUID(),
                 partnerEmail,
                 request.subject(),
                 request.body(),
@@ -119,13 +131,18 @@ public class SendEmailService implements SendEmailUseCase {
                 List.of(
                         new MailAttachment(
                                 "Bon-commande-" + purchaseOrderDTO.getPurchaseOrderNumber()+".pdf",
+                                purchaseOrderDTO.getPurchaseOrderDocument().getStorageURL(),
                                 documentReadFile.mimeType(),
                                 documentReadFile.content()
                         )
                 )
         );
 
+        mailJobRepositoryPort.save(job);
+
         emailJobPublisherPort.publish(job);
+     //   mailJobRepositoryPort.save(job);
+
     }
 
     @Override
@@ -145,6 +162,7 @@ public class SendEmailService implements SendEmailUseCase {
         DocumentReadFile documentReadFile = documentReaderPort.getFileAttachment(paymentDTO.getPaymentDocument().getIdDocument());
 
         MailJob job = new MailJob(
+               // UUID.randomUUID(),
                 partnerEmail,
                 request.subject(),
                 request.body(),
@@ -152,18 +170,24 @@ public class SendEmailService implements SendEmailUseCase {
                 List.of(
                         new MailAttachment(
                                 "Paiement-" + paymentDTO.getReference()+".pdf",
+                                paymentDTO.getPaymentDocument().getStorageURL(),
                                 documentReadFile.mimeType(),
                                 documentReadFile.content()
                         )
                 )
         );
 
+        mailJobRepositoryPort.save(job);
+
         emailJobPublisherPort.publish(job);
+       // mailJobRepositoryPort.save(job);
+
     }
 
     @Override
     public void sendEmail(SendEmailRequest request) {
         MailJob job = new MailJob(
+              //  UUID.randomUUID(),
                 request.toEmail(),
                 request.subject(),
                 request.body(),
@@ -171,6 +195,10 @@ public class SendEmailService implements SendEmailUseCase {
                 List.of()
         );
 
+        mailJobRepositoryPort.save(job);
+
         emailJobPublisherPort.publish(job);
+     //   mailJobRepositoryPort.save(job);
+
     }
 }

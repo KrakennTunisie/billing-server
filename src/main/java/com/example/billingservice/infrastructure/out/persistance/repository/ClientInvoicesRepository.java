@@ -14,6 +14,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -57,7 +58,13 @@ WHERE
         SELECT i
         FROM ClientInvoiceEntity i
         LEFT JOIN i.partner p
-        WHERE  (
+        WHERE (
+            i.invoiceStatus IN (
+                com.example.billingservice.domain.enums.InvoiceStatus.PARTIALLY_PAID,
+              com.example.billingservice.domain.enums.InvoiceStatus.TO_COLLECT
+                )
+          )
+         AND (
             :keyword IS NULL
             OR :keyword = ''
             OR LOWER(i.reference) LIKE LOWER(CONCAT('%', :keyword, '%'))
@@ -121,7 +128,7 @@ WHERE
     @Query("""
     SELECT
         p.idPartner AS id,
-        p.partnerName AS client,
+        p.companyName AS client,
         i.appliedExchangeRate AS appliedExchangeRate,
 
         COALESCE(SUM(i.totalInclTaxTND), 0) AS amount,
@@ -141,7 +148,7 @@ WHERE
 
     GROUP BY
         p.idPartner,
-        p.partnerName,
+        p.companyName,
         MONTH(i.issueDate)
 
 """)
@@ -152,7 +159,7 @@ WHERE
     @Query("""
     SELECT
         c.idPartner AS id,
-        c.partnerName AS client,
+        c.companyName AS client,
 
         COALESCE(SUM(it.totalPriceIncTax), 0) AS amount,
 
@@ -175,7 +182,7 @@ WHERE
 
     GROUP BY
         c.idPartner,
-        c.partnerName,
+        c.companyName,
         MONTH(i.issueDate),
         i.currency,
         i.appliedExchangeRate,
@@ -299,4 +306,18 @@ WHERE
             @Param("clientId") UUID clientId,
             Pageable pageable
     );
+
+    @Query("""
+    SELECT i FROM ClientInvoiceEntity i
+    WHERE i.invoiceStatus IN (
+        com.example.billingservice.domain.enums.InvoiceStatus.PARTIALLY_PAID,
+        com.example.billingservice.domain.enums.InvoiceStatus.TO_COLLECT
+        )
+    AND i.dueDate < :referenceDate
+""")
+    List<ClientInvoiceEntity> getOverdueInvoices(
+            @Param("referenceDate") Date referenceDate
+    );
+
+
     }

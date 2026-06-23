@@ -1,5 +1,6 @@
 package com.example.billingservice.application.ports.out;
 
+import com.example.billingservice.domain.model.Document;
 import com.example.billingservice.domain.model.Partner;
 import com.example.billingservice.infrastructure.out.persistance.dto.*;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -13,6 +14,8 @@ public interface SupplierRepositoryPort {
 
     Partner saveSupplier  (Partner partner) throws DataIntegrityViolationException;
     Optional<Partner> findSupplierById(String id);
+
+    PartnerDetailsDTO addDocumentToClient(UUID idClient, Document document);
 
     PartnerDetailsDTO getSupplierDetailsById(UUID idSupplier);
     Optional<Partner> getSupplierById(UUID idSupplier);

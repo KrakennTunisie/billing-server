@@ -15,12 +15,10 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +27,7 @@ public class PartnerService implements PartnerUseCase  {
     private final CustomerRepositoryPort customerRepositoryPort;
     private final SupplierRepositoryPort supplierRepositoryPort;
     private final PartnerMapper partnerMapper;
-
+    private final UploadDocumentService uploadDocumentService;
 
 
     /********* SUPPLIER ********/
@@ -71,6 +69,19 @@ public class PartnerService implements PartnerUseCase  {
         Partner  partnerModel =partnerMapper.createPartnerFromDTO(partner);
         return partnerMapper.toDetailsDTO(supplierRepositoryPort.saveSupplier(partnerModel));
     }
+
+    @Override
+    public PartnerDetailsDTO addSupplierDocument(UUID idSupplier, MultipartFile document, DocumentType documentType) throws IOException, DataIntegrityViolationException {
+
+        Partner partner = supplierRepositoryPort.findSupplierById(String.valueOf(idSupplier))
+                .orElseThrow(() -> BillingException.notFound("Fournisseur", String.valueOf(idSupplier)));
+
+        Document document1 = uploadDocument(partner.getTaxRegistrationNumber(), document, documentType);
+
+        return supplierRepositoryPort.addDocumentToClient(idSupplier, document1);
+
+    }
+
 
     @Override
     public Optional<Partner> getSupplierById(String id) {
@@ -204,6 +215,17 @@ public class PartnerService implements PartnerUseCase  {
     }
 
     @Override
+    public PartnerDetailsDTO addClientDocument(UUID idClient, MultipartFile document, DocumentType documentType) throws IOException, DataIntegrityViolationException {
+        Partner partner = customerRepositoryPort.findCustomerById(String.valueOf(idClient))
+                .orElseThrow(() -> BillingException.notFound("Client", String.valueOf(idClient)));
+
+        Document document1 = uploadDocument(partner.getTaxRegistrationNumber(), document, documentType);
+
+        return customerRepositoryPort.addDocumentToClient(idClient, document1);
+    }
+
+
+    @Override
     public Page<PartnerItemDTO> getAllCustomers(String keyword , String Country ,int page) {
         return customerRepositoryPort.findAllCustomers(keyword, Country, page);
     }
@@ -266,6 +288,28 @@ public class PartnerService implements PartnerUseCase  {
     @Override
     public void updateCustomerStatus(String idClient, Boolean status) {
         customerRepositoryPort.updateCustomerStatus(idClient,status);
+    }
+
+
+    private Document uploadDocument(String taxRegistrationNumber, MultipartFile multipartFile, DocumentType documentType) throws IOException {
+        if (multipartFile == null || taxRegistrationNumber == null || documentType == null) {
+            return null;
+        }
+
+        UploadedFile uploadedFile = new UploadedFile(
+                multipartFile.getOriginalFilename(),
+                multipartFile.getContentType(),
+                multipartFile.getInputStream(),
+                multipartFile.getSize()
+        );
+
+        Document uploadedDocument = uploadDocumentService.upload(
+                taxRegistrationNumber,
+                documentType,
+                uploadedFile
+        );
+
+        return uploadedDocument;
     }
 
 

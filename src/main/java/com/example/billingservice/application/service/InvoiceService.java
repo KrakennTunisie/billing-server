@@ -75,6 +75,7 @@ public class InvoiceService implements InvoiceUseCase, InvoiceStatsUseCase {
 
     @Override
     public InvoiceDTO updateClientInvoice(InvoiceUpdateDTO invoiceUpdateDTO) throws IOException {
+
         if (!invoiceUpdateDTO.getInvoiceType().equals(InvoiceType.SALE.name())) {
             throw BillingException.badRequest("il faut avoir un facture de vente.");
         }
@@ -84,8 +85,9 @@ public class InvoiceService implements InvoiceUseCase, InvoiceStatsUseCase {
         }
 
         InvoiceDTO invoiceDTO = getClientInvoiceById(invoiceUpdateDTO.getIdInvoice());
+        System.out.println("Update base invoice....");
         Invoice invoice =  this.updateBaseInvoice(invoiceUpdateDTO, invoiceDTO);
-
+        System.out.println("post Update base invoice....");
         return clientInvoicesRepositoryPort.update(invoice);
     }
 
@@ -130,6 +132,22 @@ public class InvoiceService implements InvoiceUseCase, InvoiceStatsUseCase {
             invoiceDTO.setHasInvoiceCreditNotes(true);
         }
         return invoiceDTO;
+    }
+
+    @Override
+    public InvoicePageItemDTO getClientInvoiceItemById(UUID idInvoice) {
+        if(!clientInvoicesRepositoryPort.existsByInvoiceId(idInvoice)){
+            throw  BillingException.notFound("Facture Client", String.valueOf(idInvoice));
+        }
+        return clientInvoicesRepositoryPort.getInvoiceItemById(idInvoice);
+    }
+
+    @Override
+    public InvoicePageItemDTO getSupplierInvoiceItemById(UUID idInvoice) {
+        if(!supplierInvoicesRepositoryPort.existsByInvoiceId(idInvoice)){
+            throw  BillingException.notFound("Facture Fournisseur", String.valueOf(idInvoice));
+        }
+        return supplierInvoicesRepositoryPort.getInvoiceItemById(idInvoice);
     }
 
     @Override
@@ -262,6 +280,16 @@ public class InvoiceService implements InvoiceUseCase, InvoiceStatsUseCase {
         return supplierInvoicesRepositoryPort.findAllInvoices(keyword, invoiceStatus, page, InvoiceType.PURCHASE);
     }
 
+    @Override
+    public List<InvoicePageItemDTO> getClientsOverdueInvoices(Date date) {
+        return clientInvoicesRepositoryPort.getOverdueInvoices(date);
+    }
+
+    @Override
+    public List<InvoicePageItemDTO> getSuppliersOverdueInvoices(Date date) {
+        return supplierInvoicesRepositoryPort.getOverdueInvoices(date);
+    }
+
 
     private InvoiceDTO createBaseInvoice(InvoiceCreateDTO createDTO) throws IOException {
 
@@ -333,7 +361,9 @@ public class InvoiceService implements InvoiceUseCase, InvoiceStatsUseCase {
                 uploadDocumentService.upload(invoiceUpdateDTO.getInvoiceNumber(), DocumentType.INVOICE, document);
 
         invoiceUpdateDTO.setPartner(String.valueOf(invoiceDTO.getPartner().getIdPartner()));
+        System.out.println("updateDTOtoDomain....");
         Invoice invoice = invoiceMapper.updateDTOtoDomain(invoiceUpdateDTO, invoiceDTO, invoiceDocument);
+        System.out.println("post updateDTOtoDomain....");
         System.out.println("hellooooo"+invoiceUpdateDTO.getPurchaseOrder());
         if(invoiceUpdateDTO.getPurchaseOrder()!=null)
         {   System.out.println(invoiceUpdateDTO.getPurchaseOrder());

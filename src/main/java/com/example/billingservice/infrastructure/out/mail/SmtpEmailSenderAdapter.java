@@ -1,6 +1,8 @@
 package com.example.billingservice.infrastructure.out.mail;
 
 import com.example.billingservice.application.ports.out.EmailSenderPort;
+import com.example.billingservice.application.ports.out.MailJobRepositoryPort;
+import com.example.billingservice.domain.enums.MailJobStatus;
 import com.example.billingservice.domain.model.MailAttachment;
 import com.example.billingservice.domain.model.MailJob;
 import jakarta.mail.MessagingException;
@@ -18,6 +20,7 @@ public class SmtpEmailSenderAdapter implements EmailSenderPort {
 
     private final JavaMailSender javaMailSender;
 
+    private final MailJobRepositoryPort mailJobRepositoryPort;
 
     @Override
     public void sendEmail(MailJob job) {
@@ -44,6 +47,8 @@ public class SmtpEmailSenderAdapter implements EmailSenderPort {
             }
 
             javaMailSender.send(message);
+
+         //   mailJobRepositoryPort.updateStatus(job.uuid(), MailJobStatus.DELIVERED);
 
         } catch (MessagingException e) {
             throw new RuntimeException("Failed to prepare mail", e);

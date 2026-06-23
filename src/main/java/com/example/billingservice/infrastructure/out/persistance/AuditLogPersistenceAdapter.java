@@ -32,7 +32,7 @@ public class AuditLogPersistenceAdapter implements AuditLogRepositoryPort {
                 throw BillingException.notFound("Client", String.valueOf(idClient));
             }
 
-            List<AuditLogEntity> auditLogEntities = auditLogRepository.findByPartner_IdPartner(idClient);
+            List<AuditLogEntity> auditLogEntities = auditLogRepository.findAuditLogEntitiesByPartner_IdPartnerOrderByEventDateDesc(idClient);
             return auditLogEntities.stream()
                     .map(entity -> auditEventMapper.toDomain(entity, PartnerType.CLIENT))
                     .map(auditEventMapper::toDTO)// ← passer le type
@@ -49,7 +49,7 @@ public class AuditLogPersistenceAdapter implements AuditLogRepositoryPort {
             if (!supplierPersistanceAdapter.existsByIdPartner(idSupplier)) {
                 throw BillingException.notFound("Fournisseur", String.valueOf(idSupplier));
             }
-            List<AuditLogEntity> auditLogEntities = auditLogRepository.findByPartner_IdPartner(idSupplier);
+            List<AuditLogEntity> auditLogEntities = auditLogRepository.findAuditLogEntitiesByPartner_IdPartnerOrderByEventDateDesc(idSupplier);
             return auditLogEntities.stream()
                     .map(entity -> auditEventMapper.toDomain(entity, PartnerType.SUPPLIER))
                     .map(auditEventMapper::toDTO)// ← passer le type

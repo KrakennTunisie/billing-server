@@ -86,6 +86,16 @@ public class ClientInvoicesPersistenceAdapter implements ClientInvoicesRepositor
     }
 
     @Override
+    public List<InvoicePageItemDTO> getOverdueInvoices(Date date) {
+        List<ClientInvoiceEntity> clientInvoiceEntities = clientInvoicesRepository.getOverdueInvoices(date);
+        List<InvoicePageItemDTO> invoicePageItemDTOS = clientInvoiceEntities.stream()
+                .map(clientInvoiceEntity -> invoiceMapper.toDomain(clientInvoiceEntity, InvoiceType.SALE))
+                .map(invoiceMapper::toInvoicePageItemDTO)
+                .toList();
+        return invoicePageItemDTOS;
+    }
+
+    @Override
     @Transactional
     public InvoiceDTO save(Invoice invoice) {
         ClientInvoiceEntity entity = (ClientInvoiceEntity) invoiceMapper.toEntity(invoice);
@@ -138,8 +148,13 @@ public class ClientInvoicesPersistenceAdapter implements ClientInvoicesRepositor
         ClientInvoiceEntity entity =
                 clientInvoicesRepository.getClientInvoiceEntityByIdInvoice(invoiceId);
 
+        // Round to 2 decimal places
+        BigDecimal rounded = BigDecimal.valueOf(Math.abs(amount))
+                .setScale(2, RoundingMode.HALF_UP);
 
-        entity.setRemainingAmount(Math.abs(entity.getRemainingAmount() - amount));
+        System.out.println("rounded remainingAmount: "+rounded.doubleValue());
+
+        entity.setRemainingAmount(rounded.doubleValue());
 
 
         ClientInvoiceEntity saved = clientInvoicesRepository.save(entity);
@@ -155,7 +170,16 @@ public class ClientInvoicesPersistenceAdapter implements ClientInvoicesRepositor
         ClientInvoiceEntity entity = clientInvoicesRepository.getClientInvoiceEntityByIdInvoice(idInvoice);
         Invoice invoice = invoiceMapper.toDomain(entity, InvoiceType.SALE);
 
-        return invoiceMapper.toDTO(invoice);    }
+        return invoiceMapper.toDTO(invoice);
+    }
+
+    @Override
+    public InvoicePageItemDTO getInvoiceItemById(UUID idInvoice) {
+        ClientInvoiceEntity entity = clientInvoicesRepository.getClientInvoiceEntityByIdInvoice(idInvoice);
+        Invoice invoice = invoiceMapper.toDomain(entity, InvoiceType.SALE);
+
+        return invoiceMapper.toInvoicePageItemDTO(invoice);
+    }
 
     @Override
     public Invoice getInvoice(UUID idInvoice) {
@@ -188,7 +212,7 @@ public class ClientInvoicesPersistenceAdapter implements ClientInvoicesRepositor
         List<PartnerInvoiceAmountStatsProjection> statsByCurrency =
                 clientInvoicesRepository.getPartnerInvoiceAmountStatsGroupedByCurrency(
                         idPartner,
-                        InvoiceStatus.TO_COLLECT
+                        InvoiceStatus.OVERDUE
                 );
 
         System.out.println("statsByCurrency: "+statsByCurrency);
@@ -424,32 +448,45 @@ public class ClientInvoicesPersistenceAdapter implements ClientInvoicesRepositor
         YearMonth current = moisDebut;
         while (!current.isAfter(moisFin)) {
 
-            List<ClientInvoiceEntity> facturesDuMois = facturesParMois
+            List<ClientInvoiceEntity> invoicesThisMonth = facturesParMois
                     .getOrDefault(current, Collections.emptyList());
 
             // Calculer HT et TTC pour ce mois
-            double totalHT  = 0.0;
-            double totalTTC = 0.0;
+            double paidHT = 0.0, paidTTC = 0.0;
+            double overdueHT = 0.0, overdueTTC = 0.0;
 
-            for (ClientInvoiceEntity invoice : facturesDuMois) {
+            for (ClientInvoiceEntity invoice : invoicesThisMonth) {
                 List<InvoiceItemEntity> items = invoiceItemRepository
                         .findByInvoice_IdInvoice(invoice.getIdInvoice());
 
                 for (InvoiceItemEntity item : items) {
-                    totalTTC += item.getTotalPriceIncTax();
-                    totalHT  += item.getUnityPriceEXclTax() * item.getQuantity();
+                    double ht = item.getUnityPriceEXclTax() * item.getQuantity();
+                    double ttc = item.getTotalPriceIncTax();
+
+                    if (invoice.getInvoiceStatus() == InvoiceStatus.PAID) {
+                        paidHT  += ht;
+                        paidTTC += ttc;
+                    } else if (invoice.getInvoiceStatus() == InvoiceStatus.OVERDUE) {
+                        overdueHT  += ht;
+                        overdueTTC += ttc;
+                    }
                 }
             }
-
-            double totalTVA = totalTTC - totalHT;
 
             ClientRevenueStats dto = new ClientRevenueStats();
             dto.setPeriod(current.toString());                                              // "2024-01"
             dto.setMonthLabel(current.format(DateTimeFormatter.ofPattern("MMMM yyyy", Locale.FRENCH))); // "janvier 2024"
-            dto.setRevenueHT(totalHT);
-            dto.setRevenueTVA(totalTVA);
-            dto.setRevenueTTC(totalTTC);
-            dto.setNombreFactures(facturesDuMois.size());
+            // Paid totals
+            dto.setRevenueHT(paidHT);
+            dto.setRevenueTTC(paidTTC);
+            dto.setRevenueTVA(paidTTC - paidHT);
+
+            // Overdue totals
+            dto.setOverdueHT(overdueHT);
+            dto.setOverdueTTC(overdueTTC);
+            dto.setOverdueTVA(overdueTTC - overdueHT);
+
+            dto.setNombreFactures(invoicesThisMonth.size());
 
             stats.add(dto);
             current = current.plusMonths(1);
@@ -538,7 +575,7 @@ public class ClientInvoicesPersistenceAdapter implements ClientInvoicesRepositor
 
     public LocalDate convertToLocalDate(Date date) {
         return date.toInstant()
-                .atZone(ZoneId.of("Europe/Paris"))
+                .atZone(ZoneId.of("Africa/Tunis"))
                 .toLocalDate();
     }
 

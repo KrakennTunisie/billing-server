@@ -135,7 +135,7 @@ public class InvoiceMapper {
                 .appliedExchangeRate(entity.getAppliedExchangeRate())
                 .exchangeRateSource(entity.getExchangeRateSource())
                 .complianceQRcode(entity.getComplianceQRcode())
-                .partner(partnerMapper.toDomain(entity.getPartner(),PartnerType.CLIENT))// à modifier
+                .partner(partnerMapper.toDomain(entity.getPartner(),partnerType))// à modifier
                 .purchaseOrder(purchaseOrderMapper.toDomain(entity.getPurchaseOrder(),PurchaseOrderType.SALE))
                 .invoiceDocument(documentMapper.toDomain(entity.getInvoiceDocument()))
                 .build();
@@ -381,17 +381,19 @@ public class InvoiceMapper {
             Partner partner = getPartner(invoiceDTO.getInvoiceType(), idPartner);
             invoice.setPartner(partner);
 
-
+            System.out.println("invoiceItemMapper.invoiceItemCreateDTOtoDomain ...");
             List<InvoiceItem> items = invoiceUpdateDTO.getInvoiceItems() != null
                     ? invoiceUpdateDTO.getInvoiceItems()
                     .stream()
                     .map(i-> invoiceItemMapper.invoiceItemCreateDTOtoDomain(i, invoiceUpdateDTO.getAppliedExchangeRate()))
                     .toList()
                     : List.of();
+            System.out.println("post invoiceItemMapper.invoiceItemCreateDTOtoDomain ...");
 
             System.out.println(items.stream().toList());
 
             invoice.setInvoiceItems(items);
+
 
             double totalExclTax = items.stream()
                     .mapToDouble(item -> item.getItemTotalExclTax() != null ? item.getItemTotalExclTax() : 0.0)
@@ -401,6 +403,8 @@ public class InvoiceMapper {
                     .mapToDouble(item -> item.getItemTotalInclTax() != null ? item.getItemTotalInclTax() : 0.0)
                     .sum();
 
+            System.out.println("currencyCalculator.calculateTotals...");
+
             CurrencyTotals totals = currencyCalculator.calculateTotals(
                     invoiceUpdateDTO.getInvoiceCurrency(),
                     totalExclTax,
@@ -408,6 +412,8 @@ public class InvoiceMapper {
                     invoice.getAppliedExchangeRate(),
                     invoice.getExchangeRateReferenceDate()
             );
+
+            System.out.println("post currencyCalculator.calculateTotals...");
 
 
             invoice.setTotalExclTaxEUR(totals.totalExclTaxEUR());

@@ -1,8 +1,14 @@
 package com.example.billingservice.infrastructure.in.web;
 
+import com.example.billingservice.application.ports.in.MailJobUseCase;
 import com.example.billingservice.application.ports.in.SendEmailUseCase;
+import com.example.billingservice.domain.model.MailJobModel;
+import com.example.billingservice.infrastructure.out.persistance.dto.MailJobListItemDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.SendEmailRequest;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,9 +17,32 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/mailing")
 @RequiredArgsConstructor
-public class MailSenderController {
+public class MailController {
 
     private final SendEmailUseCase sendEmailUseCase;
+
+    private final MailJobUseCase mailJobUseCase;
+
+    @GetMapping("/partner/{emailPartner}")
+    @Operation(summary = "Liste des factures d'un fournisseur")
+    public ResponseEntity<Page<MailJobListItemDTO>> getPartnerMails(
+            @Parameter(description = "Partner email") @PathVariable String emailPartner,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String filter,
+            @RequestParam int page)
+    {
+
+        return ResponseEntity.status(200).body(mailJobUseCase.getEmailByPartner(emailPartner, keyword, filter, page));
+    }
+
+    @GetMapping("/mail/{idMail}")
+    @Operation(summary = "Liste des factures d'un fournisseur")
+    public ResponseEntity<MailJobModel> getMailDetails(
+            @Parameter(description = "Partner email") @PathVariable String idMail)
+    {
+
+        return ResponseEntity.status(200).body(mailJobUseCase.getMailById(UUID.fromString(idMail)));
+    }
 
     @PostMapping("/send-email")
     public ResponseEntity<Void> sendEmail(

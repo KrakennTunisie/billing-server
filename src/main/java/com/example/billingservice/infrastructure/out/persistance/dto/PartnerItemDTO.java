@@ -13,6 +13,8 @@ public class PartnerItemDTO {
 
     private UUID idPartner;
 
+    private String maritalStatus;
+
     private String partnerName;
 
     private String companyName;
