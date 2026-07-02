@@ -1,5 +1,6 @@
 package com.example.billingservice.infrastructure.out.persistance.entity;
 
+import com.example.billingservice.domain.enums.DiscountType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,6 +18,11 @@ public class InvoiceItemEntity extends BaseItemEntity{
 
     @Column(nullable = false, columnDefinition = "INT DEFAULT 0")
     private int creditedQuantity;
+
+    @Enumerated(EnumType.STRING)
+    private DiscountType discountType;
+
+    private Double discountValue;
 
     @ManyToOne
     private PurchaseOrderItemEntity purchaseOrderItem;

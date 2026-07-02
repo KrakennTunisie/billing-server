@@ -55,7 +55,6 @@ public class ClientInvoicesPersistenceAdapter implements ClientInvoicesRepositor
 
             PageRequest pageRequest = PageRequest.of(page, 5, Sort.by("issueDate").descending());
             Page<InvoiceEntity> entities = clientInvoicesRepository.getInvoices(keyword, status, pageRequest);
-
             List<InvoicePageItemDTO> invoices = entities.getContent()
                     .stream()
                     .map(invoiceEntity -> invoiceMapper.toDomain(invoiceEntity, InvoiceType.SALE))

@@ -1,5 +1,6 @@
 package com.example.billingservice.infrastructure.out.persistance.dto;
 
+import com.example.billingservice.domain.enums.DiscountType;
 import com.example.billingservice.domain.enums.OperationCategory;
 import com.example.billingservice.infrastructure.out.persistance.validators.ValidEnum;
 import jakarta.validation.constraints.*;
@@ -46,6 +47,14 @@ public class InvoiceItemCreateDTO {
     @NotNull(message = "La catégorie d'opération est obligatoire")
     @ValidEnum(enumClass = OperationCategory.class, message = "Catégorie d'opération invalide")
     private String operationCategory;
+
+    @NotNull(message = "Le type de remise est obligatoire")
+    @ValidEnum(enumClass = DiscountType.class, message = "Type de remise invalide")
+    private String discountType;
+
+    @NotNull(message = "La valeur de la remise est obligatoire")
+    @DecimalMin(value = "0.0", message = "La remise doit être positive ou nulle")
+    private Double discountValue;
 
     private UUID idPurchaseOrderItem;
 

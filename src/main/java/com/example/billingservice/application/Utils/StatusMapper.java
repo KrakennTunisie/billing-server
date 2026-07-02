@@ -16,6 +16,7 @@ public final class StatusMapper {
             case PARTIALLY_PAID -> "Payée partiellement";
             case PAID -> "Payée";
             case OVERDUE -> "En retard";
+            case ARCHIVED -> "Archivée";
             case CANCELLED -> "Annulée";
         };
     }
@@ -28,6 +29,7 @@ public final class StatusMapper {
             case NOT_REFUNDED -> "Non remboursée";
             case IN_PROGRESS -> "En cours";
             case CANCELLED -> "Annulée";
+            case ARCHIVED -> "Archivée";
             case DRAFT -> "Brouillon";
         };
     }

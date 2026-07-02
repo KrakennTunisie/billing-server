@@ -70,6 +70,7 @@ public class InvoiceMapper {
         invoice.setPartner(partnerMapper.toExistEntity(dto.getPartner()));
         invoice.setPurchaseOrder(purchaseOrderMapper.toEntity(dto.getPurchaseOrder()));
         invoice.setCurrency(dto.getCurrency());
+        invoice.setComment(dto.getComment());
 
         List<InvoiceItemEntity> items = dto.getInvoiceItems() != null
                 ? dto.getInvoiceItems().stream()
@@ -138,6 +139,7 @@ public class InvoiceMapper {
                 .partner(partnerMapper.toDomain(entity.getPartner(),partnerType))// à modifier
                 .purchaseOrder(purchaseOrderMapper.toDomain(entity.getPurchaseOrder(),PurchaseOrderType.SALE))
                 .invoiceDocument(documentMapper.toDomain(entity.getInvoiceDocument()))
+                .comment(entity.getComment())
                 .build();
 
 
@@ -248,6 +250,7 @@ public class InvoiceMapper {
                     .paymentCondition(PaymentCondition.valueOf(invoiceCreateDTO.getPaymentCondition()))
                     .exchangeRateReferenceDate(invoiceCreateDTO.getExchangeRateReferenceDate())
                     .exchangeRateSource(ExchangeRateSource.valueOf(invoiceCreateDTO.getExchangeRateSource()))
+                    .comment(invoiceCreateDTO.getComment())
                     .complianceQRcode(null)
 
 
@@ -340,6 +343,7 @@ public class InvoiceMapper {
                 .partner(partnerMapper.toSummaryDTO(invoice.getPartner()))
                 .purchaseOrder(purchaseOrderMapper.toSummaryDTO(invoice.getPurchaseOrder()))
                 .invoiceItems(invoice.getInvoiceItems())
+                .comment(invoice.getComment())
                 .invoiceDocument(documentMapper.toDocumentSummary(invoice.getInvoiceDocument()))
                 .build();
 
@@ -366,6 +370,7 @@ public class InvoiceMapper {
                     .vatRate(invoiceUpdateDTO.getVatRate())
                     .appliedExchangeRate(invoiceUpdateDTO.getAppliedExchangeRate())
                     .invoiceDocument(document)
+                    .comment(invoiceUpdateDTO.getComment())
                     .paymentMethod(PaymentMethod.valueOf(invoiceUpdateDTO.getPaymentMethod()))
                     .paymentCondition(PaymentCondition.valueOf(invoiceUpdateDTO.getPaymentCondition()))
                     .exchangeRateReferenceDate(invoiceUpdateDTO.getExchangeRateReferenceDate())
@@ -414,6 +419,7 @@ public class InvoiceMapper {
             );
 
             System.out.println("post currencyCalculator.calculateTotals...");
+            invoice.setRemainingAmount(formatAmount(totals, InvoiceCurrency.valueOf(invoiceUpdateDTO.getInvoiceCurrency())));
 
 
             invoice.setTotalExclTaxEUR(totals.totalExclTaxEUR());

@@ -39,6 +39,7 @@ public class InvoiceDTO {
     private String complianceQRcode;
     private PurchaseOrderSummaryDTO purchaseOrder;
     private PartnerSummaryDTO partner;
+    private String comment;
 
     private List<InvoiceItem> invoiceItems;
     private boolean hasInvoiceCreditNotes;
