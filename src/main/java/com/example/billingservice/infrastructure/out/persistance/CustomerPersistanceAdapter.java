@@ -26,6 +26,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -81,6 +82,9 @@ public class CustomerPersistanceAdapter implements CustomerRepositoryPort {
             case CONTRACT -> {
                 customerEntity.getContract().add(documentEntity);
 
+            }
+            case PATENT -> {
+                customerEntity.setPatente(documentEntity);
             }
 
             default -> throw new IllegalArgumentException(
@@ -169,21 +173,25 @@ public class CustomerPersistanceAdapter implements CustomerRepositoryPort {
 
     @Override
     public Partner updateCustomer(String id,UpdatePartnerDTO partner) throws DataIntegrityViolationException {
-        CustomerEntity managedEntity = customerRepository.findById(UUID.fromString(id))
-                .orElseThrow(() -> BillingException.notFound("Client", id));
-            CustomerEntity entity = (CustomerEntity) partnerMapper.updateEntity(partner,managedEntity);
-            Partner savedPartner =  partnerMapper.toDomain(customerRepository.save(entity),PartnerType.CLIENT);
-        AuditLogEntity audit = new AuditLogEntity();
-        audit.setAuditEventType(AuditType.UPDATED);
-        audit.setEntityName("Partner");
-        audit.setTriggeredBy("user");
-        audit.setAuditEventTrigger(AuditEventTrigger.USER);
-        audit.setEntityId(entity.getIdPartner());
-        audit.setDescription("Modification d'un  partenaire");
-        audit.setEventDate(new Date());
-        audit.setPartner(entity);
-        auditLogRepository.save(audit);
-        return  savedPartner;
+        try {
+            CustomerEntity managedEntity = customerRepository.findById(UUID.fromString(id))
+                    .orElseThrow(() -> BillingException.notFound("Client", id));
+            CustomerEntity entity = (CustomerEntity) partnerMapper.updateEntity(partner, managedEntity);
+            Partner savedPartner = partnerMapper.toDomain(customerRepository.save(entity), PartnerType.CLIENT);
+            AuditLogEntity audit = new AuditLogEntity();
+            audit.setAuditEventType(AuditType.UPDATED);
+            audit.setEntityName("Partner");
+            audit.setTriggeredBy("user");
+            audit.setAuditEventTrigger(AuditEventTrigger.USER);
+            audit.setEntityId(entity.getIdPartner());
+            audit.setDescription("Modification d'un  partenaire");
+            audit.setEventDate(new Date());
+            audit.setPartner(entity);
+            auditLogRepository.save(audit);
+            return savedPartner;
+        } catch (IOException e) {
+            throw new RuntimeException("Erreur lors de la mise à jour du client", e);
+        }
     }
 
     @Override

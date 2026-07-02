@@ -102,8 +102,51 @@ public class PartnerMapper {
         return  entity;
     }
 
-    public PartnerEntity updateEntity(UpdatePartnerDTO partner, PartnerEntity existingEntity) {
+    public PartnerEntity updateEntity(UpdatePartnerDTO partner, PartnerEntity existingEntity) throws IOException {
+        Document uploadedContract = null;
+        Document uploadedRne;
+        Document uploadedPatente;
+        DocumentEntity rneEntity = null;
+        DocumentEntity contratEntity = null;
+        DocumentEntity patentEntity = null;
 
+       
+        if(partner.getRne()!=null) {
+            UploadedFile rne = new UploadedFile(
+                    partner.getRne().getOriginalFilename(),
+                    partner.getRne().getContentType(),
+                    partner.getRne().getInputStream(),
+                    partner.getRne().getSize()
+            );
+             uploadedRne = uploadDocumentService.upload(partner.getCompanyName(), DocumentType.RNE, rne);
+             rneEntity =documentMapper.toEntity(uploadedRne,DocumentType.RNE);
+          
+        }
+
+        if(partner.getPatente()!=null) {
+            UploadedFile patente = new UploadedFile(
+                    partner.getPatente().getOriginalFilename(),
+                    partner.getPatente().getContentType(),
+                    partner.getPatente().getInputStream(),
+                    partner.getPatente().getSize()
+            );
+            uploadedPatente = uploadDocumentService.upload(partner.getCompanyName(), DocumentType.PATENT, patente);
+            patentEntity =documentMapper.toEntity(uploadedPatente,DocumentType.RNE);
+
+        }
+
+        if(partner.getContract()!=null) {
+            UploadedFile contract = new UploadedFile(
+                    partner.getContract().getOriginalFilename(),
+                    partner.getContract().getContentType(),
+                    partner.getContract().getInputStream(),
+                    partner.getContract().getSize()
+            );
+
+             uploadedContract = uploadDocumentService.upload(existingEntity.getCompanyName(), DocumentType.CONTRACT, contract);
+             contratEntity =documentMapper.toEntity(uploadedContract,DocumentType.CONTRACT);
+          
+        }
 
         existingEntity.setActive(partner.isActive());
         existingEntity.setEnablePortal(partner.isEnablePortal());
@@ -122,6 +165,16 @@ public class PartnerMapper {
         existingEntity.setIban(partner.getIban());
         existingEntity.setBillingAddressEntity(addressMapper.updateToEntity(existingEntity.getBillingAddressEntity(),partner.getBillingAddress()));
         existingEntity.setShippingAddressEntity(addressMapper.updateToEntity(existingEntity.getShippingAddressEntity(),partner.getShippingAddress()));
+        if (contratEntity != null) {
+            existingEntity.getContract().add(contratEntity);
+        }
+        if (rneEntity != null) {
+            existingEntity.getRne().add(rneEntity);
+        }
+        if(patentEntity!=null)
+        {
+            existingEntity.setPatente(patentEntity);
+        }
 
 
         return existingEntity;
@@ -227,6 +280,7 @@ public class PartnerMapper {
 
         return PartnerItemDTO.builder()
                 .idPartner(partner.getIdPartner())
+                .active(partner.isActive())
                 .maritalStatus(partner.getMaritalStatus())
                 .partnerName(partner.getPartnerName())
                 .companyName(partner.getCompanyName())
@@ -236,6 +290,7 @@ public class PartnerMapper {
                 .partnerType(partner.getPartnerType())
                 .billingAddress(partner.getBillingAddress())
                 .iban(partner.getIban())
+                .patente(documentMapper.toDocumentSummary(partner.getPatente()))
                 .build();
     }
 
@@ -303,33 +358,45 @@ public class PartnerMapper {
         if (dto == null ) {
             return null;
         }
+        List<Document> RNEs = List.of();
+        List<Document> Contracts = List.of();
+        Document uploadedPatente = null;
+        if(dto.getRne()!=null) {
+            UploadedFile rne = new UploadedFile(
+                    dto.getRne().getOriginalFilename(),
+                    dto.getRne().getContentType(),
+                    dto.getRne().getInputStream(),
+                    dto.getRne().getSize()
+            );
+            Document uploadedRne = uploadDocumentService.upload(dto.getTaxRegistrationNumber(), DocumentType.RNE, rne);
+            RNEs = new ArrayList<>(List.of(uploadedRne));
+        }
+        
+        if(dto.getContract()!=null) {
+            UploadedFile contract = new UploadedFile(
+                    dto.getContract().getOriginalFilename(),
+                    dto.getContract().getContentType(),
+                    dto.getContract().getInputStream(),
+                    dto.getContract().getSize()
+            );
 
-        UploadedFile rne = new UploadedFile(
-                dto.getRne().getOriginalFilename(),
-                dto.getRne().getContentType(),
-                dto.getRne().getInputStream(),
-                dto.getRne().getSize()
-        );
-
-        UploadedFile contract = new UploadedFile(
-                dto.getContract().getOriginalFilename(),
-                dto.getContract().getContentType(),
-                dto.getContract().getInputStream(),
-                dto.getContract().getSize()
-        );
-
-        UploadedFile patente = new UploadedFile(
-                dto.getPatente().getOriginalFilename(),
-                dto.getPatente().getContentType(),
-                dto.getPatente().getInputStream(),
-                dto.getPatente().getSize()
-        );
-
-        Document uploadedRne = uploadDocumentService.upload(dto.getTaxRegistrationNumber(), DocumentType.RNE, rne);
-        Document uploadedContract = uploadDocumentService.upload(dto.getTaxRegistrationNumber(), DocumentType.CONTRACT, contract);
-        Document uploadedPatente = uploadDocumentService.upload(dto.getTaxRegistrationNumber(), DocumentType.PATENT, patente);
-        List<Document> RNEs = new ArrayList<>(List.of(uploadedRne));
-        List<Document> Contracts = new ArrayList<>(List.of(uploadedContract));
+            Document uploadedContract = uploadDocumentService.upload(dto.getTaxRegistrationNumber(), DocumentType.CONTRACT, contract);
+            Contracts = new ArrayList<>(List.of(uploadedContract));
+        }
+        
+        if(dto.getPatente()!=null) {
+            UploadedFile patente = new UploadedFile(
+                    dto.getPatente().getOriginalFilename(),
+                    dto.getPatente().getContentType(),
+                    dto.getPatente().getInputStream(),
+                    dto.getPatente().getSize()
+            );
+            uploadedPatente = uploadDocumentService.upload(dto.getTaxRegistrationNumber(), DocumentType.PATENT, patente);
+        }
+      
+       
+       
+        
         System.out.println(dto.getEnablePortal());
         return Partner.builder()
                 .active(Boolean.parseBoolean(dto.getActive()))

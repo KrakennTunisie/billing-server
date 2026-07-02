@@ -45,7 +45,7 @@ public class PartnerService implements PartnerUseCase  {
                             "Nom",
                             partner.getCompanyName());
         }
-        if (supplierRepositoryPort.existsByTaxRegistrationNumber(partner.getTaxRegistrationNumber())){
+        /*if (supplierRepositoryPort.existsByTaxRegistrationNumber(partner.getTaxRegistrationNumber())){
             throw BillingException
                     .alreadyExists(
                             "Fournisseur",
@@ -65,7 +65,7 @@ public class PartnerService implements PartnerUseCase  {
                             "Fournisseur",
                             "Iban",
                             partner.getIban());
-        }
+        }*/
         Partner  partnerModel =partnerMapper.createPartnerFromDTO(partner);
         return partnerMapper.toDetailsDTO(supplierRepositoryPort.saveSupplier(partnerModel));
     }
@@ -187,7 +187,7 @@ public class PartnerService implements PartnerUseCase  {
                             "Nom",
                             partner.getCompanyName());
         }
-        if (customerRepositoryPort.existsByTaxRegistrationNumber(partner.getTaxRegistrationNumber())){
+       /* if (customerRepositoryPort.existsByTaxRegistrationNumber(partner.getTaxRegistrationNumber())){
             throw BillingException
                     .alreadyExists(
                             "Client",
@@ -208,7 +208,7 @@ public class PartnerService implements PartnerUseCase  {
                             "Client",
                             "Iban",
                             partner.getIban());
-        }
+        }*/
         Partner  partnerModel = partnerMapper.createPartnerFromDTO(partner);
         Partner savedPartner = customerRepositoryPort.saveCustomer(partnerModel);
         return partnerMapper.toDetailsDTO(savedPartner);
@@ -219,7 +219,7 @@ public class PartnerService implements PartnerUseCase  {
         Partner partner = customerRepositoryPort.findCustomerById(String.valueOf(idClient))
                 .orElseThrow(() -> BillingException.notFound("Client", String.valueOf(idClient)));
 
-        Document document1 = uploadDocument(partner.getTaxRegistrationNumber(), document, documentType);
+        Document document1 = uploadDocument(partner.getCompanyName(), document, documentType);
 
         return customerRepositoryPort.addDocumentToClient(idClient, document1);
     }
@@ -291,8 +291,8 @@ public class PartnerService implements PartnerUseCase  {
     }
 
 
-    private Document uploadDocument(String taxRegistrationNumber, MultipartFile multipartFile, DocumentType documentType) throws IOException {
-        if (multipartFile == null || taxRegistrationNumber == null || documentType == null) {
+    private Document uploadDocument(String companyName, MultipartFile multipartFile, DocumentType documentType) throws IOException {
+        if (multipartFile == null || companyName == null || documentType == null) {
             return null;
         }
 
@@ -304,7 +304,7 @@ public class PartnerService implements PartnerUseCase  {
         );
 
         Document uploadedDocument = uploadDocumentService.upload(
-                taxRegistrationNumber,
+                companyName,
                 documentType,
                 uploadedFile
         );
