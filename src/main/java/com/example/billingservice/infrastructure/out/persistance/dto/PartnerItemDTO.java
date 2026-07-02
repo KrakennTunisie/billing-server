@@ -15,6 +15,8 @@ public class PartnerItemDTO {
 
     private String maritalStatus;
 
+    private boolean active;
+
     private String partnerName;
 
     private String companyName;
@@ -30,4 +32,6 @@ public class PartnerItemDTO {
     private Address billingAddress;
 
     private String iban;
+
+    private DocumentSummaryDTO patente;
 }
