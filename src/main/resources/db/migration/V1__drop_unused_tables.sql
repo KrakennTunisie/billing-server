@@ -1,12 +1,12 @@
-DROP TABLE document_content CASCADE;
+DROP TABLE IF EXISTS document_content CASCADE;
 
-DROP TABLE invoice_counters CASCADE;
+DROP TABLE IF EXISTS invoice_counters CASCADE;
 
-DROP TABLE invoice_credit_note_events CASCADE;
+DROP TABLE IF EXISTS invoice_credit_note_events CASCADE;
 
-DROP TABLE invoices_events CASCADE;
+DROP TABLE IF EXISTS invoices_events CASCADE;
 
-DROP TABLE mail_attachment_metadata_entity CASCADE;
+DROP TABLE IF EXISTS mail_attachment_metadata_entity CASCADE;
 
 ALTER TABLE invoices
 ALTER
