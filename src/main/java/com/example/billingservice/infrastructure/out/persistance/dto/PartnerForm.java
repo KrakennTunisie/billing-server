@@ -58,12 +58,12 @@ public class PartnerForm {
 
     private String iban;
 
-    @NotNull(message = "Le document rne est obligatoire")
+
     private MultipartFile rne;
 
-    @NotNull(message = "Le document patente est obligatoire")
+
     private MultipartFile patente;
 
-    @NotNull(message = "Le document contract est obligatoire")
+
     private MultipartFile contract;
 }

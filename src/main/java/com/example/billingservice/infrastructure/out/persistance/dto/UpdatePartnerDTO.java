@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
@@ -54,4 +55,10 @@ public class UpdatePartnerDTO {
     private PaymentCondition paymentCondition;
 
     private String iban;
+
+    private MultipartFile rne;
+
+    private MultipartFile contract;
+
+    private MultipartFile patente;
 }

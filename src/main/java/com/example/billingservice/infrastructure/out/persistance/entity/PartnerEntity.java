@@ -53,7 +53,7 @@ public abstract class PartnerEntity {
     private String displayName;
 
     @Schema(description = "Email du partenaire", example = "oumaima@example.com")
-    @Column(name = "email", unique = true)
+    @Column(name = "email", unique = false)
     private String email;
 
     @Schema(description = "Numéro de téléphone personnel", example = "+33612345678")
@@ -88,7 +88,7 @@ public abstract class PartnerEntity {
     private String taxRate;
 
     @Schema(description = "Numéro fiscal", example = "TAX123456")
-    @Column(name = "tax_registration_number", unique = true)
+    @Column(name = "tax_registration_number", unique = false)
     private String taxRegistrationNumber;
 
     @Schema(description = "Condition de paiement", example = "NET_15")

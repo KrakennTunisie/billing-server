@@ -31,6 +31,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 import org.springframework.util.function.SupplierUtils;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -204,21 +205,26 @@ public class SupplierPersistanceAdapter implements SupplierRepositoryPort {
     @Override
     public Partner updateSupplier(String id , UpdatePartnerDTO partner) throws DataIntegrityViolationException {
 
-        SupplierEntity managedEntity = supplierRepository.findById(UUID.fromString(id))
-                .orElseThrow(() -> BillingException.notFound("Fournisseur", id));
-        SupplierEntity entity = (SupplierEntity) partnerMapper.updateEntity(partner,managedEntity);
-        Partner updatedPartner =  partnerMapper.toDomain(supplierRepository.save(entity),PartnerType.SUPPLIER);
-        AuditLogEntity audit = new AuditLogEntity();
-        audit.setAuditEventType(AuditType.CREATED);
-        audit.setEntityName("Partner");
-        audit.setTriggeredBy("user");
-        audit.setAuditEventTrigger(AuditEventTrigger.USER);
-        audit.setEntityId(entity.getIdPartner());
-        audit.setDescription("Modification d'un partenaire");
-        audit.setEventDate(new Date());
-        audit.setPartner(entity);
-        auditLogRepository.save(audit);
-        return updatedPartner;
+        try {
+
+            SupplierEntity managedEntity = supplierRepository.findById(UUID.fromString(id))
+                    .orElseThrow(() -> BillingException.notFound("Fournisseur", id));
+            SupplierEntity entity = (SupplierEntity) partnerMapper.updateEntity(partner, managedEntity);
+            Partner updatedPartner = partnerMapper.toDomain(supplierRepository.save(entity), PartnerType.SUPPLIER);
+            AuditLogEntity audit = new AuditLogEntity();
+            audit.setAuditEventType(AuditType.CREATED);
+            audit.setEntityName("Partner");
+            audit.setTriggeredBy("user");
+            audit.setAuditEventTrigger(AuditEventTrigger.USER);
+            audit.setEntityId(entity.getIdPartner());
+            audit.setDescription("Modification d'un partenaire");
+            audit.setEventDate(new Date());
+            audit.setPartner(entity);
+            auditLogRepository.save(audit);
+            return updatedPartner;
+        } catch (IOException e) {
+            throw new RuntimeException("Erreur lors de la mise à jour du fournisseur", e);
+        }
     }
 
     @Override
