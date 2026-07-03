@@ -80,7 +80,7 @@ public class PaymentMapper {
                 .paymentDate(dto.getDate() != null ? dto.getDate() : LocalDate.now())
                 .method(dto.getMethod())
                 .reference(dto.getPaymentNumber())
-                .note(dto.getNote())
+                .note(dto.getComment())
                 .paymentDocument(paymentDocument)
                 .build();
     }
@@ -98,7 +98,7 @@ public class PaymentMapper {
                 .paymentDate(dto.getDate() != null ? dto.getDate() : LocalDate.now())
                 .method(dto.getMethod())
                 .reference(dto.getPaymentNumber())
-                .note(dto.getNote())
+                .note(dto.getComment())
                 .paymentDocument(paymentDocument)
                 .build();
     }
@@ -132,7 +132,7 @@ public class PaymentMapper {
                 .paymentDate(model.getPaymentDate())
                 .method(model.getMethod())
                 .reference(model.getReference())
-                .note(model.getNote())
+                .comment(model.getNote())
                 .paymentDocument(documentMapper.toDocumentSummary(model.getPaymentDocument()))
                 .createdAt(model.getCreatedAt())
                 .updatedAt(model.getUpdatedAt())

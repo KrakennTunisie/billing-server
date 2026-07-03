@@ -27,7 +27,7 @@ public class PaymentDTO {
 
     private String reference;
 
-    private String note;
+    private String comment;
 
     private DocumentSummaryDTO paymentDocument;
 

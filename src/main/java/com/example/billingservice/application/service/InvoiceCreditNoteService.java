@@ -4,6 +4,7 @@ import com.example.billingservice.application.Utils.InvoiceCreditNoteStatusPassa
 import com.example.billingservice.application.Utils.StatusMapper;
 import com.example.billingservice.application.ports.in.GenerateInvoiceNumberUseCase;
 import com.example.billingservice.application.ports.in.InvoiceCreditNoteUseCase;
+import com.example.billingservice.application.ports.in.InvoiceUseCase;
 import com.example.billingservice.application.ports.in.PartnerUseCase;
 import com.example.billingservice.application.ports.out.ClientInvoicesRepositoryPort;
 import com.example.billingservice.application.ports.out.InvoiceCreditNoteRepositoryPort;
@@ -86,6 +87,10 @@ public class InvoiceCreditNoteService implements InvoiceCreditNoteUseCase {
             throw BillingException.alreadyExists("Facture d'avoir", "invoiceCreditNoteNumber", createDTO.getInvoiceCreditNoteNumber());
         }
 
+        if(createDTO.getIssueDate().before(invoice.getIssueDate())){
+            throw BillingException.badRequest("La date d'émission de l'avoir ne peut pas être antérieure à celle de la facture associée");
+        }
+
         if(invoice.getInvoiceStatus()== InvoiceStatus.DRAFT
                 || invoice.getInvoiceStatus()== InvoiceStatus.CANCELLED)
         {
@@ -142,7 +147,7 @@ public class InvoiceCreditNoteService implements InvoiceCreditNoteUseCase {
     public InvoiceCreditNoteDetailsDTO updateInvoiceCreditNoteStatus(String creditNoteNumber, InvoiceCreditNoteStatus invoiceCreditNoteStatus) {
 
         if(!invoiceCreditNoteRepositoryPort.existsByInvoiceCreditNoteNumber(creditNoteNumber)){
-            throw   BillingException.notFound("Facture", String.valueOf(creditNoteNumber));
+            throw   BillingException.notFound("Facture d'avoir", String.valueOf(creditNoteNumber));
         }
 
         InvoiceCreditNote invoiceCreditNote = invoiceCreditNoteRepositoryPort.getByInvoiceCreditNoteNumber(creditNoteNumber);
@@ -169,7 +174,7 @@ public class InvoiceCreditNoteService implements InvoiceCreditNoteUseCase {
 
         invoiceCreditNote.setInvoiceCreditNoteEvents(updatedEvents);
 
-        InvoiceCreditNote updatedInvoiceCreditNote = invoiceCreditNoteRepositoryPort.updateStatus(invoiceCreditNote, invoiceCreditNoteStatus);
+        InvoiceCreditNote updatedInvoiceCreditNote = invoiceCreditNoteRepositoryPort.updateStatus(creditNoteNumber, invoiceCreditNoteStatus);
 
 
 
@@ -182,7 +187,21 @@ public class InvoiceCreditNoteService implements InvoiceCreditNoteUseCase {
             throw BillingException.notFound("Facture d'avoir", String.valueOf(invoiceCreditNoteId));
         }
 
+        InvoiceCreditNote invoiceCreditNote = invoiceCreditNoteRepositoryPort.getById(invoiceCreditNoteId);
+
+        if(invoiceCreditNote!=null &&
+                invoiceCreditNote.getInvoiceCreditNoteStatus()!=InvoiceCreditNoteStatus.DRAFT)
+        {
+            updateInvoiceCreditNoteStatus(
+                    invoiceCreditNote.getInvoiceCreditNoteNumber(),
+                    InvoiceCreditNoteStatus.ARCHIVED
+            );
+            return;
+        }
+
         invoiceCreditNoteRepositoryPort.delete(invoiceCreditNoteId);
+
+
     }
 
 
@@ -202,6 +221,11 @@ public class InvoiceCreditNoteService implements InvoiceCreditNoteUseCase {
     }
 
     @Override
+    public boolean hasCreditNotesWithStatus(UUID invoiceId, InvoiceCreditNoteStatus invoiceCreditNoteStatus) {
+        return invoiceCreditNoteRepositoryPort.hasCreditNotesWithStatus(invoiceId, invoiceCreditNoteStatus);
+    }
+
+    @Override
     public Page<InvoiceCreditNotePageItemDTO> getCreditNoteInvoiceByPartner(String idPartner , String partnerType, int page) {
         if(partnerType.equals(PartnerType.CLIENT.toString()) &&
             !partnerUseCase.customerExistsByIdPartner(UUID.fromString(idPartner)))
@@ -215,6 +239,8 @@ public class InvoiceCreditNoteService implements InvoiceCreditNoteUseCase {
         }
         return invoiceCreditNoteRepositoryPort.getCreditNoteByClient(UUID.fromString(idPartner), page);
     }
+
+
 
 
 }

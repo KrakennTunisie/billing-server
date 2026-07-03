@@ -111,6 +111,10 @@ public class InvoiceService implements InvoiceUseCase, InvoiceStatsUseCase {
             throw BillingException.notFound("Facture Client", String.valueOf(invoiceId));
         }
 
+        if(invoiceCreditNoteUseCase.hasCreditNotesWithStatus(invoiceId, InvoiceCreditNoteStatus.REFUNDED)){
+            throw BillingException.badRequest("La facture a encore des factures d'avoir non traité");
+        }
+
         InvoiceDTO invoiceDTO = clientInvoicesRepositoryPort.getById(invoiceId);
 
         InvoiceStatusPassagePolicy.checkTransition(invoiceDTO.getInvoiceStatus(), invoiceStatus);
@@ -191,7 +195,13 @@ public class InvoiceService implements InvoiceUseCase, InvoiceStatsUseCase {
         if(!supplierInvoicesRepositoryPort.existsByInvoiceId(invoiceId)){
             throw BillingException.notFound("Facture Fournisseur", String.valueOf(invoiceId));
         }
-        supplierInvoicesRepositoryPort.delete(invoiceId);
+        if
+        (supplierInvoicesRepositoryPort.getById(invoiceId).getInvoiceStatus()!=InvoiceStatus.DRAFT){
+            supplierInvoicesRepositoryPort.updateStatus(invoiceId, InvoiceStatus.ARCHIVED);
+            return;
+        }
+            supplierInvoicesRepositoryPort.delete(invoiceId);
+
     }
 
     @Override
@@ -200,11 +210,18 @@ public class InvoiceService implements InvoiceUseCase, InvoiceStatsUseCase {
             throw BillingException.notFound("Facture client", String.valueOf(invoiceId));
         }
         Invoice invoice = clientInvoicesRepositoryPort.getInvoice(invoiceId);
-        if(invoice.getPurchaseOrder() != null) {
-            synchronizationService.deleteInvoiceRelatedToPurchaseOrder(invoice);
-        }else{
-            clientInvoicesRepositoryPort.delete(invoiceId);
+
+        if (invoice.getInvoiceStatus() != InvoiceStatus.DRAFT) {
+            clientInvoicesRepositoryPort.updateStatus(invoiceId, InvoiceStatus.ARCHIVED);
+            return;
         }
+
+        if (invoice.getPurchaseOrder() != null) {
+            synchronizationService.deleteInvoiceRelatedToPurchaseOrder(invoice);
+            return;
+        }
+
+        clientInvoicesRepositoryPort.delete(invoiceId);
 
     }
 

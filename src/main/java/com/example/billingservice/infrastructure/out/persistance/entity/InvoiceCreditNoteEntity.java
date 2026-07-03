@@ -30,8 +30,10 @@ public class InvoiceCreditNoteEntity {
 
     private String qrCode;
 
+    @Enumerated(EnumType.STRING)
     private InvoiceComplianceStatus complianceStatus;
 
+    @Enumerated(EnumType.STRING)
     private InvoiceCreditNoteStatus invoiceCreditNoteStatus;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)

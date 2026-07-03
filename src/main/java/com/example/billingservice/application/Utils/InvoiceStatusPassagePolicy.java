@@ -24,6 +24,8 @@ public final class InvoiceStatusPassagePolicy {
 
             InvoiceStatus.OVERDUE, Set.of(InvoiceStatus.PARTIALLY_PAID, InvoiceStatus.PAID, InvoiceStatus.CANCELLED),
 
+            InvoiceStatus.ARCHIVED, Set.of(),
+
             InvoiceStatus.CANCELLED, Set.of()
     );
 

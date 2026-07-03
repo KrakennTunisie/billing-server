@@ -35,7 +35,7 @@ public class CreatePaymentDto {
     @NotNull(message = "Le mode de paiement est obligatoire")
     PaymentMethod method;
 
-    String note;
+    String comment;
 
     @NotNull(message = "Le document de paiement est obligatoire")
     private MultipartFile paymentDocument;

@@ -66,6 +66,8 @@ public class InvoiceCreateDTO {
 
     private UUID purchaseOrder;
 
+    private String comment;
+
     @Setter
     //@NotEmpty(message = "Au moins une ligne de facture est obligatoire")
     private List<InvoiceItemCreateDTO> invoiceItems;

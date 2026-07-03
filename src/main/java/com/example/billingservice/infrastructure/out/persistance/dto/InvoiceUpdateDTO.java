@@ -73,6 +73,8 @@ public class InvoiceUpdateDTO {
 
     private UUID purchaseOrder;
 
+    private String comment;
+
     @Setter
     private String partner;
 

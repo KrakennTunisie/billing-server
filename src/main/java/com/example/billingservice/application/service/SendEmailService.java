@@ -5,6 +5,8 @@ import com.example.billingservice.application.ports.out.ClientInvoicesRepository
 import com.example.billingservice.application.ports.out.DocumentReaderPort;
 import com.example.billingservice.application.ports.out.EmailJobPublisherPort;
 import com.example.billingservice.application.ports.out.MailJobRepositoryPort;
+import com.example.billingservice.domain.enums.InvoiceStatus;
+import com.example.billingservice.domain.enums.InvoiceType;
 import com.example.billingservice.domain.exceptions.BillingException;
 import com.example.billingservice.domain.model.Invoice;
 import com.example.billingservice.domain.model.InvoiceCreditNote;
@@ -63,7 +65,13 @@ public class SendEmailService implements SendEmailUseCase {
         );
         mailJobRepositoryPort.save(job);
 
+        if(invoice.getInvoiceType() == InvoiceType.SALE && invoice.getInvoiceStatus()== InvoiceStatus.DRAFT){
+            invoiceUseCase.updateClientInvoiceStatus(invoiceId, InvoiceStatus.TO_COLLECT);
+        }
+
         emailJobPublisherPort.publish(job);
+
+
       //  mailJobRepositoryPort.save(job);
     }
 

@@ -1,5 +1,6 @@
 package com.example.billingservice.infrastructure.out.persistance.dto;
 
+import com.example.billingservice.domain.enums.InvoiceCurrency;
 import com.example.billingservice.domain.enums.PartnerType;
 import com.example.billingservice.domain.model.Address;
 import lombok.Builder;
@@ -18,5 +19,8 @@ public class PartnerSummaryDTO {
     private String email;
     private Address billingAddress;
     private String professionnalPhoneNumber;
+    private InvoiceCurrency currency;
+    private String taxRate;
     private PartnerType partnerType;
+
 }

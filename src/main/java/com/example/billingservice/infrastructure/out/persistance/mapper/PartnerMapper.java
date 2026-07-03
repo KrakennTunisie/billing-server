@@ -437,6 +437,8 @@ public class PartnerMapper {
                 .taxRegistrationNumber(partner.getTaxRegistrationNumber())
                 .billingAddress(partner.getBillingAddress())
                 .professionnalPhoneNumber(partner.getProfessionnalPhoneNumber())
+                .currency(partner.getCurrency())
+                .taxRate(partner.getTaxRate())
                 .partnerType(partner.getPartnerType())
                 .build();
     }

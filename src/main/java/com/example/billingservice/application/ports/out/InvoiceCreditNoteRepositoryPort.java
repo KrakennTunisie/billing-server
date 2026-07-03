@@ -19,7 +19,9 @@ public interface InvoiceCreditNoteRepositoryPort {
 
     InvoiceCreditNote getById(UUID idInvoiceCreditNote);
 
-    InvoiceCreditNote updateStatus(InvoiceCreditNote invoiceCreditNote, InvoiceCreditNoteStatus newStatus);
+    InvoiceCreditNote updateStatus(String invoiceCreditNoteNumber, InvoiceCreditNoteStatus newStatus);
+
+    boolean hasCreditNotesWithStatus(UUID invoiceId, InvoiceCreditNoteStatus invoiceCreditNoteStatus);
 
     boolean existsByInvoiceCreditNoteNumber(String invoiceNumber);
 
