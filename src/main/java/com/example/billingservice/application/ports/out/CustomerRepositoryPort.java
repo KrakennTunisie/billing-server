@@ -33,6 +33,16 @@ public interface CustomerRepositoryPort {
 
     boolean existsByName(String name);
 
+    boolean existsByCompanyName(String companyName);
+
+    boolean existsByIbanAndIdPartnerNot(String iban, UUID idPartner);
+
+    boolean existsByEmailAndIdPartnerNot(String email, UUID idPartner);
+
+    boolean existsByCompanyNameAndIdPartnerNot(String companyName, UUID idPartner);
+
+    boolean existsByTaxRegistrationNumberAndIdPartnerNot(String taxRegistrationNumber, UUID idPartner);
+
 
     Page<PartnerItemDTO> findAllCustomers(String keyword , String Country , int page);
 

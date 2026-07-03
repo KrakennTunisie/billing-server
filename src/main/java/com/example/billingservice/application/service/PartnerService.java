@@ -38,7 +38,7 @@ public class PartnerService implements PartnerUseCase  {
             throw BillingException
                     .badRequest("Le Type est inadéquat");
         }
-        if (supplierRepositoryPort.existsByName(partner.getCompanyName())){
+        if (supplierRepositoryPort.existsByCompanyName(partner.getCompanyName())){
             throw BillingException
                     .alreadyExists(
                             "Fournisseur",
@@ -139,6 +139,32 @@ public class PartnerService implements PartnerUseCase  {
     public boolean existsBySupplierName(String name) {
         return supplierRepositoryPort.existsByName(name);
     }
+
+    @Override
+    public boolean supplierExistsByCompanyName(String companyName) {
+        return supplierRepositoryPort.existsByCompanyName(companyName);
+    }
+
+    @Override
+    public boolean supplierExistsByIbanAndIdPartnerNot(String iban, UUID idPartner) {
+        return supplierRepositoryPort.existsByIbanAndIdPartnerNot(iban, idPartner);
+    }
+
+    @Override
+    public boolean supplierExistsByEmailAndIdPartnerNot(String email, UUID idPartner) {
+        return supplierRepositoryPort.existsByEmailAndIdPartnerNot(email, idPartner);
+    }
+
+    @Override
+    public boolean supplierExistsByCompanyNameAndIdPartnerNot(String companyName, UUID idPartner) {
+        return supplierRepositoryPort.existsByCompanyNameAndIdPartnerNot(companyName, idPartner);
+    }
+
+    @Override
+    public boolean supplierExistsByTaxRegistrationNumberAndIdPartnerNot(String taxRegistrationNumber, UUID idPartner) {
+        return supplierRepositoryPort.existsByTaxRegistrationNumberAndIdPartnerNot(taxRegistrationNumber, idPartner);
+    }
+
     @Override
     public Optional<Partner> findSupplierExistsByEmail(String email) {
         return supplierRepositoryPort.findSupplierByEmail(email);
@@ -167,6 +193,34 @@ public class PartnerService implements PartnerUseCase  {
         Partner updatedPartner = supplierRepositoryPort.findSupplierById(id)
                 .orElseThrow(() -> BillingException.notFound("Fournisseur",id));
 
+        if (supplierExistsByCompanyNameAndIdPartnerNot(partnerDTO.getCompanyName(), UUID.fromString(id))){
+            throw BillingException.alreadyExists(
+                    "Fournisseur",
+                    "Nom de l'entreprise",
+                    partnerDTO.getCompanyName());
+        }
+        if (!partnerDTO.getEmail().isBlank() &&
+                supplierExistsByEmailAndIdPartnerNot(partnerDTO.getEmail(), UUID.fromString(id))){
+            throw BillingException.alreadyExists(
+                    "Fournisseur",
+                    "email",
+                    partnerDTO.getEmail());
+        }
+        if (!partnerDTO.getEmail().isBlank() &&
+                supplierExistsByIbanAndIdPartnerNot(partnerDTO.getIban(), UUID.fromString(id))){
+            throw BillingException.alreadyExists(
+                    "Fournisseur",
+                    "IBAN",
+                    partnerDTO.getIban());
+        }
+        if (!partnerDTO.getEmail().isBlank() &&
+                supplierExistsByTaxRegistrationNumberAndIdPartnerNot(partnerDTO.getTaxRegistrationNumber(), UUID.fromString(id))){
+            throw BillingException.alreadyExists(
+                    "Fournisseur",
+                    "Matricule fiscal",
+                    partnerDTO.getTaxRegistrationNumber());
+        }
+
         PartnerMapper.updatePartnerFromDTO(partnerDTO,updatedPartner);
 
         return supplierRepositoryPort.updateSupplier(id,partnerDTO);
@@ -180,11 +234,11 @@ public class PartnerService implements PartnerUseCase  {
             throw BillingException
                     .badRequest("Le Type est inadéquat");
         }
-        if (customerRepositoryPort.existsByName(partner.getCompanyName())){
+        if (customerRepositoryPort.existsByCompanyName(partner.getCompanyName())){
             throw BillingException
                     .alreadyExists(
                             "Client",
-                            "Nom",
+                            "Nom de l'entreprise",
                             partner.getCompanyName());
         }
        /* if (customerRepositoryPort.existsByTaxRegistrationNumber(partner.getTaxRegistrationNumber())){
@@ -274,6 +328,31 @@ public class PartnerService implements PartnerUseCase  {
     }
 
     @Override
+    public boolean clientExistsByCompanyName(String companyName) {
+        return customerRepositoryPort.existsByCompanyName(companyName);
+    }
+
+    @Override
+    public boolean clientExistsByIbanAndIdPartnerNot(String iban, UUID idPartner) {
+        return customerRepositoryPort.existsByIbanAndIdPartnerNot(iban, idPartner);
+    }
+
+    @Override
+    public boolean clientExistsByEmailAndIdPartnerNot(String email, UUID idPartner) {
+        return customerRepositoryPort.existsByEmailAndIdPartnerNot(email, idPartner);
+    }
+
+    @Override
+    public boolean clientExistsByCompanyNameAndIdPartnerNot(String companyName, UUID idPartner) {
+        return customerRepositoryPort.existsByCompanyNameAndIdPartnerNot(companyName, idPartner);
+    }
+
+    @Override
+    public boolean clientExistsByTaxRegistrationNumberAndIdPartnerNot(String taxRegistrationNumber, UUID idPartner) {
+        return customerRepositoryPort.existsByTaxRegistrationNumberAndIdPartnerNot(taxRegistrationNumber, idPartner);
+    }
+
+    @Override
     @Transactional
     public void deleteCustomerById(String id) {
         customerRepositoryPort.deleteCustomerById(id);
@@ -281,6 +360,34 @@ public class PartnerService implements PartnerUseCase  {
 
     @Override
     public Partner updateCustomer(String id, UpdatePartnerDTO partner) throws DataIntegrityViolationException{
+
+        if (clientExistsByCompanyNameAndIdPartnerNot(partner.getCompanyName(), UUID.fromString(id))){
+            throw BillingException.alreadyExists(
+                    "Client",
+                    "Nom de l'entreprise",
+                    partner.getCompanyName());
+        }
+        if (!partner.getEmail().isBlank() &&
+                clientExistsByEmailAndIdPartnerNot(partner.getEmail(), UUID.fromString(id))){
+            throw BillingException.alreadyExists(
+                    "Client",
+                    "email",
+                    partner.getEmail());
+        }
+        if (!partner.getIban().isBlank() &&
+                clientExistsByIbanAndIdPartnerNot(partner.getIban(), UUID.fromString(id))){
+            throw BillingException.alreadyExists(
+                    "Client",
+                    "IBAN",
+                    partner.getIban());
+        }
+        if (!partner.getTaxRegistrationNumber().isBlank() &&
+                clientExistsByTaxRegistrationNumberAndIdPartnerNot(partner.getTaxRegistrationNumber(), UUID.fromString(id))){
+            throw BillingException.alreadyExists(
+                    "Client",
+                    "Matricule fiscal",
+                    partner.getTaxRegistrationNumber());
+        }
         return  customerRepositoryPort.updateCustomer(id,partner);
 
     }
