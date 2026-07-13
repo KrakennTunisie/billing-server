@@ -1,5 +1,6 @@
 package com.example.billingservice.infrastructure.out.persistance.repository;
 
+import com.example.billingservice.infrastructure.out.persistance.dto.PartnerSummaryDTO;
 import com.example.billingservice.infrastructure.out.persistance.entity.CustomerEntity;
 import com.example.billingservice.infrastructure.out.persistance.entity.SupplierEntity;
 import org.springframework.data.domain.Page;
@@ -19,6 +20,10 @@ public interface SupplierRepository extends JpaRepository<SupplierEntity, UUID> 
     boolean existsByIdPartner(UUID idPartner);
 
     boolean existsByTaxRegistrationNumber(String taxRegistrationNumber);
+
+    boolean existsByCompanyName(String companyName);
+
+    SupplierEntity getSupplierByCompanyName(String companyName);
 
     boolean existsByEmail(String email);
 

@@ -73,12 +73,24 @@ public class PartnerController {
         return ResponseEntity.ok(partnerUseCase.findSupplierExistsByEmail(email));
     }
 
+    @GetMapping("/suppliers/existByCompanyName/{companyName}")
+    @Operation(summary = "Vérifier si un fournisseur existe par nom d'entreprise")
+    public ResponseEntity<Boolean> supplierExistByCompanyName(
+            @Parameter(description = "Nom de l'entreprise") @PathVariable String companyName) {
+        return ResponseEntity.ok(partnerUseCase.supplierExistsByCompanyName(companyName));
+    }
+
     @GetMapping("/name/{id}")
     @Operation(summary = "Récupérer un fournisseur")
     public ResponseEntity<Partner> getSupplierByName(@Parameter(description = "ID du partenaire") @PathVariable String id) {
         return partnerUseCase.getSupplierByName(id)
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> BillingException.notFound("Fournisseur", id));
+    }
+    @GetMapping("/companyName/{companyName}")
+    @Operation(summary = "Récupérer un fournisseur")
+    public ResponseEntity<PartnerSummaryDTO> getSupplierByCompanyName(@Parameter(description = "nom de fournisseur") @PathVariable String companyName) {
+        return ResponseEntity.ok(partnerUseCase.getSupplierByCompanyName(companyName));
     }
 
     @GetMapping("/supplier-item/{email}")

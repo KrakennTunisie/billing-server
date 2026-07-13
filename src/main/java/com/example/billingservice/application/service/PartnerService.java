@@ -120,6 +120,16 @@ public class PartnerService implements PartnerUseCase  {
     }
 
     @Override
+    public boolean supplierExistsByCompanyName(String companyName) {
+        return supplierRepositoryPort.existsByCompanyName(companyName);
+    }
+
+    @Override
+    public PartnerSummaryDTO getSupplierByCompanyName(String companyName) {
+        return supplierRepositoryPort.getSupplierByCompanyName(companyName);
+    }
+
+    @Override
     public boolean supplierExistsByIban(String iban) {
         return supplierRepositoryPort.existsByIban(iban);
     }

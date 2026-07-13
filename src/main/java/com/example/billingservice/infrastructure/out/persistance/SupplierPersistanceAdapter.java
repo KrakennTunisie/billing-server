@@ -142,6 +142,17 @@ public class SupplierPersistanceAdapter implements SupplierRepositoryPort {
     }
 
     @Override
+    public boolean existsByCompanyName(String companyName) {
+        return supplierRepository.existsByCompanyName(companyName);
+    }
+
+    @Override
+    public PartnerSummaryDTO getSupplierByCompanyName(String companyName) {
+         Partner partner =  partnerMapper.toDomain(supplierRepository.getSupplierByCompanyName(companyName),PartnerType.SUPPLIER);
+         return  partnerMapper.toSummaryDTO(partner);
+    }
+
+    @Override
     public PartnerItemDTO getByEmail(String email) {
         SupplierEntity supplierEntity = supplierRepository.getSupplierEntityByEmail(email);
         Partner partner = partnerMapper.toDomain(supplierEntity,PartnerType.SUPPLIER);

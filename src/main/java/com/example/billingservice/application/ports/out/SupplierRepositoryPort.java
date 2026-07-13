@@ -26,6 +26,11 @@ public interface SupplierRepositoryPort {
 
     boolean existsByEmail(String email);
 
+    boolean existsByCompanyName(String companyName);
+
+    PartnerSummaryDTO getSupplierByCompanyName(String companyName);
+
+
     PartnerItemDTO getByEmail(String email);
 
     boolean existsByName(String name);

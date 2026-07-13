@@ -42,7 +42,7 @@ public class PartnerMapper {
         //RNE
         List<DocumentEntity> rne = partner.getRne().stream()
                 .map(documentMapper::toRneEntity)
-                .toList();
+                .collect(Collectors.toCollection(ArrayList::new));
 
         //Patente
         DocumentEntity patente = documentMapper.toPatenteEntity(partner.getPatente());
@@ -50,7 +50,7 @@ public class PartnerMapper {
         //Contract
         List<DocumentEntity> contract = partner.getContract().stream()
                 .map(documentMapper::toContractEntity)
-                .toList();
+                .collect(Collectors.toCollection(ArrayList::new));
 
         //Partner
         entity.setIdPartner(partner.getIdPartner());
