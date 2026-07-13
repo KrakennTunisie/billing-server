@@ -1,0 +1,2 @@
+ALTER TABLE invoices
+DROP CONSTRAINT IF EXISTS invoices_payment_condition_check;

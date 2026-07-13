@@ -33,7 +33,6 @@ public class InvoiceUpdateDTO {
     private Date dueDate;
 
     @NotNull(message = "La date d'échéance est obligatoire")
-    @ValidEnum(enumClass = PaymentCondition.class, message = "Condition de paiement invalide invalide")
     private String paymentCondition;
 
     @NotNull(message = "Le type de facture est obligatoire")

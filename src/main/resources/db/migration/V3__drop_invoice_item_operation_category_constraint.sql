@@ -1,0 +1,2 @@
+ALTER TABLE invoice_items
+DROP CONSTRAINT IF EXISTS invoice_items_operation_category_check;

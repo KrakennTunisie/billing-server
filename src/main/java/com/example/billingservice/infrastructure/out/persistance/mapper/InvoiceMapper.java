@@ -3,6 +3,7 @@ package com.example.billingservice.infrastructure.out.persistance.mapper;
 import com.example.billingservice.application.ports.in.PartnerUseCase;
 import com.example.billingservice.application.ports.in.PurchaseOrderUseCase;
 import com.example.billingservice.domain.enums.*;
+import com.example.billingservice.domain.enums.PaymentCondition;
 import com.example.billingservice.domain.exceptions.BillingException;
 import com.example.billingservice.domain.model.*;
 import com.example.billingservice.infrastructure.out.persistance.dto.*;
@@ -247,7 +248,7 @@ public class InvoiceMapper {
                     .appliedExchangeRate(invoiceCreateDTO.getAppliedExchangeRate())
                     .invoiceDocument(document)
                     .paymentMethod(PaymentMethod.valueOf(invoiceCreateDTO.getPaymentMethod()))
-                    .paymentCondition(PaymentCondition.valueOf(invoiceCreateDTO.getPaymentCondition()))
+                    .paymentCondition(invoiceCreateDTO.getPaymentCondition())
                     .exchangeRateReferenceDate(invoiceCreateDTO.getExchangeRateReferenceDate())
                     .exchangeRateSource(ExchangeRateSource.valueOf(invoiceCreateDTO.getExchangeRateSource()))
                     .comment(invoiceCreateDTO.getComment())
@@ -372,7 +373,7 @@ public class InvoiceMapper {
                     .invoiceDocument(document)
                     .comment(invoiceUpdateDTO.getComment())
                     .paymentMethod(PaymentMethod.valueOf(invoiceUpdateDTO.getPaymentMethod()))
-                    .paymentCondition(PaymentCondition.valueOf(invoiceUpdateDTO.getPaymentCondition()))
+                    .paymentCondition(invoiceUpdateDTO.getPaymentCondition())
                     .exchangeRateReferenceDate(invoiceUpdateDTO.getExchangeRateReferenceDate())
                     .exchangeRateSource(ExchangeRateSource.valueOf(invoiceUpdateDTO.getExchangeRateSource()))
                     .complianceQRcode(invoiceDTO.getComplianceQRcode())

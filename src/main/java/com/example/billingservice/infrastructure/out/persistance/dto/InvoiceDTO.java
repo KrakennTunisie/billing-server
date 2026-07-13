@@ -1,6 +1,7 @@
 package com.example.billingservice.infrastructure.out.persistance.dto;
 
 import com.example.billingservice.domain.enums.*;
+import com.example.billingservice.domain.enums.PaymentCondition;
 import com.example.billingservice.domain.model.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -31,7 +32,7 @@ public class InvoiceDTO {
     private Double totalInclTaxUSD;
     private Double remainingAmount;
     private Double vatRate;
-    private PaymentCondition paymentCondition;
+    private String paymentCondition;
     private PaymentMethod paymentMethod;
     private Date exchangeRateReferenceDate;
     private Double appliedExchangeRate;

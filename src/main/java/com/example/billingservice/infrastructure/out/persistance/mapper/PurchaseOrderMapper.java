@@ -262,7 +262,7 @@ public class PurchaseOrderMapper {
                     .appliedExchangeRate(purchaseOrderUpdateDTO.getAppliedExchangeRate())
                     .purchaseOrderDocument(document)
                     .paymentMethod(PaymentMethod.valueOf(purchaseOrderUpdateDTO.getPaymentMethod()))
-                    .paymentCondition(PaymentCondition.valueOf(purchaseOrderUpdateDTO.getPaymentCondition()))
+                    .paymentCondition(purchaseOrderUpdateDTO.getPaymentCondition())
                     .exchangeRateReferenceDate(purchaseOrderUpdateDTO.getExchangeRateReferenceDate())
                     .exchangeRateSource(ExchangeRateSource.valueOf(purchaseOrderUpdateDTO.getExchangeRateSource()))
                     .build();

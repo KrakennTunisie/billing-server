@@ -43,6 +43,5 @@ public class InvoiceItemDTO {
     private Double itemTotalInclTax;
 
     @NotNull(message = "La catégorie d'opération est obligatoire")
-    @ValidEnum(enumClass = OperationCategory.class, message = "Catégorie d'opération invalide")
     private String operationCategory;
 }

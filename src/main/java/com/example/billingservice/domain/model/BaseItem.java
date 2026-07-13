@@ -17,5 +17,5 @@ public class BaseItem {
     private Double itemTotalExclTax;
     private Double itemTaxAmount;
     private Double itemTotalInclTax;
-    private OperationCategory operationCategory;
+    private String operationCategory;
 }

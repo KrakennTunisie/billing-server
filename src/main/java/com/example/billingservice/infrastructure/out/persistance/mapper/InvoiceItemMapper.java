@@ -36,9 +36,6 @@ public class InvoiceItemMapper {
 
         double totalInclTax = totalExclTax + taxAmount;
 
-/*        Double totalExclTax =( dto.getQuantity() * dto.getUnityPriceEXclTax())/appliedExchangeRate;
-        Double taxAmount = totalExclTax * dto.getVatRate() / 100;
-        Double totalInclTax = (totalExclTax + taxAmount) ;*/
         if (dto.getIdPurchaseOrderItem()!=null) {
             purchaseOrderItem = purchaseOrderItemPort.getById(dto.getIdPurchaseOrderItem());
         }
@@ -51,7 +48,7 @@ public class InvoiceItemMapper {
                         .itemTotalExclTax(totalExclTax)
                         .itemTaxAmount(taxAmount)
                         .itemTotalInclTax(totalInclTax)
-                        .operationCategory(OperationCategory.valueOf(dto.getOperationCategory()))
+                        .operationCategory(dto.getOperationCategory())
                         .discountType(DiscountType.valueOf(dto.getDiscountType()))
                         .discountValue(dto.getDiscountValue())
                         .purchaseOrderItem(purchaseOrderItem)

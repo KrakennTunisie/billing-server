@@ -92,9 +92,8 @@ public abstract class PartnerEntity {
     private String taxRegistrationNumber;
 
     @Schema(description = "Condition de paiement", example = "NET_15")
-    @Enumerated(EnumType.STRING)
     @Column(name = "payment_condition")
-    private PaymentCondition paymentCondition;
+    private String paymentCondition;
 
     @Schema(description = "IBAN", example = "FR7630006000011234567890189")
     @Column(name = "iban")

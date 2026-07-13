@@ -26,8 +26,7 @@ public abstract class BaseCommercialDocumentEntity {
     @Enumerated(EnumType.STRING)
     private PaymentMethod paymentMethod;
 
-    @Enumerated(EnumType.STRING)
-    private PaymentCondition paymentCondition;
+    private String paymentCondition;
 
 
     @Enumerated(EnumType.STRING)

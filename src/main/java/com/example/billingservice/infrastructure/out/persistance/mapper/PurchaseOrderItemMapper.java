@@ -30,7 +30,7 @@ public class PurchaseOrderItemMapper {
                 .itemTotalExclTax(totalExclTax)
                 .itemTaxAmount(taxAmount)
                 .itemTotalInclTax(totalInclTax)
-                .operationCategory(OperationCategory.valueOf(dto.getOperationCategory()))
+                .operationCategory(dto.getOperationCategory())
                 .build();
     }
 

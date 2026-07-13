@@ -25,8 +25,7 @@ public abstract class BaseItemEntity {
 
     private Double vatRate;
 
-    @Enumerated(EnumType.STRING)
-    private OperationCategory operationCategory;
+    private String operationCategory;
 
     private Double totalPriceIncTax;
 }

@@ -44,10 +44,10 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class ClientInvoicesPersistenceAdapter implements ClientInvoicesRepositoryPort {
 
+    private final CurrencyConversionUseCase currencyConversionUseCase;
     private final ClientInvoicesRepository clientInvoicesRepository;
     private final InvoiceItemRepository invoiceItemRepository;
     private final InvoiceMapper invoiceMapper;
-    private final CurrencyConversionUseCase currencyConversionUseCase;
 
     @Override
     public Page<InvoicePageItemDTO> findAllInvoices(String keyword, InvoiceStatus status, int page, InvoiceType type) {
@@ -113,7 +113,6 @@ public class ClientInvoicesPersistenceAdapter implements ClientInvoicesRepositor
     @Override
     public InvoiceDTO update(Invoice invoice) {
         ClientInvoiceEntity entity = (ClientInvoiceEntity) invoiceMapper.toEntity(invoice);
-        entity.setIdInvoice(invoice.getIdInvoice());
         InvoiceEntity savedEntity = clientInvoicesRepository.save(entity);
         Invoice invoice1 = invoiceMapper.toDomain(savedEntity, invoice.getInvoiceType());/*
         entity.getInvoiceEvents().forEach(

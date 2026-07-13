@@ -54,7 +54,7 @@ public class UpdatePartnerDTO {
 
     private String taxRegistrationNumber;
 
-    private PaymentCondition paymentCondition;
+    private String paymentCondition;
 
     private String iban;
 
