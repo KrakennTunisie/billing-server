@@ -148,6 +148,37 @@ public class CustomerPersistanceAdapter implements CustomerRepositoryPort {
     }
 
     @Override
+    public boolean existsByCompanyName(String companyName) {
+        return customerRepository.existsByCompanyName(companyName);
+    }
+
+    @Override
+    public boolean existsByIbanAndIdPartnerNot(String iban, UUID idPartner) {
+        return customerRepository.existsByIbanAndIdPartnerNot(iban, idPartner);
+    }
+
+    @Override
+    public boolean existsByEmailAndIdPartnerNot(String email, UUID idPartner) {
+        return customerRepository.existsByEmailAndIdPartnerNot(email, idPartner);
+    }
+
+    @Override
+    public boolean existsByCompanyNameAndIdPartnerNot(String companyName, UUID idPartner) {
+        return customerRepository.existsByEmailAndIdPartnerNot(companyName, idPartner);
+    }
+
+    @Override
+    public boolean existsByTaxRegistrationNumberAndIdPartnerNot(String taxRegistrationNumber, UUID idPartner) {
+        return customerRepository.existsByTaxRegistrationNumberAndIdPartnerNot(taxRegistrationNumber, idPartner);
+    }
+
+    @Override
+    public PartnerSummaryDTO getCustomerByCompanyName(String companyName) {
+        Partner partner =  partnerMapper.toDomain(customerRepository.getClientByCompanyName(companyName),PartnerType.SUPPLIER);
+        return  partnerMapper.toSummaryDTO(partner);
+    }
+
+    @Override
     public Page<PartnerItemDTO> findAllCustomers(String keyword , String Country ,int page) {
         PageRequest pageRequest = PageRequest.of(page, 5, Sort.by("partnerName").ascending());
         Page<CustomerEntity> entities = customerRepository.findCustomers(keyword,Country,pageRequest);

@@ -7,6 +7,7 @@ import com.example.billingservice.domain.model.AuditLog;
 import com.example.billingservice.domain.model.Document;
 import com.example.billingservice.domain.model.Invoice;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -30,6 +31,7 @@ public class UpdatePartnerDTO {
 
     private String maritalStatus;
 
+    @NotBlank(message = "Le numéro de l'entreprise est obligatoire")
     private String companyName;
 
     private String displayName;
@@ -52,7 +54,7 @@ public class UpdatePartnerDTO {
 
     private String taxRegistrationNumber;
 
-    private PaymentCondition paymentCondition;
+    private String paymentCondition;
 
     private String iban;
 

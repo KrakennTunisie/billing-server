@@ -42,6 +42,15 @@ public interface PartnerUseCase {
     Page<PartnerItemDTO> getAllSuppliers(String keyword , String Country , int page);
     boolean existsBySupplierName(String name);
 
+
+    boolean supplierExistsByIbanAndIdPartnerNot(String iban, UUID idPartner);
+
+    boolean supplierExistsByEmailAndIdPartnerNot(String email, UUID idPartner);
+
+    boolean supplierExistsByCompanyNameAndIdPartnerNot(String companyName, UUID idPartner);
+
+    boolean supplierExistsByTaxRegistrationNumberAndIdPartnerNot(String taxRegistrationNumber, UUID idPartner);
+
     Partner updateSupplier (String id , UpdatePartnerDTO command) throws DataIntegrityViolationException;
 
     void deleteSupplier(String id);
@@ -63,11 +72,22 @@ public interface PartnerUseCase {
 
     PartnerDetailsDTO getClientDetailsById(String idClient);
 
+    PartnerSummaryDTO getClientByCompanyName(String companyName);
+
     boolean customerExistsByIdPartner(UUID idPartner);
 
     boolean customerExistsByRegistrationNumber(String taxRegistrationNumber);
     boolean customerExistsByEmail(String email);
     boolean customerExistsByIban(String iban);
+    boolean clientExistsByCompanyName(String companyName);
+
+    boolean clientExistsByIbanAndIdPartnerNot(String iban, UUID idPartner);
+
+    boolean clientExistsByEmailAndIdPartnerNot(String email, UUID idPartner);
+
+    boolean clientExistsByCompanyNameAndIdPartnerNot(String companyName, UUID idPartner);
+
+    boolean clientExistsByTaxRegistrationNumberAndIdPartnerNot(String taxRegistrationNumber, UUID idPartner);
 
     Page<PartnerItemDTO> getAllCustomers(String keyword , String Country ,int page);
 

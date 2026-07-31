@@ -1,5 +1,6 @@
 package com.example.billingservice.infrastructure.out.persistance.entity;
 
+import com.example.billingservice.domain.enums.DiscountType;
 import com.example.billingservice.domain.enums.OperationCategory;
 import jakarta.persistence.Column;
 import jakarta.persistence.EnumType;
@@ -26,7 +27,11 @@ public abstract class BaseItemEntity {
     private Double vatRate;
 
     @Enumerated(EnumType.STRING)
-    private OperationCategory operationCategory;
+    private DiscountType discountType;
+
+    private Double discountValue;
+
+    private String operationCategory;
 
     private Double totalPriceIncTax;
 }

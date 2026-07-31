@@ -1,6 +1,7 @@
 package com.example.billingservice.application.ports.out;
 
 import com.example.billingservice.domain.enums.PaymentMethod;
+import com.example.billingservice.domain.enums.PaymentStatus;
 import com.example.billingservice.domain.model.Payment;
 import com.example.billingservice.infrastructure.out.persistance.dto.CreatePaymentDto;
 import com.example.billingservice.infrastructure.out.persistance.dto.PaymentPageListItemDto;
@@ -17,6 +18,7 @@ public interface PaymentRepositoryPort {
     Page<PaymentPageListItemDto> getPaymentsByInvoice(UUID invoiceId, String keyword , PaymentMethod paymentMethod , int page);
     Payment createPayment(Payment payment);
     Payment updatePayment(Payment payment);
+    void updatePaymentStatus(UUID idPayment, PaymentStatus paymentStatus);
     void deletePayment(UUID idPayment);
 
     boolean existsByIdPayment(UUID idPayment);

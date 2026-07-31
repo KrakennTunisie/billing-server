@@ -5,5 +5,6 @@ public enum InvoiceCreditNoteStatus {
     NOT_REFUNDED,
     IN_PROGRESS,
     CANCELLED,
+    ARCHIVED,
     DRAFT,
 }

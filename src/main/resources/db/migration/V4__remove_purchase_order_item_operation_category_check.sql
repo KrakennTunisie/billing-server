@@ -1,0 +1,2 @@
+ALTER TABLE purchase_order_items
+DROP CONSTRAINT IF EXISTS purchase_order_items_operation_category_check;

@@ -2,6 +2,7 @@ package com.example.billingservice.infrastructure.in.web;
 
 import com.example.billingservice.application.ports.in.PaymentUseCase;
 import com.example.billingservice.application.service.GenerateInvoiceNumberService;
+import com.example.billingservice.domain.enums.PaymentStatus;
 import com.example.billingservice.domain.enums.SequenceNumberType;
 import com.example.billingservice.infrastructure.out.persistance.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
@@ -88,10 +89,18 @@ public class PaymentController {
     }
 
     @PatchMapping("/{id}")
-    @Operation(summary = "Suppression d'un paiement")
+    @Operation(summary = "Modification d'un paiement")
     public ResponseEntity<PaymentDTO> UpdatePayment(
             @Parameter(description = "ID du paiement") @PathVariable String id,
             @Valid @ModelAttribute UpdatePaymentDTO updatePaymentDTO) throws IOException {
         return ResponseEntity.ok(paymentUseCase.updatePayment(UUID.fromString(id), updatePaymentDTO));
+    }
+    @PatchMapping("/updateStatus/{id}")
+    @Operation(summary = "Modification la status d'un reçu de paiement")
+    public ResponseEntity<Void> UpdatePaymentStatus(
+            @Parameter(description = "ID du paiement") @PathVariable String id,
+            @RequestParam PaymentStatus paymentStatus)  {
+        paymentUseCase.updatePaymentStatus(UUID.fromString(id),paymentStatus);
+        return ResponseEntity.noContent().build();
     }
 }

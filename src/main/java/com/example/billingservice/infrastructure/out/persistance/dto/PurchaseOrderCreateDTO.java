@@ -29,7 +29,7 @@ public class PurchaseOrderCreateDTO {
     private PurchaseOrderStatus purchaseOrderStatus;
 
     @NotNull(message = "La condition de paiment est obligatoire")
-    private PaymentCondition paymentCondition;
+    private String paymentCondition;
 
     @NotNull(message = "Le type de bon de commande est obligatoire")
     private PurchaseOrderType purchaseOrderType;

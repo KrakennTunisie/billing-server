@@ -164,6 +164,27 @@ public class SupplierPersistanceAdapter implements SupplierRepositoryPort {
         return supplierRepository.existsByName(name);
     }
 
+
+    @Override
+    public boolean existsByIbanAndIdPartnerNot(String iban, UUID idPartner) {
+        return supplierRepository.existsByIbanAndIdPartnerNot(iban, idPartner);
+    }
+
+    @Override
+    public boolean existsByEmailAndIdPartnerNot(String email, UUID idPartner) {
+        return supplierRepository.existsByEmailAndIdPartnerNot(email, idPartner);
+    }
+
+    @Override
+    public boolean existsByCompanyNameAndIdPartnerNot(String companyName, UUID idPartner) {
+        return supplierRepository.existsByCompanyNameAndIdPartnerNot(companyName, idPartner);
+    }
+
+    @Override
+    public boolean existsByTaxRegistrationNumberAndIdPartnerNot(String taxRegistrationNumber, UUID idPartner) {
+        return supplierRepository.existsByTaxRegistrationNumberAndIdPartnerNot(taxRegistrationNumber, idPartner);
+    }
+
     @Override
     public Optional<Partner> findSupplierByName(String name) {
         try

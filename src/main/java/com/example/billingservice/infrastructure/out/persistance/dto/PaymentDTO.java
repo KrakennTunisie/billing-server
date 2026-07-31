@@ -1,6 +1,7 @@
 package com.example.billingservice.infrastructure.out.persistance.dto;
 
 import com.example.billingservice.domain.enums.PaymentMethod;
+import com.example.billingservice.domain.enums.PaymentStatus;
 import com.example.billingservice.domain.model.Invoice;
 import lombok.Builder;
 import lombok.Getter;
@@ -25,9 +26,11 @@ public class PaymentDTO {
 
     private PaymentMethod method;
 
+    private PaymentStatus paymentStatus;
+
     private String reference;
 
-    private String note;
+    private String comment;
 
     private DocumentSummaryDTO paymentDocument;
 

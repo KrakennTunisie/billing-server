@@ -37,8 +37,6 @@ public class InvoiceCreditNoteRepositoryAdapter implements InvoiceCreditNoteRepo
     private final InvoiceCreditNoteRepository invoiceCreditNoteRepository;
     private final InvoiceCreditNoteMapper invoiceCreditNoteMapper;
     private final CreditNoteSynchronizationUseCase creditNoteSynchronizationUseCase;
-    private final ClientInvoicesRepository clientInvoicesRepository;
-    private final SupplierInvoicesRepository supplierInvoicesRepository;
 
 
     @Override
@@ -79,12 +77,18 @@ public class InvoiceCreditNoteRepositoryAdapter implements InvoiceCreditNoteRepo
     }
 
     @Override
-    public InvoiceCreditNote updateStatus(InvoiceCreditNote invoiceCreditNote, InvoiceCreditNoteStatus newStatus) {
-        InvoiceCreditNoteEntity entity = invoiceCreditNoteMapper.toEntity(invoiceCreditNote);
+    public InvoiceCreditNote updateStatus(String invoiceCreditNoteNumber, InvoiceCreditNoteStatus newStatus) {
+        InvoiceCreditNoteEntity entity = invoiceCreditNoteRepository.getInvoiceCreditNoteEntityByInvoiceCreditNoteNumber(invoiceCreditNoteNumber);
 
         entity.setInvoiceCreditNoteStatus(newStatus);
 
         return invoiceCreditNoteMapper.toDomain(invoiceCreditNoteRepository.save(entity));
+    }
+
+    @Override
+    public boolean hasCreditNotesWithStatus(UUID invoiceId, InvoiceCreditNoteStatus invoiceCreditNoteStatus) {
+        return invoiceCreditNoteRepository
+                .existsByInvoice_IdInvoiceAndInvoiceCreditNoteStatus(invoiceId, invoiceCreditNoteStatus);
     }
 
     @Override

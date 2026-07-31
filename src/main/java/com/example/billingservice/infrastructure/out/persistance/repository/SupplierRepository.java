@@ -25,14 +25,27 @@ public interface SupplierRepository extends JpaRepository<SupplierEntity, UUID> 
 
     SupplierEntity getSupplierByCompanyName(String companyName);
 
+    boolean existsByTaxRegistrationNumberAndIdPartnerNot(String taxRegistrationNumber, UUID idPartner);
+
+
     boolean existsByEmail(String email);
+
+    boolean existsByEmailAndIdPartnerNot(String email, UUID idPartner);
+
 
     @Query("SELECT COUNT(p) > 0 FROM SupplierEntity p WHERE p.partnerName = :name")
     boolean existsByName(@Param("name") String name);
 
+
+
+    boolean existsByCompanyNameAndIdPartnerNot(String companyName, UUID idPartner);
+
     Optional<SupplierEntity> findByPartnerName(String name);
 
     boolean existsByIban(String iban);
+
+    boolean existsByIbanAndIdPartnerNot(String iban, UUID idPartner);
+
 
     SupplierEntity getSupplierEntityByEmail(String email);
 

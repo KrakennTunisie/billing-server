@@ -1,5 +1,6 @@
 package com.example.billingservice.domain.model;
 
+import com.example.billingservice.domain.enums.DiscountType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,6 +20,8 @@ public class InvoiceItem extends BaseItem{
     private Invoice invoice;
     private PurchaseOrderItem purchaseOrderItem;
     private int creditedQuantity;
+
+
 
     public UUID getIdInvoiceItem() {
         return idInvoiceItem;

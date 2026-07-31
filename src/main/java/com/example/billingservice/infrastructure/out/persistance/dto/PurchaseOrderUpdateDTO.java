@@ -50,7 +50,6 @@ public class PurchaseOrderUpdateDTO {
     private String paymentMethod;
 
     @NotNull(message = "La condition de paiement est obligatoire")
-    @ValidEnum(enumClass = PaymentCondition.class, message = "Condition de paiement invalide")
     private String paymentCondition;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")

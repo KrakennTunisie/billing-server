@@ -7,6 +7,7 @@ import com.example.billingservice.application.ports.in.PaymentUseCase;
 import com.example.billingservice.application.ports.out.PaymentRepositoryPort;
 import com.example.billingservice.domain.enums.DocumentType;
 import com.example.billingservice.domain.enums.PaymentMethod;
+import com.example.billingservice.domain.enums.PaymentStatus;
 import com.example.billingservice.domain.enums.SequenceNumberType;
 import com.example.billingservice.domain.exceptions.BillingException;
 import com.example.billingservice.domain.model.Document;
@@ -19,6 +20,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Component
@@ -106,9 +108,13 @@ public class PaymentService implements PaymentUseCase {
             throw BillingException.notFound("Paiement", String.valueOf(idPayment));
         }
 
+        Payment oldPayment = paymentRepositoryPort.getPaymentById(idPayment);
+        BigDecimal updatedAmount = updatePaymentDTO.getAmount().subtract(oldPayment.getAmount());
+
+
         invoicePaymentSnchronizeUseCase.applyPayment(
                 UUID.fromString(updatePaymentDTO.getInvoiceNumber()),
-                updatePaymentDTO.getAmount()
+                updatedAmount
         );
 
 
@@ -133,6 +139,11 @@ public class PaymentService implements PaymentUseCase {
         Payment updatedPayment = paymentRepositoryPort.updatePayment(payment);
 
         return paymentMapper.modelToPaymentDTO(updatedPayment);
+    }
+
+    @Override
+    public void updatePaymentStatus(UUID idPayment, PaymentStatus paymentStatus) {
+        paymentRepositoryPort.updatePaymentStatus(idPayment, paymentStatus);
     }
 
     @Override

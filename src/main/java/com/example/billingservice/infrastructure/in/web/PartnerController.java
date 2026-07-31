@@ -87,7 +87,7 @@ public class PartnerController {
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> BillingException.notFound("Fournisseur", id));
     }
-    @GetMapping("/companyName/{companyName}")
+    @GetMapping("/suppliers/companyName/{companyName}")
     @Operation(summary = "Récupérer un fournisseur")
     public ResponseEntity<PartnerSummaryDTO> getSupplierByCompanyName(@Parameter(description = "nom de fournisseur") @PathVariable String companyName) {
         return ResponseEntity.ok(partnerUseCase.getSupplierByCompanyName(companyName));
@@ -213,6 +213,19 @@ public class PartnerController {
         return ResponseEntity.ok(partnerUseCase.findCustomerByEmail(email));
     }
 
+    @GetMapping("/clients/existByCompanyName/{companyName}")
+    @Operation(summary = "Vérifier si un client existe par nom d'entreprise")
+    public ResponseEntity<Boolean> clientExistByCompanyName(
+            @Parameter(description = "Nom de l'entreprise") @PathVariable String companyName) {
+        return ResponseEntity.ok(partnerUseCase.clientExistsByCompanyName(companyName));
+    }
+
+    @GetMapping("/clients/companyName/{companyName}")
+    @Operation(summary = "Récupérer un client")
+    public ResponseEntity<PartnerSummaryDTO> getCustomerByCompanyName(@Parameter(description = "nom de client") @PathVariable String companyName) {
+        return ResponseEntity.ok(partnerUseCase.getClientByCompanyName(companyName));
+    }
+
 
     @DeleteMapping("/clients/{id}")
     @Operation(summary = "Suppression d'un client")
@@ -226,7 +239,7 @@ public class PartnerController {
     @PatchMapping(path = "/clients/{id}",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Modification client")
     public ResponseEntity <Partner> updateCustomer (@Parameter(description = "ID du client") @PathVariable String id ,
-                                                    @ModelAttribute UpdatePartnerDTO request)
+                                                    @Valid @ModelAttribute UpdatePartnerDTO request)
     {
         return ResponseEntity.status(201).body(partnerUseCase.updateCustomer(id,request)) ;
     }

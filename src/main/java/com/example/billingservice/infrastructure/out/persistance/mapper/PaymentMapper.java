@@ -36,6 +36,7 @@ public class PaymentMapper {
                 .currency(model.getCurrency())
                 .paymentDate(model.getPaymentDate())
                 .method(model.getMethod())
+                .paymentStatus(model.getPaymentStatus())
                 .reference(model.getReference())
                 .note(model.getNote())
                 .paymentDocument(documentMapper.toEntity(model.getPaymentDocument(), DocumentType.PAYMENT))
@@ -58,6 +59,7 @@ public class PaymentMapper {
                 .currency(entity.getCurrency())
                 .paymentDate(entity.getPaymentDate())
                 .method(entity.getMethod())
+                .paymentStatus(entity.getPaymentStatus())
                 .reference(entity.getReference())
                 .note(entity.getNote())
                 .paymentDocument(documentMapper.toDomain(entity.getPaymentDocument()))
@@ -79,8 +81,9 @@ public class PaymentMapper {
                 .currency(dto.getCurrency())
                 .paymentDate(dto.getDate() != null ? dto.getDate() : LocalDate.now())
                 .method(dto.getMethod())
+                .paymentStatus(dto.getPaymentStatus())
                 .reference(dto.getPaymentNumber())
-                .note(dto.getNote())
+                .note(dto.getComment())
                 .paymentDocument(paymentDocument)
                 .build();
     }
@@ -97,8 +100,9 @@ public class PaymentMapper {
                 .currency(dto.getCurrency())
                 .paymentDate(dto.getDate() != null ? dto.getDate() : LocalDate.now())
                 .method(dto.getMethod())
+                .paymentStatus(dto.getPaymentStatus())
                 .reference(dto.getPaymentNumber())
-                .note(dto.getNote())
+                .note(dto.getComment())
                 .paymentDocument(paymentDocument)
                 .build();
     }
@@ -115,6 +119,7 @@ public class PaymentMapper {
                 .currency(model.getCurrency())
                 .paymentDate(model.getPaymentDate())
                 .method(model.getMethod())
+                .paymentStatus(model.getPaymentStatus())
                 .reference(model.getReference())
                 .build();
     }
@@ -131,8 +136,9 @@ public class PaymentMapper {
                 .currency(model.getCurrency())
                 .paymentDate(model.getPaymentDate())
                 .method(model.getMethod())
+                .paymentStatus(model.getPaymentStatus())
                 .reference(model.getReference())
-                .note(model.getNote())
+                .comment(model.getNote())
                 .paymentDocument(documentMapper.toDocumentSummary(model.getPaymentDocument()))
                 .createdAt(model.getCreatedAt())
                 .updatedAt(model.getUpdatedAt())

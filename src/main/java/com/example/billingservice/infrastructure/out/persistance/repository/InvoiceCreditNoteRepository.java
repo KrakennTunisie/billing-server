@@ -23,9 +23,11 @@ public interface InvoiceCreditNoteRepository extends JpaRepository<InvoiceCredit
                 OR LOWER(cn.motif) LIKE LOWER(CONCAT('%', :keyword, '%'))
                 OR LOWER(cn.invoiceCreditNoteNumber) LIKE LOWER(CONCAT('%', :keyword, '%'))
             )
-        AND
+            AND
             (
-                :status IS NULL OR cn.invoiceCreditNoteStatus = :status
+                (:status IS NOT NULL AND cn.invoiceCreditNoteStatus = :status)
+                OR
+                (:status IS NULL AND cn.invoiceCreditNoteStatus NOT IN ('ARCHIVED', 'CANCELLED'))
             )
         """)
     Page<InvoiceCreditNoteEntity> getCreditNotesByInvoiceId(
@@ -33,6 +35,11 @@ public interface InvoiceCreditNoteRepository extends JpaRepository<InvoiceCredit
             @Param("keyword") String keyword,
             @Param("status") InvoiceCreditNoteStatus status,
             Pageable pageable
+    );
+
+    boolean existsByInvoice_IdInvoiceAndInvoiceCreditNoteStatus (
+            UUID invoiceId,
+            InvoiceCreditNoteStatus invoiceCreditNoteStatus
     );
 
     @Query("""

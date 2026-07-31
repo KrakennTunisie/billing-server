@@ -60,7 +60,6 @@ public class CurrencyCalculator {
         } else if (isUSD) {
             totalExclTaxUSD = totalExclTaxTND.multiply(rate);
             totalInclTaxUSD = totalInclTaxTND.multiply(rate);
-
             totalExclTaxEUR = totalExclTaxTND.multiply(eurToTndRate);
             totalInclTaxEUR = totalInclTaxTND.multiply(eurToTndRate);
         } else {

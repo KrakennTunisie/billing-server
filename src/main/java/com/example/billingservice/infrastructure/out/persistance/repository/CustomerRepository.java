@@ -1,6 +1,7 @@
 package com.example.billingservice.infrastructure.out.persistance.repository;
 
 import com.example.billingservice.infrastructure.out.persistance.entity.CustomerEntity;
+import com.example.billingservice.infrastructure.out.persistance.entity.SupplierEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -22,11 +23,23 @@ public interface CustomerRepository extends JpaRepository<CustomerEntity, UUID> 
 
     boolean existsByTaxRegistrationNumber(String taxRegistrationNumber);
 
+    boolean existsByTaxRegistrationNumberAndIdPartnerNot(String taxRegistrationNumber, UUID idPartner);
+
     boolean existsByPartnerName(String name);
+
+    boolean existsByCompanyName(String companyName);
+
+    CustomerEntity getClientByCompanyName(String companyName);
+
+    boolean existsByCompanyNameAndIdPartnerNot(String companyName, UUID idPartner);
 
     boolean existsByEmail(String email);
 
+    boolean existsByEmailAndIdPartnerNot(String email, UUID idPartner);
+
     boolean existsByIban(String email);
+
+    boolean existsByIbanAndIdPartnerNot(String iban, UUID idPartner);
 
     @Query("""
     SELECT p FROM CustomerEntity p

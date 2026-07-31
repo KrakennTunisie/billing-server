@@ -1,5 +1,6 @@
 package com.example.billingservice.domain.model;
 
+import com.example.billingservice.domain.enums.DiscountType;
 import com.example.billingservice.domain.enums.OperationCategory;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -14,8 +15,10 @@ public class BaseItem {
     private Integer quantity;
     private Double unityPriceEXclTax;
     private Double vatRate;
+    private DiscountType discountType;
+    private Double discountValue;
     private Double itemTotalExclTax;
     private Double itemTaxAmount;
     private Double itemTotalInclTax;
-    private OperationCategory operationCategory;
+    private String operationCategory;
 }

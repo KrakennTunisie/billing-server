@@ -35,6 +35,16 @@ public interface SupplierRepositoryPort {
 
     boolean existsByName(String name);
 
+
+
+    boolean existsByIbanAndIdPartnerNot(String iban, UUID idPartner);
+
+    boolean existsByEmailAndIdPartnerNot(String email, UUID idPartner);
+
+    boolean existsByCompanyNameAndIdPartnerNot(String companyName, UUID idPartner);
+
+    boolean existsByTaxRegistrationNumberAndIdPartnerNot(String taxRegistrationNumber, UUID idPartner);
+
     Optional<Partner> findSupplierByName(String name);
 
     Optional<Partner> findSupplierByEmail(String email);

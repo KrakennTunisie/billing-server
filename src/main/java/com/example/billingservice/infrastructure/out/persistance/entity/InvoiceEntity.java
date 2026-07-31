@@ -54,6 +54,8 @@ public abstract class InvoiceEntity extends BaseCommercialDocumentEntity{
 
     private Double remainingAmount;
 
+    private String comment;
+
     public abstract InvoiceType getInvoiceType();
 
 }

@@ -31,9 +31,11 @@ WHERE
         LOWER(i.partner.partnerName) LIKE LOWER(CONCAT('%', :keyword, '%'))
     )
 AND
-    (
-        :status IS NULL OR i.invoiceStatus = :status
-    )
+(
+    :status IS NOT NULL AND i.invoiceStatus = :status
+    OR
+    (:status IS NULL AND i.invoiceStatus NOT IN ('ARCHIVED', 'CANCELLED'))
+)
 
 """)
     Page<InvoiceEntity> getInvoices(

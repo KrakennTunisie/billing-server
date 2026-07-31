@@ -50,7 +50,6 @@ public class InvoiceCreateDTO {
     private String paymentMethod;
 
     @NotNull(message = "La condition de paiment est obligatoire")
-    @ValidEnum(enumClass = PaymentCondition.class, message = "Condition de paiement invalide invalide")
     private String paymentCondition;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
@@ -65,6 +64,8 @@ public class InvoiceCreateDTO {
     private String partner;
 
     private UUID purchaseOrder;
+
+    private String comment;
 
     @Setter
     //@NotEmpty(message = "Au moins une ligne de facture est obligatoire")

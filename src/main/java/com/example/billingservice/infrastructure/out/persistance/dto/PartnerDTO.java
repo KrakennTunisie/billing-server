@@ -42,7 +42,7 @@ public class PartnerDTO {
     private InvoiceCurrency currency;
     private String taxRate;
     private String taxRegistrationNumber;
-    private PaymentCondition paymentCondition;
+    private String paymentCondition;
     private String iban;
 
     private DocumentSummaryDTO rne;
