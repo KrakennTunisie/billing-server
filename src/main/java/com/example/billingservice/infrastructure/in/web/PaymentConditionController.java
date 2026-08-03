@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/payment-conditions")
+@RequestMapping("/payment-conditions")
 @RequiredArgsConstructor
 public class PaymentConditionController {
     private final PaymentConditionUseCase paymentConditionUseCase;

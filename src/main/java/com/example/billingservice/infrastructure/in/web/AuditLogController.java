@@ -14,7 +14,7 @@ import java.util.UUID;
 
 @Tag(name= "Logs", description = "Journalisation pour le client")
 @RestController
-@RequestMapping("/api/logs")
+@RequestMapping("/logs")
 @RequiredArgsConstructor
 public class AuditLogController {
 

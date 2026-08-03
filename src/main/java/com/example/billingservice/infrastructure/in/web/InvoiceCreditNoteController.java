@@ -25,7 +25,7 @@ import java.util.UUID;
 
 @Tag(name= "API Factures d'Avoir", description = "Gestion des factures d'avoir")
 @RestController
-@RequestMapping("/api/credit-note-invoices")
+@RequestMapping("/credit-note-invoices")
 @RequiredArgsConstructor
 public class InvoiceCreditNoteController {
 

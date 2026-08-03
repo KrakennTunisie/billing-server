@@ -26,7 +26,7 @@ import java.util.UUID;
 
 @Tag(name= "Partner API", description = "Gestion des clients et fournisseurs")
 @RestController
-@RequestMapping("/api/partners")
+@RequestMapping("/partners")
 @RequiredArgsConstructor
 public class PartnerController {
 

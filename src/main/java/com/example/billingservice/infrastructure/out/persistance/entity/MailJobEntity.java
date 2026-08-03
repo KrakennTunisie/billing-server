@@ -25,6 +25,9 @@ public class MailJobEntity {
     private UUID id;
 
     @Column(nullable = false)
+    private String eventId;
+
+    @Column(nullable = false)
     private String toEmail;
 
     @Column(nullable = false)

@@ -48,7 +48,7 @@ public class TvaRateService implements TVARateUseCase {
 
     @Override
     public BaseTVARateDTO getByLabel(String label) {
-        if(!tvaRateRepositoryPort.existsByCode(label)){
+        if(!tvaRateRepositoryPort.existsByLabel(label)){
             throw BillingException.notFound("Taux TVA", label);
         }
         return tvaRateRepositoryPort.getByLabel(label);
