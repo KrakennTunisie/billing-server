@@ -395,6 +395,8 @@ public class ClientInvoicesPersistenceAdapter implements ClientInvoicesRepositor
                 .toList();
     }
 
+
+
     @Override
     public void delete(UUID idInvoice) {
         ClientInvoiceEntity entity = clientInvoicesRepository.getClientInvoiceEntityByIdInvoice(idInvoice);

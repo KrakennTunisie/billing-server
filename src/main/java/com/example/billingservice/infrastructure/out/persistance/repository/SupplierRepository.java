@@ -1,5 +1,7 @@
 package com.example.billingservice.infrastructure.out.persistance.repository;
 
+import com.example.billingservice.infrastructure.out.persistance.dto.PartnerSummaryDTO;
+import com.example.billingservice.infrastructure.out.persistance.entity.CustomerEntity;
 import com.example.billingservice.infrastructure.out.persistance.entity.SupplierEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,6 +21,10 @@ public interface SupplierRepository extends JpaRepository<SupplierEntity, UUID> 
 
     boolean existsByTaxRegistrationNumber(String taxRegistrationNumber);
 
+    boolean existsByCompanyName(String companyName);
+
+    SupplierEntity getSupplierByCompanyName(String companyName);
+
     boolean existsByTaxRegistrationNumberAndIdPartnerNot(String taxRegistrationNumber, UUID idPartner);
 
 
@@ -30,7 +36,7 @@ public interface SupplierRepository extends JpaRepository<SupplierEntity, UUID> 
     @Query("SELECT COUNT(p) > 0 FROM SupplierEntity p WHERE p.partnerName = :name")
     boolean existsByName(@Param("name") String name);
 
-    boolean existsByCompanyName(String companyName);
+
 
     boolean existsByCompanyNameAndIdPartnerNot(String companyName, UUID idPartner);
 

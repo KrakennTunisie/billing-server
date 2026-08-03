@@ -18,7 +18,6 @@ import java.util.Date;
 public class BaseCommercialDocument {
 
     private String reference;
-
     private Date issueDate;
     private InvoiceCurrency currency;
     private PaymentMethod paymentMethod;

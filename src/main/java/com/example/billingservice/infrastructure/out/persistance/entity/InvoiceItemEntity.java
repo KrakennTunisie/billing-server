@@ -19,11 +19,6 @@ public class InvoiceItemEntity extends BaseItemEntity{
     @Column(nullable = false, columnDefinition = "INT DEFAULT 0")
     private int creditedQuantity;
 
-    @Enumerated(EnumType.STRING)
-    private DiscountType discountType;
-
-    private Double discountValue;
-
     @ManyToOne
     private PurchaseOrderItemEntity purchaseOrderItem;
 

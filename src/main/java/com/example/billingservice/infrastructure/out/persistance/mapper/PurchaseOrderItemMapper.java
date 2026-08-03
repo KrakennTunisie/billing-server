@@ -1,5 +1,6 @@
 package com.example.billingservice.infrastructure.out.persistance.mapper;
 
+import com.example.billingservice.domain.enums.DiscountType;
 import com.example.billingservice.domain.enums.OperationCategory;
 import com.example.billingservice.domain.model.PurchaseOrderItem;
 import com.example.billingservice.infrastructure.out.persistance.dto.PurchaseOrderItemCreateDTO;
@@ -14,12 +15,18 @@ public class PurchaseOrderItemMapper {
             return null;
         }
 
-        double totalExclTax = (dto.getQuantity() * dto.getUnityPriceEXclTax())/appliedExchangeRate;
-        totalExclTax = Math.round(totalExclTax * 100.0) / 100.0;
+        double subtotal = (dto.getQuantity() * dto.getUnityPriceEXclTax()) / appliedExchangeRate;
+
+        double discount =
+                DiscountType.valueOf(dto.getDiscountType()) == DiscountType.PERCENTAGE
+                        ? subtotal * dto.getDiscountValue() / 100
+                        : dto.getDiscountValue() / appliedExchangeRate;
+
+        double totalExclTax = Math.max(0, subtotal - discount);
 
         double taxAmount = totalExclTax * dto.getVatRate() / 100;
-        taxAmount = Math.round(taxAmount * 100.0) / 100.0;
-        Double totalInclTax = (totalExclTax + taxAmount);
+
+        double totalInclTax = totalExclTax + taxAmount;
 
         return PurchaseOrderItem.builder()
                 .description(dto.getDescription())
@@ -30,7 +37,10 @@ public class PurchaseOrderItemMapper {
                 .itemTotalExclTax(totalExclTax)
                 .itemTaxAmount(taxAmount)
                 .itemTotalInclTax(totalInclTax)
+                .discountType(DiscountType.valueOf(dto.getDiscountType()))
+                .discountValue(dto.getDiscountValue())
                 .operationCategory(dto.getOperationCategory())
+
                 .build();
     }
 
@@ -49,6 +59,8 @@ public class PurchaseOrderItemMapper {
         purchaseOrderItemEntity.setTotalPriceIncTax(dto.getItemTotalInclTax());
         purchaseOrderItemEntity.setVatRate(dto.getVatRate());
         purchaseOrderItemEntity.setOperationCategory(dto.getOperationCategory());
+        purchaseOrderItemEntity.setDiscountType(dto.getDiscountType());
+        purchaseOrderItemEntity.setDiscountValue(dto.getDiscountValue());
 
         return purchaseOrderItemEntity;
     }
@@ -70,6 +82,8 @@ public class PurchaseOrderItemMapper {
                 .invoicedQuantity(entity.getInvoicedQuantity())
                 .unityPriceEXclTax(entity.getUnityPriceEXclTax())
                 .vatRate(entity.getVatRate())
+                .discountType(entity.getDiscountType())
+                .discountValue(entity.getDiscountValue())
                 .operationCategory(entity.getOperationCategory())
                 .itemTotalExclTax(totalExclTax)
                 .itemTaxAmount(taxAmount)

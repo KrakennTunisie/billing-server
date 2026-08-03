@@ -73,12 +73,24 @@ public class PartnerController {
         return ResponseEntity.ok(partnerUseCase.findSupplierExistsByEmail(email));
     }
 
+    @GetMapping("/suppliers/existByCompanyName/{companyName}")
+    @Operation(summary = "Vérifier si un fournisseur existe par nom d'entreprise")
+    public ResponseEntity<Boolean> supplierExistByCompanyName(
+            @Parameter(description = "Nom de l'entreprise") @PathVariable String companyName) {
+        return ResponseEntity.ok(partnerUseCase.supplierExistsByCompanyName(companyName));
+    }
+
     @GetMapping("/name/{id}")
     @Operation(summary = "Récupérer un fournisseur")
     public ResponseEntity<Partner> getSupplierByName(@Parameter(description = "ID du partenaire") @PathVariable String id) {
         return partnerUseCase.getSupplierByName(id)
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> BillingException.notFound("Fournisseur", id));
+    }
+    @GetMapping("/suppliers/companyName/{companyName}")
+    @Operation(summary = "Récupérer un fournisseur")
+    public ResponseEntity<PartnerSummaryDTO> getSupplierByCompanyName(@Parameter(description = "nom de fournisseur") @PathVariable String companyName) {
+        return ResponseEntity.ok(partnerUseCase.getSupplierByCompanyName(companyName));
     }
 
     @GetMapping("/supplier-item/{email}")
@@ -199,6 +211,19 @@ public class PartnerController {
     public ResponseEntity<Optional<Partner>> customerExistByEmail(@Parameter(description = "Email du client")@PathVariable String email)
     {
         return ResponseEntity.ok(partnerUseCase.findCustomerByEmail(email));
+    }
+
+    @GetMapping("/clients/existByCompanyName/{companyName}")
+    @Operation(summary = "Vérifier si un client existe par nom d'entreprise")
+    public ResponseEntity<Boolean> clientExistByCompanyName(
+            @Parameter(description = "Nom de l'entreprise") @PathVariable String companyName) {
+        return ResponseEntity.ok(partnerUseCase.clientExistsByCompanyName(companyName));
+    }
+
+    @GetMapping("/clients/companyName/{companyName}")
+    @Operation(summary = "Récupérer un client")
+    public ResponseEntity<PartnerSummaryDTO> getCustomerByCompanyName(@Parameter(description = "nom de client") @PathVariable String companyName) {
+        return ResponseEntity.ok(partnerUseCase.getClientByCompanyName(companyName));
     }
 
 

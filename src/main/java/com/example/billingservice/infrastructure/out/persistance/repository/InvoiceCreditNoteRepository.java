@@ -37,7 +37,7 @@ public interface InvoiceCreditNoteRepository extends JpaRepository<InvoiceCredit
             Pageable pageable
     );
 
-    boolean existsByInvoice_IdInvoiceAndInvoiceCreditNoteStatusNot (
+    boolean existsByInvoice_IdInvoiceAndInvoiceCreditNoteStatus (
             UUID invoiceId,
             InvoiceCreditNoteStatus invoiceCreditNoteStatus
     );

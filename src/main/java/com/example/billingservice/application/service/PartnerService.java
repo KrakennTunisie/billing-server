@@ -120,6 +120,16 @@ public class PartnerService implements PartnerUseCase  {
     }
 
     @Override
+    public boolean supplierExistsByCompanyName(String companyName) {
+        return supplierRepositoryPort.existsByCompanyName(companyName);
+    }
+
+    @Override
+    public PartnerSummaryDTO getSupplierByCompanyName(String companyName) {
+        return supplierRepositoryPort.getSupplierByCompanyName(companyName);
+    }
+
+    @Override
     public boolean supplierExistsByIban(String iban) {
         return supplierRepositoryPort.existsByIban(iban);
     }
@@ -140,10 +150,7 @@ public class PartnerService implements PartnerUseCase  {
         return supplierRepositoryPort.existsByName(name);
     }
 
-    @Override
-    public boolean supplierExistsByCompanyName(String companyName) {
-        return supplierRepositoryPort.existsByCompanyName(companyName);
-    }
+
 
     @Override
     public boolean supplierExistsByIbanAndIdPartnerNot(String iban, UUID idPartner) {
@@ -305,6 +312,11 @@ public class PartnerService implements PartnerUseCase  {
             throw BillingException.notFound("Client", idClient);
         }
         return customerRepositoryPort.getClientDetailsById(UUID.fromString(idClient));
+    }
+
+    @Override
+    public PartnerSummaryDTO getClientByCompanyName(String companyName) {
+        return customerRepositoryPort.getCustomerByCompanyName(companyName);
     }
 
     @Override

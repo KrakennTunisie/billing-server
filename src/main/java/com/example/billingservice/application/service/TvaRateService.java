@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
 public class TvaRateService implements TVARateUseCase {
 
     private final TvaRateRepositoryPort tvaRateRepositoryPort;
-    private static final Pattern TVA_LABEL_PATTERN = Pattern.compile("^\\d{1,3}%$");
+    private static final Pattern TVA_LABEL_PATTERN = Pattern.compile("^\\d{1,5}(\\.\\d{1,2})?%$");
     @Override
     public List<BaseTVARatePageItem> getAll() {
         return tvaRateRepositoryPort.getAll();
@@ -48,9 +48,9 @@ public class TvaRateService implements TVARateUseCase {
 
     @Override
     public BaseTVARateDTO getByLabel(String label) {
-        if(!tvaRateRepositoryPort.existsByLabel(label)){
+      /*  if(!tvaRateRepositoryPort.existsByLabel(label)){
             throw BillingException.notFound("Taux TVA", label);
-        }
+        }*/
         return tvaRateRepositoryPort.getByLabel(label);
     }
 

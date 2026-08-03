@@ -6,6 +6,7 @@ public  enum  PurchaseOrderStatus {
     CANCELLED,
     IN_DELIVERY,
     PARTIALLY_INVOICED,
-    FULLY_INVOICED
+    FULLY_INVOICED,
+    ARCHIVED
 
 }

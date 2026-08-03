@@ -5,6 +5,7 @@ import com.example.billingservice.domain.enums.InvoiceCurrency;
 import com.example.billingservice.domain.enums.PaymentCondition;
 import com.example.billingservice.domain.enums.PaymentMethod;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
@@ -20,8 +21,8 @@ import java.util.Date;
 public abstract class BaseCommercialDocumentEntity {
 
     private String reference;
-    private Date issueDate;
 
+    private Date issueDate;
 
     @Enumerated(EnumType.STRING)
     private PaymentMethod paymentMethod;

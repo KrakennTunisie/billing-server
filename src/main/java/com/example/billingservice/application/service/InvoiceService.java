@@ -111,7 +111,7 @@ public class InvoiceService implements InvoiceUseCase, InvoiceStatsUseCase {
             throw BillingException.notFound("Facture Client", String.valueOf(invoiceId));
         }
 
-        if(invoiceCreditNoteUseCase.hasCreditNotesWithStatus(invoiceId, InvoiceCreditNoteStatus.REFUNDED)){
+        if(invoiceCreditNoteUseCase.hasCreditNotesWithStatus(invoiceId, InvoiceCreditNoteStatus.IN_PROGRESS)){
             throw BillingException.badRequest("La facture a encore des factures d'avoir non traité");
         }
 
@@ -216,12 +216,13 @@ public class InvoiceService implements InvoiceUseCase, InvoiceStatsUseCase {
             return;
         }
 
-        if (invoice.getPurchaseOrder() != null) {
+        if (invoice.getPurchaseOrder() != null && invoice.getInvoiceStatus() == InvoiceStatus.DRAFT) {
             synchronizationService.deleteInvoiceRelatedToPurchaseOrder(invoice);
-            return;
+            clientInvoicesRepositoryPort.delete(invoiceId);
+
         }
 
-        clientInvoicesRepositoryPort.delete(invoiceId);
+
 
     }
 

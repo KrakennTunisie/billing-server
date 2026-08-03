@@ -29,6 +29,7 @@ public interface CustomerRepositoryPort {
 
     boolean existsByEmail(String email);
 
+
     boolean existsByIban(String iban);
 
     boolean existsByName(String name);
@@ -43,6 +44,7 @@ public interface CustomerRepositoryPort {
 
     boolean existsByTaxRegistrationNumberAndIdPartnerNot(String taxRegistrationNumber, UUID idPartner);
 
+    PartnerSummaryDTO getCustomerByCompanyName(String companyName);
 
     Page<PartnerItemDTO> findAllCustomers(String keyword , String Country , int page);
 
@@ -51,5 +53,6 @@ public interface CustomerRepositoryPort {
     Partner updateCustomer (String id,UpdatePartnerDTO partner);
 
     void deleteCustomerById(String id);
+
     void updateCustomerStatus(String idClient ,Boolean statuts);
 }

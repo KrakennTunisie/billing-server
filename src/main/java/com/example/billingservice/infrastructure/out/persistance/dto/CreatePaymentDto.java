@@ -1,6 +1,7 @@
 package com.example.billingservice.infrastructure.out.persistance.dto;
 
 import com.example.billingservice.domain.enums.PaymentMethod;
+import com.example.billingservice.domain.enums.PaymentStatus;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -34,6 +35,9 @@ public class CreatePaymentDto {
 
     @NotNull(message = "Le mode de paiement est obligatoire")
     PaymentMethod method;
+
+    @NotNull(message = "La status de reçu de paiement")
+    PaymentStatus paymentStatus;
 
     String comment;
 

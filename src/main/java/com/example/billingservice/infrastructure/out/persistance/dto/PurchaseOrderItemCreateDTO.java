@@ -32,6 +32,14 @@ public class PurchaseOrderItemCreateDTO {
     @DecimalMin(value = "0.0", message = "Le montant de TVA doit être positif ou nul")
     private Double itemTaxAmount;
 
+    @NotNull(message = "Le type de remise est obligatoire")
+    @ValidEnum(enumClass = DiscountType.class, message = "Type de remise invalide")
+    private String discountType;
+
+    @NotNull(message = "La valeur de la remise est obligatoire")
+    @DecimalMin(value = "0.0", message = "La remise doit être positive ou nulle")
+    private Double discountValue;
+
     @NotNull(message = "La catégorie d'opération est obligatoire")
     private String operationCategory;
 }

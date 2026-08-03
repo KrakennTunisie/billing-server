@@ -7,6 +7,7 @@ import com.example.billingservice.application.ports.in.PaymentUseCase;
 import com.example.billingservice.application.ports.out.PaymentRepositoryPort;
 import com.example.billingservice.domain.enums.DocumentType;
 import com.example.billingservice.domain.enums.PaymentMethod;
+import com.example.billingservice.domain.enums.PaymentStatus;
 import com.example.billingservice.domain.enums.SequenceNumberType;
 import com.example.billingservice.domain.exceptions.BillingException;
 import com.example.billingservice.domain.model.Document;
@@ -138,6 +139,11 @@ public class PaymentService implements PaymentUseCase {
         Payment updatedPayment = paymentRepositoryPort.updatePayment(payment);
 
         return paymentMapper.modelToPaymentDTO(updatedPayment);
+    }
+
+    @Override
+    public void updatePaymentStatus(UUID idPayment, PaymentStatus paymentStatus) {
+        paymentRepositoryPort.updatePaymentStatus(idPayment, paymentStatus);
     }
 
     @Override

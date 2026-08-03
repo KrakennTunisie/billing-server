@@ -20,13 +20,13 @@ public final class InvoiceStatusPassagePolicy {
             InvoiceStatus.PARTIALLY_PAID, Set.of(InvoiceStatus.PARTIALLY_PAID, InvoiceStatus.PAID,
                     InvoiceStatus.CANCELLED, InvoiceStatus.OVERDUE, InvoiceStatus.TO_COLLECT),
 
-            InvoiceStatus.PAID, Set.of(InvoiceStatus.PARTIALLY_PAID, InvoiceStatus.PAID, InvoiceStatus.TO_COLLECT),
+            InvoiceStatus.PAID, Set.of( InvoiceStatus.PAID, InvoiceStatus.TO_COLLECT,InvoiceStatus.ARCHIVED),
 
-            InvoiceStatus.OVERDUE, Set.of(InvoiceStatus.PARTIALLY_PAID, InvoiceStatus.PAID, InvoiceStatus.CANCELLED),
+            InvoiceStatus.OVERDUE, Set.of(InvoiceStatus.PARTIALLY_PAID, InvoiceStatus.PAID, InvoiceStatus.CANCELLED,InvoiceStatus.ARCHIVED),
 
-            InvoiceStatus.ARCHIVED, Set.of(),
+            InvoiceStatus.ARCHIVED, Set.of(InvoiceStatus.PAID),
 
-            InvoiceStatus.CANCELLED, Set.of()
+            InvoiceStatus.CANCELLED, Set.of(InvoiceStatus.ARCHIVED)
     );
 
     public static boolean checkTransition(InvoiceStatus current, InvoiceStatus target) {

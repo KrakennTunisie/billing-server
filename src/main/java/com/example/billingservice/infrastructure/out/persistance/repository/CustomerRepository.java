@@ -1,6 +1,7 @@
 package com.example.billingservice.infrastructure.out.persistance.repository;
 
 import com.example.billingservice.infrastructure.out.persistance.entity.CustomerEntity;
+import com.example.billingservice.infrastructure.out.persistance.entity.SupplierEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -27,6 +28,8 @@ public interface CustomerRepository extends JpaRepository<CustomerEntity, UUID> 
     boolean existsByPartnerName(String name);
 
     boolean existsByCompanyName(String companyName);
+
+    CustomerEntity getClientByCompanyName(String companyName);
 
     boolean existsByCompanyNameAndIdPartnerNot(String companyName, UUID idPartner);
 

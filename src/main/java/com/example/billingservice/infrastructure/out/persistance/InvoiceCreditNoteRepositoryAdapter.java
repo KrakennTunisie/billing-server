@@ -88,7 +88,7 @@ public class InvoiceCreditNoteRepositoryAdapter implements InvoiceCreditNoteRepo
     @Override
     public boolean hasCreditNotesWithStatus(UUID invoiceId, InvoiceCreditNoteStatus invoiceCreditNoteStatus) {
         return invoiceCreditNoteRepository
-                .existsByInvoice_IdInvoiceAndInvoiceCreditNoteStatusNot(invoiceId, invoiceCreditNoteStatus);
+                .existsByInvoice_IdInvoiceAndInvoiceCreditNoteStatus(invoiceId, invoiceCreditNoteStatus);
     }
 
     @Override

@@ -21,8 +21,7 @@ public class InvoiceItem extends BaseItem{
     private PurchaseOrderItem purchaseOrderItem;
     private int creditedQuantity;
 
-    private DiscountType discountType;
-    private Double discountValue;
+
 
     public UUID getIdInvoiceItem() {
         return idInvoiceItem;

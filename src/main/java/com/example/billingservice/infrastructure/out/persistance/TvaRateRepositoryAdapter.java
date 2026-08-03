@@ -85,9 +85,10 @@ public class TvaRateRepositoryAdapter implements TvaRateRepositoryPort {
 
     @Override
     public BaseTVARateDTO getByLabel(String label) {
+        System.out.println("2"+label);
         TvaRateEntity tvaRateEntity =
                 tvaRateRepository.getTvaRateEntityByLabel(label);
-
+        System.out.println(tvaRateEntity.getLabel());
         return tvaRateMapper.modelToDTO(tvaRateMapper.entityToModel(tvaRateEntity));
     }
 

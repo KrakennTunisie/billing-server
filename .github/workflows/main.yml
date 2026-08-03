@@ -14,3 +14,5 @@ jobs:
       SERVER_HOST: ${{ secrets.SERVER_HOST }}
       SERVER_USER: ${{ secrets.SERVER_USER }}
       SERVER_PASSWORD: ${{ secrets.SERVER_PASSWORD }}
+      PRO_SERVER_IP: ${{secrets.PRO_SERVER_IP}}
+      PROD_SSH_PRIVATE_KEY: ${{secrets.PROD_SSH_PRIVATE_KEY}}

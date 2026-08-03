@@ -31,6 +31,10 @@ public interface PartnerUseCase {
     boolean supplierExistsByIdPartner(UUID idPartner);
     boolean supplierExistsByRegistrationNumber(String taxRegistrationNumber);
     boolean supplierExistsByEmail(String email);
+    boolean supplierExistsByCompanyName(String companyName);
+
+    PartnerSummaryDTO getSupplierByCompanyName(String companyName);
+
     Optional<Partner> findSupplierExistsByEmail(String email);
     boolean supplierExistsByIban(String iban);
     Optional<Partner> getSupplierByName(String name);
@@ -38,7 +42,6 @@ public interface PartnerUseCase {
     Page<PartnerItemDTO> getAllSuppliers(String keyword , String Country , int page);
     boolean existsBySupplierName(String name);
 
-    boolean supplierExistsByCompanyName(String companyName);
 
     boolean supplierExistsByIbanAndIdPartnerNot(String iban, UUID idPartner);
 
@@ -68,6 +71,8 @@ public interface PartnerUseCase {
 
 
     PartnerDetailsDTO getClientDetailsById(String idClient);
+
+    PartnerSummaryDTO getClientByCompanyName(String companyName);
 
     boolean customerExistsByIdPartner(UUID idPartner);
 

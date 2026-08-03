@@ -22,7 +22,7 @@ public class TvaRateMapper {
         TvaRateEntity TvaRateEntity = new TvaRateEntity();
         TvaRateEntity.setIdTvaRate(TvaRate.getIdTvaRate());
         TvaRateEntity.setCode(TvaRate.getCode());
-        TvaRateEntity.setLabel(TvaRate.getLabel());
+        TvaRateEntity.setLabel(TvaRate.getLabel().strip());
         TvaRateEntity.setDescription(TvaRate.getDescription());
         TvaRateEntity.setActive(TvaRate.isActive());
         return TvaRateEntity;

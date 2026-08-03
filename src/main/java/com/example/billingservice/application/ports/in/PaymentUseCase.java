@@ -1,5 +1,6 @@
 package com.example.billingservice.application.ports.in;
 
+import com.example.billingservice.domain.enums.PaymentStatus;
 import com.example.billingservice.domain.model.Payment;
 import com.example.billingservice.infrastructure.out.persistance.dto.CreatePaymentDto;
 import com.example.billingservice.infrastructure.out.persistance.dto.PaymentDTO;
@@ -17,6 +18,7 @@ public interface PaymentUseCase {
     Page<PaymentPageListItemDto> getPayments(String keyword , String filtre , int page);
     PaymentDTO createPayment(CreatePaymentDto createPaymentDto) throws IOException;
     PaymentDTO updatePayment(UUID idPayment, UpdatePaymentDTO updatePaymentDTO) throws IOException;
+    void updatePaymentStatus(UUID idPayment, PaymentStatus paymentStatus);
     void deletePayment(UUID idPayment);
 
     boolean existsByIdPayment(UUID idPayment);

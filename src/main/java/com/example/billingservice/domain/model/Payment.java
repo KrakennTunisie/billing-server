@@ -1,6 +1,7 @@
 package com.example.billingservice.domain.model;
 
 import com.example.billingservice.domain.enums.PaymentMethod;
+import com.example.billingservice.domain.enums.PaymentStatus;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -23,6 +24,8 @@ public class Payment {
     private BigDecimal amount;
 
     private String currency;
+
+    private PaymentStatus paymentStatus;
 
     private LocalDate paymentDate;
 

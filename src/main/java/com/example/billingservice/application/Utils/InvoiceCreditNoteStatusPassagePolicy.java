@@ -10,8 +10,8 @@ public final class InvoiceCreditNoteStatusPassagePolicy {
             InvoiceCreditNoteStatus.DRAFT, Set.of(InvoiceCreditNoteStatus.IN_PROGRESS, InvoiceCreditNoteStatus.CANCELLED),
             InvoiceCreditNoteStatus.IN_PROGRESS, Set.of(InvoiceCreditNoteStatus.NOT_REFUNDED,InvoiceCreditNoteStatus.REFUNDED, InvoiceCreditNoteStatus.ARCHIVED, InvoiceCreditNoteStatus.CANCELLED),
             InvoiceCreditNoteStatus.NOT_REFUNDED, Set.of(),
-            InvoiceCreditNoteStatus.REFUNDED, Set.of(),
-            InvoiceCreditNoteStatus.CANCELLED, Set.of()
+            InvoiceCreditNoteStatus.REFUNDED, Set.of(InvoiceCreditNoteStatus.ARCHIVED),
+            InvoiceCreditNoteStatus.CANCELLED, Set.of(InvoiceCreditNoteStatus.ARCHIVED)
     );
 
     public static void checkTransition(InvoiceCreditNoteStatus current, InvoiceCreditNoteStatus target) {

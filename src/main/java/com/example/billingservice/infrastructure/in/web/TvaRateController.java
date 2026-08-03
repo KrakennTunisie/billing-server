@@ -47,11 +47,22 @@ public class TvaRateController {
         return ResponseEntity.ok(tvaRateUseCase.getByCode(code));
     }
 
+
     // ========================
     // GET BY LABEL
     // ========================
-    @GetMapping("/label/{label}")
-    public ResponseEntity<BaseTVARateDTO> getByLabel(@PathVariable String label) {
+    @GetMapping("/existByLabel")
+    public ResponseEntity<Boolean>  existTvaByLabel(@RequestParam String label) {
+        System.out.println(label);
+        return ResponseEntity.ok(tvaRateUseCase.existsByLabel(label));
+    }
+
+    // ========================
+    // GET BY LABEL
+    // ========================
+    @GetMapping("/label")
+    public ResponseEntity<BaseTVARateDTO> getByLabel(@RequestParam String label) {
+        System.out.println(label);
         return ResponseEntity.ok(tvaRateUseCase.getByLabel(label));
     }
 

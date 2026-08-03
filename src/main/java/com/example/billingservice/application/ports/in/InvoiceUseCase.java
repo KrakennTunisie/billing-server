@@ -75,4 +75,5 @@ public interface InvoiceUseCase {
     Page<InvoicePageItemDTO>  getSupplierInvoices (UUID clientId, int page);
 
 
+
 }
