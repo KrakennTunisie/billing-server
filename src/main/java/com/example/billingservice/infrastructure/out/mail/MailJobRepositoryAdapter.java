@@ -1,13 +1,18 @@
 package com.example.billingservice.infrastructure.out.mail;
 
 import com.example.billingservice.application.ports.out.MailJobRepositoryPort;
+import com.example.billingservice.application.ports.out.MailNotificationRepositoryPort;
 import com.example.billingservice.domain.enums.MailJobStatus;
 import com.example.billingservice.domain.exceptions.BillingException;
 import com.example.billingservice.domain.model.MailJob;
 import com.example.billingservice.domain.model.MailJobModel;
+import com.example.billingservice.infrastructure.out.persistance.dto.MailJobCreateDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.MailJobListItemDTO;
+import com.example.billingservice.infrastructure.out.persistance.dto.MailJobRequest;
 import com.example.billingservice.infrastructure.out.persistance.entity.MailJobEntity;
+import com.example.billingservice.infrastructure.out.persistance.entity.MailNotificationJobEntity;
 import com.example.billingservice.infrastructure.out.persistance.mapper.MailJobMapper;
+import com.example.billingservice.infrastructure.out.persistance.mapper.MailJobRequestMapper;
 import com.example.billingservice.infrastructure.out.persistance.repository.MailJobRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataAccessException;
@@ -27,6 +32,9 @@ import java.util.stream.Collectors;
 public class MailJobRepositoryAdapter implements MailJobRepositoryPort {
     private final MailJobRepository mailJobRepository;
     private final MailJobMapper mailJobMapper;
+    private final MailJobRequestMapper mailJobRequestMapper;
+
+    private final MailNotificationRepositoryPort mailNotificationRepositoryPort;
 
     @Override
     @Transactional
@@ -73,5 +81,35 @@ public class MailJobRepositoryAdapter implements MailJobRepositoryPort {
         } catch (DataAccessException ex) {
             throw BillingException.internalError("Erreur de fetch des factures: " + ex.getMessage());
         }
+    }
+
+    @Override
+    public void createMailJob(MailJobRequest mailJobRequest, String eventId) {
+        MailJobEntity mailJobEntity = mailJobRequestMapper.toEntity(mailJobRequest, eventId);
+        mailJobRepository.save(mailJobEntity);
+    }
+
+    @Override
+    @Transactional
+    public void updateMailJobStatus(UUID eventId, String status) {
+        if(!mailNotificationRepositoryPort.existsByEventId(eventId)){
+            throw BillingException.notFound("Mail notification", String.valueOf(eventId));
+        }
+
+        mailNotificationRepositoryPort.updateStatus(eventId, status);
+
+        this.updateStatus(eventId, status);
+    }
+
+
+
+    private void updateStatus(UUID eventId, String status){
+        if(!mailJobRepository.existsByEventId(String.valueOf(eventId))){
+            throw BillingException.notFound("Mail job", String.valueOf(eventId));
+        }
+
+        MailJobEntity mailJob = mailJobRepository.findByEventId(String.valueOf(eventId));
+
+        mailJob.setStatus(MailJobStatus.valueOf(status));
     }
 }

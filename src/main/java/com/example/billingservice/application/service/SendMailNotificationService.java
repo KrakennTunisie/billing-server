@@ -1,18 +1,14 @@
 package com.example.billingservice.application.service;
 
 import com.example.billingservice.application.ports.in.*;
-import com.example.billingservice.application.ports.out.ClientInvoicesRepositoryPort;
-import com.example.billingservice.application.ports.out.DocumentReaderPort;
-import com.example.billingservice.application.ports.out.EmailJobPublisherPort;
-import com.example.billingservice.application.ports.out.MailJobRepositoryPort;
 import com.example.billingservice.domain.enums.InvoiceStatus;
 import com.example.billingservice.domain.enums.InvoiceType;
+import com.example.billingservice.domain.enums.MailEventType;
 import com.example.billingservice.domain.exceptions.BillingException;
-import com.example.billingservice.domain.model.Invoice;
+
 import com.example.billingservice.domain.model.InvoiceCreditNote;
-import com.example.billingservice.domain.model.MailAttachment;
-import com.example.billingservice.domain.model.MailJob;
 import com.example.billingservice.infrastructure.out.persistance.dto.*;
+
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,19 +17,17 @@ import java.util.UUID;
 
 @Service
 @AllArgsConstructor
-public class SendEmailService implements SendEmailUseCase {
+public class SendMailNotificationService implements SendEmailUseCase {
 
     private final InvoiceUseCase invoiceUseCase;
+    private final MailJobUseCase mailJobUseCase;
+    private final PartnerUseCase partnerUseCase;
     private final InvoiceCreditNoteUseCase invoiceCreditNoteUseCase;
     private final PurchaseOrderUseCase purchaseOrderUseCase;
     private final PaymentUseCase paymentUseCase;
-    private final DocumentReaderPort documentReaderPort;
-    private final EmailJobPublisherPort emailJobPublisherPort;
-    private final MailJobRepositoryPort mailJobRepositoryPort;
 
     @Override
     public void sendInvoiceEmail(UUID invoiceId, SendEmailRequest request) {
-
         if(!invoiceUseCase.clientInvoiceExistsByInvoiceId(invoiceId)){
             throw BillingException.notFound("Facture client", String.valueOf(invoiceId));
         }
@@ -45,39 +39,31 @@ public class SendEmailService implements SendEmailUseCase {
         if (!partnerEmail.equalsIgnoreCase(request.toEmail())) {
             throw new RuntimeException("Email does not match invoice partner email");
         }
-
-        DocumentReadFile documentReadFile = documentReaderPort.getFileAttachment(invoice.getInvoiceDocument().getIdDocument());
-
-        MailJob job = new MailJob(
-              //  UUID.randomUUID(),
+        MailJobAttachmentRequest mailJobAttachmentRequest = new MailJobAttachmentRequest(
+                invoice.getInvoiceDocument().getIdDocument(),
+                invoice.getInvoiceDocument().getFileName(),
+                invoice.getInvoiceDocument().getStorageURL()
+        );
+        MailJobRequest mailJobRequest = new MailJobRequest(
                 partnerEmail,
                 request.subject(),
                 request.body(),
-                true,
-                List.of(
-                        new MailAttachment(
-                                "facture-" + invoice.getInvoiceNumber()+".pdf",
-                                invoice.getInvoiceDocument().getStorageURL(),
-                                documentReadFile.mimeType(),
-                                documentReadFile.content()
-                        )
-                )
+                MailEventType.INVOICE_CREATED,
+                List.of(mailJobAttachmentRequest)
         );
-        mailJobRepositoryPort.save(job);
+
+        mailJobUseCase.createMailJob(mailJobRequest);
+
 
         if(invoice.getInvoiceType() == InvoiceType.SALE && invoice.getInvoiceStatus()== InvoiceStatus.DRAFT){
             invoiceUseCase.updateClientInvoiceStatus(invoiceId, InvoiceStatus.TO_COLLECT);
         }
 
-        emailJobPublisherPort.publish(job);
 
-
-      //  mailJobRepositoryPort.save(job);
     }
 
     @Override
     public void sendCreditNoteEmail(UUID invoiceCreditNoteId, SendEmailRequest request) {
-
         if(!invoiceCreditNoteUseCase.existsByInvoiceCreditNoteId(invoiceCreditNoteId)){
             throw BillingException.notFound("Facture avoir", String.valueOf(invoiceCreditNoteId));
         }
@@ -90,28 +76,19 @@ public class SendEmailService implements SendEmailUseCase {
             throw new RuntimeException("Email does not match invoice partner email");
         }
 
-        DocumentReadFile documentReadFile = documentReaderPort.getFileAttachment(invoiceCreditNote.getInvoiceCreditNoteDocument().getIdDocument());
-
-        MailJob job = new MailJob(
-               // UUID.randomUUID(),
+        MailJobAttachmentRequest mailJobAttachmentRequest = new MailJobAttachmentRequest(
+                invoiceCreditNote.getInvoiceCreditNoteDocument().getIdDocument(),
+                invoiceCreditNote.getInvoiceCreditNoteDocument().getFileName(),
+                invoiceCreditNote.getInvoiceCreditNoteDocument().getStorageURL()
+        );
+        MailJobRequest mailJobRequest = new MailJobRequest(
                 partnerEmail,
                 request.subject(),
                 request.body(),
-                true,
-                List.of(
-                        new MailAttachment(
-                                "facture-" + invoiceCreditNote.getInvoiceCreditNoteNumber()+".pdf",
-                                invoiceCreditNote.getInvoiceCreditNoteDocument().getStorageURL(),
-                                documentReadFile.mimeType(),
-                                documentReadFile.content()
-                        )
-                )
+                MailEventType.INVOICE_CREATED,
+                List.of(mailJobAttachmentRequest)
         );
-        mailJobRepositoryPort.save(job);
-
-        emailJobPublisherPort.publish(job);
-       // mailJobRepositoryPort.save(job);
-
+        mailJobUseCase.createMailJob(mailJobRequest);
     }
 
     @Override
@@ -128,29 +105,19 @@ public class SendEmailService implements SendEmailUseCase {
             throw new RuntimeException("Email does not match invoice partner email");
         }
 
-        DocumentReadFile documentReadFile = documentReaderPort.getFileAttachment(purchaseOrderDTO.getPurchaseOrderDocument().getIdDocument());
-
-        MailJob job = new MailJob(
-               // UUID.randomUUID(),
+        MailJobAttachmentRequest mailJobAttachmentRequest = new MailJobAttachmentRequest(
+                purchaseOrderDTO.getPurchaseOrderDocument().getIdDocument(),
+                purchaseOrderDTO.getPurchaseOrderDocument().getFileName(),
+                purchaseOrderDTO.getPurchaseOrderDocument().getStorageURL()
+        );
+        MailJobRequest mailJobRequest = new MailJobRequest(
                 partnerEmail,
                 request.subject(),
                 request.body(),
-                true,
-                List.of(
-                        new MailAttachment(
-                                "Bon-commande-" + purchaseOrderDTO.getPurchaseOrderNumber()+".pdf",
-                                purchaseOrderDTO.getPurchaseOrderDocument().getStorageURL(),
-                                documentReadFile.mimeType(),
-                                documentReadFile.content()
-                        )
-                )
+                MailEventType.INVOICE_CREATED,
+                List.of(mailJobAttachmentRequest)
         );
-
-        mailJobRepositoryPort.save(job);
-
-        emailJobPublisherPort.publish(job);
-     //   mailJobRepositoryPort.save(job);
-
+        mailJobUseCase.createMailJob(mailJobRequest);
     }
 
     @Override
@@ -167,46 +134,37 @@ public class SendEmailService implements SendEmailUseCase {
             throw new RuntimeException("Email does not match invoice partner email");
         }
 
-        DocumentReadFile documentReadFile = documentReaderPort.getFileAttachment(paymentDTO.getPaymentDocument().getIdDocument());
-
-        MailJob job = new MailJob(
-               // UUID.randomUUID(),
+        MailJobAttachmentRequest mailJobAttachmentRequest = new MailJobAttachmentRequest(
+                paymentDTO.getPaymentDocument().getIdDocument(),
+                paymentDTO.getPaymentDocument().getFileName(),
+                paymentDTO.getPaymentDocument().getStorageURL()
+        );
+        MailJobRequest mailJobRequest = new MailJobRequest(
                 partnerEmail,
                 request.subject(),
                 request.body(),
-                true,
-                List.of(
-                        new MailAttachment(
-                                "Paiement-" + paymentDTO.getReference()+".pdf",
-                                paymentDTO.getPaymentDocument().getStorageURL(),
-                                documentReadFile.mimeType(),
-                                documentReadFile.content()
-                        )
-                )
+                MailEventType.INVOICE_CREATED,
+                List.of(mailJobAttachmentRequest)
         );
-
-        mailJobRepositoryPort.save(job);
-
-        emailJobPublisherPort.publish(job);
-       // mailJobRepositoryPort.save(job);
-
+        mailJobUseCase.createMailJob(mailJobRequest);
     }
 
     @Override
     public void sendEmail(SendEmailRequest request) {
-        MailJob job = new MailJob(
-              //  UUID.randomUUID(),
+        if(!partnerUseCase.customerExistsByEmail(request.toEmail()) &&
+           !partnerUseCase.supplierExistsByEmail(request.toEmail())){
+            throw BillingException.notFound("Partenaire", request.toEmail());
+        }
+
+
+        MailJobRequest mailJobRequest = new MailJobRequest(
                 request.toEmail(),
                 request.subject(),
                 request.body(),
-                true,
+                MailEventType.INVOICE_CREATED,
                 List.of()
         );
 
-        mailJobRepositoryPort.save(job);
-
-        emailJobPublisherPort.publish(job);
-     //   mailJobRepositoryPort.save(job);
-
+        mailJobUseCase.createMailJob(mailJobRequest);
     }
 }
