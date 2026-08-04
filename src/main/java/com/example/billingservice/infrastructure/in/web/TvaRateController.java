@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/tva-rates")
+@RequestMapping("/tva-rates")
 @RequiredArgsConstructor
 public class TvaRateController {
     private final TVARateUseCase tvaRateUseCase;

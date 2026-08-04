@@ -27,7 +27,7 @@ import java.util.UUID;
 
 @Tag(name= "API Bon de Commande", description = "Gestion des bon de commandes")
 @RestController
-@RequestMapping("/api/purchase-orders")
+@RequestMapping("/purchase-orders")
 @RequiredArgsConstructor
 public class PurchaseOrderController {
 

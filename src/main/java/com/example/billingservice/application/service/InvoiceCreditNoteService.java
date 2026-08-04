@@ -155,9 +155,11 @@ public class InvoiceCreditNoteService implements InvoiceCreditNoteUseCase {
         InvoiceCreditNoteStatusPassagePolicy.checkTransition(
                 invoiceCreditNote.getInvoiceCreditNoteStatus(), invoiceCreditNoteStatus);
 
-        List<InvoiceCreditNoteEvent> invoiceEvents = invoiceCreditNote.getInvoiceCreditNoteEvents() != null
+
+
+        List<InvoiceCreditNoteEvent> invoiceEvents = new ArrayList<>(invoiceCreditNote.getInvoiceCreditNoteEvents() != null
                 ? invoiceCreditNote.getInvoiceCreditNoteEvents()
-                : List.of();
+                : List.of());
 
         InvoiceCreditNoteEvent invoiceEvent = InvoiceCreditNoteEvent.builder()
                 .invoiceCreditNoteEventType(InvoiceCreditNoteEventType.UPDATED)
@@ -167,12 +169,12 @@ public class InvoiceCreditNoteService implements InvoiceCreditNoteUseCase {
                 .triggeredBy("user: wassef")
                 .build();
 
+        invoiceEvents.add(invoiceEvent);
+        //List<InvoiceCreditNoteEvent> updatedEvents = new ArrayList<>(invoiceEvents);
 
-        List<InvoiceCreditNoteEvent> updatedEvents = new ArrayList<>(invoiceEvents);
+       // updatedEvents.add(invoiceEvent);
 
-        updatedEvents.add(invoiceEvent);
-
-        invoiceCreditNote.setInvoiceCreditNoteEvents(updatedEvents);
+        invoiceCreditNote.setInvoiceCreditNoteEvents(invoiceEvents);
 
         InvoiceCreditNote updatedInvoiceCreditNote = invoiceCreditNoteRepositoryPort.updateStatus(creditNoteNumber, invoiceCreditNoteStatus);
 

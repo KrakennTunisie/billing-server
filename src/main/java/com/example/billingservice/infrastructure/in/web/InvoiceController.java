@@ -27,7 +27,7 @@ import java.util.UUID;
 
 @Tag(name= "API Factures", description = "Gestion des factures")
 @RestController
-@RequestMapping("/api/invoices")
+@RequestMapping("/invoices")
 @RequiredArgsConstructor
 public class InvoiceController {
 

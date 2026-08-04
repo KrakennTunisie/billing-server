@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/mailing")
+@RequestMapping("/mailing")
 @RequiredArgsConstructor
 public class MailController {
 

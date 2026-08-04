@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/operation-categories")
+@RequestMapping("/operation-categories")
 @RequiredArgsConstructor
 public class OperationCategoryController {
 

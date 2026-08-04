@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @RestController
-@RequestMapping("/api/exchange-rate")
+@RequestMapping("/exchange-rate")
 @RequiredArgsConstructor
 public class ExchangeRateController {
 

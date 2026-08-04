@@ -81,7 +81,10 @@ public class InvoiceCreditNoteRepositoryAdapter implements InvoiceCreditNoteRepo
         InvoiceCreditNoteEntity entity = invoiceCreditNoteRepository.getInvoiceCreditNoteEntityByInvoiceCreditNoteNumber(invoiceCreditNoteNumber);
 
         entity.setInvoiceCreditNoteStatus(newStatus);
-
+        if(entity.getInvoiceCreditNoteStatus() == InvoiceCreditNoteStatus.CANCELLED || entity.getInvoiceCreditNoteStatus() == InvoiceCreditNoteStatus.NOT_REFUNDED)
+        {
+            synchronizeInvoiceItems(invoiceCreditNoteMapper.toDomain(entity));
+        }
         return invoiceCreditNoteMapper.toDomain(invoiceCreditNoteRepository.save(entity));
     }
 
