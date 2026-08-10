@@ -1,6 +1,7 @@
 package com.example.billingservice.domain.model;
 
 import com.example.billingservice.domain.enums.*;
+import com.example.billingservice.domain.enums.PaymentCondition;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,11 +18,10 @@ import java.util.Date;
 public class BaseCommercialDocument {
 
     private String reference;
-
     private Date issueDate;
     private InvoiceCurrency currency;
     private PaymentMethod paymentMethod;
-    private PaymentCondition paymentCondition;
+    private String paymentCondition;
     private Double totalExclTaxEUR;
     private Double totalInclTaxEUR;
     private Double totalExclTaxTND;

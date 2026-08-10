@@ -23,4 +23,8 @@ public interface MailJobRepository extends JpaRepository<MailJobEntity, UUID> {
     );
 
     boolean existsMailJobEntityById(UUID id);
+
+    boolean existsByEventId(String eventId);
+
+    MailJobEntity findByEventId(String eventId);
 }

@@ -173,6 +173,12 @@ public class CustomerPersistanceAdapter implements CustomerRepositoryPort {
     }
 
     @Override
+    public PartnerSummaryDTO getCustomerByCompanyName(String companyName) {
+        Partner partner =  partnerMapper.toDomain(customerRepository.getClientByCompanyName(companyName),PartnerType.SUPPLIER);
+        return  partnerMapper.toSummaryDTO(partner);
+    }
+
+    @Override
     public Page<PartnerItemDTO> findAllCustomers(String keyword , String Country ,int page) {
         PageRequest pageRequest = PageRequest.of(page, 5, Sort.by("partnerName").ascending());
         Page<CustomerEntity> entities = customerRepository.findCustomers(keyword,Country,pageRequest);

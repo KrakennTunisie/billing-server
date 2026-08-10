@@ -1,0 +1,2 @@
+ALTER TABLE purchase_orders
+DROP CONSTRAINT IF EXISTS purchase_orders_payment_condition_check;

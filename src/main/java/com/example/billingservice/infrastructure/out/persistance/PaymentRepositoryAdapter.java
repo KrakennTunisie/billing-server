@@ -2,6 +2,7 @@ package com.example.billingservice.infrastructure.out.persistance;
 
 import com.example.billingservice.application.ports.out.PaymentRepositoryPort;
 import com.example.billingservice.domain.enums.PaymentMethod;
+import com.example.billingservice.domain.enums.PaymentStatus;
 import com.example.billingservice.domain.exceptions.BillingException;
 import com.example.billingservice.domain.model.Payment;
 import com.example.billingservice.infrastructure.out.persistance.dto.CreatePaymentDto;
@@ -105,6 +106,14 @@ public class PaymentRepositoryAdapter implements PaymentRepositoryPort {
     public Payment updatePayment(Payment payment) {
         PaymentEntity paymentEntity = paymentRepository.save(paymentMapper.modelToEntity(payment));
         return paymentMapper.entityToModel(paymentEntity);
+    }
+
+    @Override
+    public void updatePaymentStatus(UUID idPayment, PaymentStatus paymentStatus) {
+        PaymentEntity payment = paymentRepository.getReferenceById(idPayment);
+        payment.setPaymentStatus(paymentStatus);
+        PaymentEntity updatedEntity = paymentRepository.save(payment);
+
     }
 
     @Override

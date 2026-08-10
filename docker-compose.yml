@@ -8,8 +8,6 @@ services:
     depends_on:
       billing-db:
         condition: service_started
-      rabbitmq:
-          condition: service_healthy
     restart: unless-stopped
     volumes:
       - billing_storage:/app/storage
@@ -18,12 +16,8 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: prod
       EXCHANGERATE: ${EXCHANGERATE}
-      GMAILPASSWORD: ${GMAILPASSWORD}
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
-      RABBITMQ_USER: ${RABBITMQ_USER}
-      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
-
   billing-db:
     image: postgres:18
     container_name: billing-db
@@ -34,27 +28,10 @@ services:
     ports:
       - "5432:5432"
     restart: unless-stopped
+    volumes:
+      - billing_db_data:/var/lib/postgresql
     networks:
       - ms-net
-
-  rabbitmq:
-    image: rabbitmq:3-management
-    container_name: rabbitmq
-    ports:
-      - "5672:5672"     # AMQP
-      - "15672:15672"   # UI
-    restart: unless-stopped
-    networks:
-      - ms-net
-    environment:
-      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
-      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
-    healthcheck:
-      test: [ "CMD", "rabbitmq-diagnostics", "ping" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
 
 volumes:
   billing_db_data:

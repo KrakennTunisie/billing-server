@@ -30,7 +30,9 @@ public interface SupplierPurchaseOrderRepository extends JpaRepository<SupplierP
             )
         AND
             (
-        :status IS NULL OR p.purchaseOrderStatus = :status
+        :status IS NOT NULL AND p.purchaseOrderStatus = :status
+                        OR
+        :status IS NULL AND p.purchaseOrderStatus NOT IN ('ARCHIVED', 'CANCELLED')
              )
         """)
     Page<SupplierPurchaseOrderEntity> getPurchaseOrders(

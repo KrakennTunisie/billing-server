@@ -13,7 +13,7 @@ import java.util.UUID;
 
 @Tag(name= "STATS Factures", description = "Statistiques des factures")
 @RestController
-@RequestMapping("/api/dashboard")
+@RequestMapping("/dashboard")
 @RequiredArgsConstructor
 public class DashboardController {
 

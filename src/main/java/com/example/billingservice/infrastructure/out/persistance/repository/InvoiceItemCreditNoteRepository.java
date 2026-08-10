@@ -13,8 +13,10 @@ public interface InvoiceItemCreditNoteRepository extends JpaRepository<InvoiceCr
     SELECT COALESCE(SUM(icnItem.quantity), 0)
     FROM InvoiceCreditNoteItemEntity icnItem
     WHERE icnItem.invoiceItem.idInvoiceItem = :invoiceItemId
-    AND icnItem.invoiceCreditNote.invoiceCreditNoteStatus <> com.example.billingservice.domain.enums.InvoiceCreditNoteStatus.CANCELLED
-    
+    AND icnItem.invoiceCreditNote.invoiceCreditNoteStatus NOT IN (
+        com.example.billingservice.domain.enums.InvoiceCreditNoteStatus.CANCELLED,
+        com.example.billingservice.domain.enums.InvoiceCreditNoteStatus.NOT_REFUNDED
+    )
 """)
     Integer getTotalCreditedQuantityByInvoiceItem(
             @Param("invoiceItemId") UUID invoiceItemId

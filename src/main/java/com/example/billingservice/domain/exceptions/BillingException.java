@@ -25,7 +25,7 @@ public class BillingException extends RuntimeException{
         return new BillingException(
                 HttpStatus.NOT_FOUND,
                 "NOT_FOUND",
-                resource + " avec id: " + id+ " est introuvable !"
+                resource + " avec valeur : " + id+ " est introuvable !"
         );
     }
 

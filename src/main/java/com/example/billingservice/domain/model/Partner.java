@@ -55,7 +55,7 @@ public class Partner {
     @Schema(description = "Numéro fiscal", example = "TAX123456")
     private String taxRegistrationNumber;
     @Schema(description = "Condition de paiement", example = "NET_15")
-    private PaymentCondition paymentCondition;
+    private String paymentCondition;
     @Schema(description = "IBAN", example = "FR7630006000011234567890189")
     private String iban;
     @Schema(description = "Document RNE")

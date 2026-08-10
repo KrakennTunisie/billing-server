@@ -1,6 +1,7 @@
 package com.example.billingservice.infrastructure.out.persistance.dto;
 
 import com.example.billingservice.domain.enums.PaymentMethod;
+import com.example.billingservice.domain.enums.PaymentStatus;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -25,6 +26,8 @@ public class PaymentPageListItemDto {
     LocalDate paymentDate;
 
     PaymentMethod method;
+
+    PaymentStatus paymentStatus;
 
     String reference;
 

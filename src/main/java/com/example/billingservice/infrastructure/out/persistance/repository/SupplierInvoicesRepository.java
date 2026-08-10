@@ -34,7 +34,7 @@ AND
 (
     :status IS NOT NULL AND i.invoiceStatus = :status
     OR
-    :status IS NULL AND i.invoiceStatus <> 'ARCHIVED'
+    (:status IS NULL AND i.invoiceStatus NOT IN ('ARCHIVED', 'CANCELLED'))
 )
 
 """)

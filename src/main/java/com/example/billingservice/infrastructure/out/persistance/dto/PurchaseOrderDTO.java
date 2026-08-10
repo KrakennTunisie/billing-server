@@ -21,8 +21,10 @@ public class PurchaseOrderDTO {
     private PurchaseOrderStatus purchaseOrderStatus;
     private Date issueDate;
     private InvoiceCurrency purchaseCurrency;
+
     private Double totalExclTaxEUR;
     private Double totalInclTaxEUR;
+
     private Double totalExclTaxTND;
     private Double totalInclTaxTND;
 
@@ -31,9 +33,10 @@ public class PurchaseOrderDTO {
 
     private Double vatRate;
     private PaymentMethod paymentMethod;
-    private PaymentCondition paymentCondition;
+    private String paymentCondition;
     private Double appliedExchangeRate;
     private PurchaseOrderType purchaseOrderType;
+
     private PartnerSummaryDTO partner;
 
     private List<InvoiceSummaryDTO> invoices;
