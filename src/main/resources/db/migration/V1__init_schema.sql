@@ -1,4 +1,4 @@
-CREATE TABLE public.address (
+CREATE TABLE IF NOT EXISTS public.address (
                                 id_address uuid NOT NULL,
                                 address_type character varying(255),
                                 city character varying(255),
@@ -16,7 +16,7 @@ ALTER TABLE public.address OWNER TO postgres;
 -- Name: attachments; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.attachments (
+CREATE TABLE IF NOT EXISTS public.attachments  (
                                     id uuid NOT NULL,
                                     mail_job_id uuid NOT NULL,
                                     file_name character varying(255) NOT NULL,
@@ -30,7 +30,7 @@ ALTER TABLE public.attachments OWNER TO postgres;
 -- Name: audit_logs; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.audit_logs (
+CREATE TABLE IF NOT EXISTS public.audit_logs (
                                    event_date timestamp(6) without time zone,
                                    entity_id uuid,
                                    id_audit_log uuid NOT NULL,
@@ -51,7 +51,7 @@ ALTER TABLE public.audit_logs OWNER TO postgres;
 -- Name: base_item_operation_category_entity; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.base_item_operation_category_entity (
+CREATE TABLE IF NOT EXISTS public.base_item_operation_category_entity (
                                                             is_active boolean NOT NULL,
                                                             created_at timestamp(6) without time zone NOT NULL,
                                                             updated_at timestamp(6) without time zone NOT NULL,
@@ -68,7 +68,7 @@ ALTER TABLE public.base_item_operation_category_entity OWNER TO postgres;
 -- Name: document_content; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.document_content (
+CREATE TABLE IF NOT EXISTS public.document_content (
                                          id uuid NOT NULL,
                                          file_data oid NOT NULL,
                                          mime_type character varying(255) NOT NULL,
@@ -76,13 +76,13 @@ CREATE TABLE public.document_content (
 );
 
 
-ALTER TABLE public.document_content OWNER TO postgres;
+ALTER TABLE  public.document_content OWNER TO postgres;
 
 --
 -- Name: document_contents; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.document_contents (
+CREATE TABLE IF NOT EXISTS public.document_contents (
                                           file_size bigint NOT NULL,
                                           id_document uuid NOT NULL,
                                           file_name character varying(255),
@@ -97,7 +97,7 @@ ALTER TABLE public.document_contents OWNER TO postgres;
 -- Name: document_number_counters; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.document_number_counters (
+CREATE TABLE IF NOT EXISTS public.document_number_counters (
                                                  year integer NOT NULL,
                                                  last_sequence bigint NOT NULL,
                                                  id uuid NOT NULL,
@@ -112,7 +112,7 @@ ALTER TABLE public.document_number_counters OWNER TO postgres;
 -- Name: documents; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.documents (
+CREATE TABLE IF NOT EXISTS public.documents (
                                   uploaded_at timestamp(6) without time zone NOT NULL,
                                   contract_document_id uuid,
                                   document_content_id uuid,
@@ -135,7 +135,7 @@ ALTER TABLE public.documents OWNER TO postgres;
 -- Name: exchange_rates; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.exchange_rates (
+CREATE TABLE IF NOT EXISTS  public.exchange_rates (
                                        from_currency character varying(3) NOT NULL,
                                        quote numeric(19,6) NOT NULL,
                                        rate_date date NOT NULL,
@@ -155,7 +155,7 @@ ALTER TABLE public.exchange_rates OWNER TO postgres;
 -- Name: invoice_credit_note_events; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.invoice_credit_note_events (
+CREATE TABLE IF NOT EXISTS public.invoice_credit_note_events (
                                                    event_date timestamp(6) without time zone,
                                                    credit_note_id uuid NOT NULL,
                                                    id_invoice_event uuid NOT NULL,
@@ -174,7 +174,7 @@ ALTER TABLE public.invoice_credit_note_events OWNER TO postgres;
 -- Name: invoice_credit_notes_items; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.invoice_credit_notes_items (
+CREATE TABLE IF NOT EXISTS public.invoice_credit_notes_items (
                                                    quantity integer,
                                                    id_invoice_credit_note_item uuid NOT NULL,
                                                    invoice_credit_note_id uuid NOT NULL,
@@ -188,7 +188,7 @@ ALTER TABLE public.invoice_credit_notes_items OWNER TO postgres;
 -- Name: invoice_items; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.invoice_items (
+CREATE TABLE IF NOT EXISTS public.invoice_items (
                                       credited_quantity integer DEFAULT 0 NOT NULL,
                                       discount_value double precision,
                                       quantity integer,
@@ -211,7 +211,7 @@ ALTER TABLE public.invoice_items OWNER TO postgres;
 -- Name: invoices; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.invoices (
+CREATE TABLE IF NOT EXISTS public.invoices (
                                  applied_exchange_rate double precision,
                                  remaining_amount double precision,
                                  total_incl_taxtnd numeric(38,2),
@@ -249,7 +249,7 @@ ALTER TABLE public.invoices OWNER TO postgres;
 -- Name: invoices_credit_notes; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.invoices_credit_notes (
+CREATE TABLE IF NOT EXISTS public.invoices_credit_notes (
                                               issue_date timestamp(6) without time zone,
                                               id_invoice_credit_note_entity uuid NOT NULL,
                                               invoice_credit_note_document_id uuid,
@@ -271,7 +271,7 @@ ALTER TABLE public.invoices_credit_notes OWNER TO postgres;
 -- Name: invoices_events; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.invoices_events (
+CREATE TABLE IF NOT EXISTS public.invoices_events (
                                         event_date timestamp(6) without time zone,
                                         id_invoice_event uuid NOT NULL,
                                         invoice_id uuid NOT NULL,
@@ -290,7 +290,7 @@ ALTER TABLE public.invoices_events OWNER TO postgres;
 -- Name: mail_jobs; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.mail_jobs (
+CREATE TABLE IF NOT EXISTS public.mail_jobs (
                                   date timestamp(6) without time zone NOT NULL,
                                   id uuid NOT NULL,
                                   body character varying(5000),
@@ -309,7 +309,7 @@ ALTER TABLE public.mail_jobs OWNER TO postgres;
 -- Name: partners; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.partners (
+CREATE TABLE IF NOT EXISTS public.partners (
                                  active boolean NOT NULL,
                                  enable_portal boolean NOT NULL,
                                  billing_address_id uuid,
@@ -340,7 +340,7 @@ ALTER TABLE public.partners OWNER TO postgres;
 -- Name: payment_condition_entity; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.payment_condition_entity (
+CREATE TABLE IF NOT EXISTS public.payment_condition_entity (
                                                  is_active boolean NOT NULL,
                                                  created_at timestamp(6) without time zone NOT NULL,
                                                  updated_at timestamp(6) without time zone NOT NULL,
@@ -357,7 +357,7 @@ ALTER TABLE public.payment_condition_entity OWNER TO postgres;
 -- Name: payment_entity; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.payment_entity (
+CREATE TABLE IF NOT EXISTS public.payment_entity (
                                        amount numeric(15,3) NOT NULL,
                                        currency character varying(3) NOT NULL,
                                        payment_date date NOT NULL,
@@ -374,13 +374,13 @@ CREATE TABLE public.payment_entity (
 );
 
 
-ALTER TABLE public.payment_entity OWNER TO postgres;
+ALTER TABLE  public.payment_entity OWNER TO postgres;
 
 --
 -- Name: purchase_order_items; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.purchase_order_items (
+CREATE TABLE IF NOT EXISTS public.purchase_order_items (
                                              invoiced_quantity integer,
                                              quantity integer,
                                              total_price_inc_tax double precision,
@@ -401,7 +401,7 @@ ALTER TABLE public.purchase_order_items OWNER TO postgres;
 -- Name: purchase_orders; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.purchase_orders (
+CREATE TABLE IF NOT EXISTS public.purchase_orders (
                                         applied_exchange_rate double precision,
                                         vat_rate double precision,
                                         created_at timestamp(6) without time zone NOT NULL,
@@ -430,7 +430,7 @@ ALTER TABLE public.purchase_orders OWNER TO postgres;
 -- Name: tva_rate_entity; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.tva_rate_entity (
+CREATE TABLE IF NOT EXISTS public.tva_rate_entity (
                                         is_active boolean NOT NULL,
                                         created_at timestamp(6) without time zone NOT NULL,
                                         updated_at timestamp(6) without time zone NOT NULL,
