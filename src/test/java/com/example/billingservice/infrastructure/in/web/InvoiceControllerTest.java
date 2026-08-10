@@ -142,7 +142,7 @@ class InvoiceControllerTest {
                 .totalInclTaxEUR(1190.0)
                 .remainingAmount(1190.0)
                 .vatRate(19.0)
-                .paymentCondition(PaymentCondition.NET_30)
+                .paymentCondition("NET_30")
                 .paymentMethod(PaymentMethod.BANK_TRANSFER)
                 .appliedExchangeRate(3.2)
                 .exchangeRateSource(ExchangeRateSource.CENTRAL_BANK)
