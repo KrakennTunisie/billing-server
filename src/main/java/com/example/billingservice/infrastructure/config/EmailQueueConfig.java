@@ -1,4 +1,4 @@
-package com.example.billingservice.infrastructure.config;
+/*package com.example.billingservice.infrastructure.config;
 
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
@@ -88,10 +88,7 @@ public class EmailQueueConfig {
         RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
         rabbitTemplate.setMessageConverter(jsonMessageConverter);
 
-        /*
-         * Important for the Outbox worker:
-         * if the exchange/routing key is wrong, RabbitMQ can return the message.
-         */
+
         rabbitTemplate.setMandatory(true);
 
         return rabbitTemplate;
@@ -132,13 +129,10 @@ public class EmailQueueConfig {
         factory.setMessageConverter(jsonMessageConverter);
         factory.setAdviceChain(mailRetryInterceptor);
 
-        /*
-         * Important:
-         * after retries are exhausted, the message is republished to DLQ
-         * by RepublishMessageRecoverer.
-         */
+
         factory.setDefaultRequeueRejected(false);
 
         return factory;
     }
 }
+**/
