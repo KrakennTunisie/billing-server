@@ -3,6 +3,7 @@ package com.example.billingservice.application.service;
 import com.example.billingservice.application.ports.in.GenerateInvoiceNumberUseCase;
 import com.example.billingservice.application.ports.in.PartnerUseCase;
 import com.example.billingservice.application.ports.in.PurchaseOrderUseCase;
+import com.example.billingservice.application.ports.out.AuditEventPublisherPort;
 import com.example.billingservice.application.ports.out.ClientPurchaseOrderPort;
 import com.example.billingservice.application.ports.out.SupplierPurchaseOrderPort;
 import com.example.billingservice.domain.enums.DocumentType;
@@ -12,15 +13,18 @@ import com.example.billingservice.domain.enums.SequenceNumberType;
 import com.example.billingservice.domain.exceptions.BillingException;
 import com.example.billingservice.domain.model.Document;
 import com.example.billingservice.domain.model.PurchaseOrder;
+import com.example.billingservice.infrastructure.out.messaging.AuditEvent;
 import com.example.billingservice.infrastructure.out.persistance.dto.*;
 import com.example.billingservice.infrastructure.out.persistance.mapper.PurchaseOrderMapper;
 import com.example.billingservice.shared.ParseEnum;
+import com.example.billingservice.shared.PurchaseOrderAuditEventFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -33,6 +37,8 @@ public class PurchaseOrderService implements PurchaseOrderUseCase {
     private final GenerateInvoiceNumberUseCase generateInvoiceNumberUseCase;
     private final PartnerUseCase partnerUseCase;
     private final PurchaseOrderMapper purchaseOrderMapper;
+    private final AuditEventPublisherPort auditEventPublisherPort;
+    private final PurchaseOrderAuditEventFactory purchaseOrderAuditEventFactory;
 
     /** Client Purchase Order  **/
 
@@ -83,8 +89,20 @@ public class PurchaseOrderService implements PurchaseOrderUseCase {
 
         generateInvoiceNumberUseCase.validateNextSequence(SequenceNumberType.PURCHASE_ORDER, purchaseOrderNumber);
 
+        PurchaseOrderDTO purchaseOrderDTO = purchaseOrderMapper.domainToPurchaseOrderDTO(savedPurchaseOrder);
 
-        return purchaseOrderMapper.domainToPurchaseOrderDTO(savedPurchaseOrder);
+        AuditEvent auditEvent = purchaseOrderAuditEventFactory.purchaseOrderCreated(
+                purchaseOrderDTO.getIdPurchaseOrder(),
+                String.valueOf(purchaseOrderDTO.getIdPurchaseOrder()),
+                Map.of("Purchase order number", purchaseOrderDTO.getPurchaseOrderNumber()),
+                null
+        );
+
+        auditEventPublisherPort.publish(auditEvent);
+
+        return purchaseOrderDTO;
+
+
     }
 
     @Override
@@ -111,6 +129,8 @@ public class PurchaseOrderService implements PurchaseOrderUseCase {
             throw BillingException.notFound("PurchaseOrder", String.valueOf(idPurchaseOrder));
         }
         clientPurchaseOrderPort.delete(idPurchaseOrder);
+
+
     }
 
     @Override
@@ -149,12 +169,25 @@ public class PurchaseOrderService implements PurchaseOrderUseCase {
         );*/
 
         System.out.println(purchaseOrder1);
-        return clientPurchaseOrderPort.update(purchaseOrder1);
+        PurchaseOrderDTO purchaseOrderDTO =  clientPurchaseOrderPort.update(purchaseOrder1);
+
+        AuditEvent auditEvent = purchaseOrderAuditEventFactory.purchaseOrderUpdated(
+                purchaseOrderDTO.getIdPurchaseOrder(),
+                String.valueOf(purchaseOrderDTO.getIdPurchaseOrder()),
+                Map.of("Purchase order", purchaseOrder),
+                Map.of("Purchase order", purchaseOrderDTO),
+                null
+        );
+
+        auditEventPublisherPort.publish(auditEvent);
+
+        return purchaseOrderDTO;
     }
 
     @Override
     public PurchaseOrderDTO updateClientPurchaseOrderStatus(UUID invoiceId, PurchaseOrderStatus purchaseOrderStatus) {
-        return clientPurchaseOrderPort.updateStatus(invoiceId,purchaseOrderStatus);
+        return  clientPurchaseOrderPort.updateStatus(invoiceId,purchaseOrderStatus);
+
     }
 
     @Override
@@ -223,7 +256,18 @@ public class PurchaseOrderService implements PurchaseOrderUseCase {
 
         generateInvoiceNumberUseCase.validateNextSequence(SequenceNumberType.PURCHASE_ORDER, purchaseOrderCreateDTO.getPurchaseOrderNumber());
 
-        return purchaseOrderMapper.domainToPurchaseOrderDTO(savedPurchaseOrder);
+        PurchaseOrderDTO purchaseOrderDTO = purchaseOrderMapper.domainToPurchaseOrderDTO(savedPurchaseOrder);
+
+        AuditEvent auditEvent = purchaseOrderAuditEventFactory.purchaseOrderCreated(
+                purchaseOrderDTO.getIdPurchaseOrder(),
+                String.valueOf(purchaseOrderDTO.getIdPurchaseOrder()),
+                Map.of("Purchase order number", purchaseOrderDTO.getPurchaseOrderNumber()),
+                null
+        );
+
+        auditEventPublisherPort.publish(auditEvent);
+
+        return purchaseOrderDTO;
     }
 
     @Override

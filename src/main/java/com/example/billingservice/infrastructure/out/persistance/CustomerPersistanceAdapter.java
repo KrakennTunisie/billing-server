@@ -1,5 +1,6 @@
 package com.example.billingservice.infrastructure.out.persistance;
 
+import com.example.billingservice.application.ports.out.AuditEventPublisherPort;
 import com.example.billingservice.application.ports.out.CustomerRepositoryPort;
 import com.example.billingservice.domain.enums.AuditEventTrigger;
 import com.example.billingservice.domain.enums.AuditType;
@@ -7,6 +8,7 @@ import com.example.billingservice.domain.enums.PartnerType;
 import com.example.billingservice.domain.exceptions.BillingException;
 import com.example.billingservice.domain.model.Document;
 import com.example.billingservice.domain.model.Partner;
+import com.example.billingservice.infrastructure.out.messaging.AuditEvent;
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerDetailsDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerItemDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerSummaryDTO;
@@ -18,6 +20,7 @@ import com.example.billingservice.infrastructure.out.persistance.mapper.Document
 import com.example.billingservice.infrastructure.out.persistance.mapper.PartnerMapper;
 import com.example.billingservice.infrastructure.out.persistance.repository.AuditLogRepository;
 import com.example.billingservice.infrastructure.out.persistance.repository.CustomerRepository;
+import com.example.billingservice.shared.PartnerAuditEventFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
@@ -38,6 +41,8 @@ public class CustomerPersistanceAdapter implements CustomerRepositoryPort {
     private final CustomerRepository customerRepository;
     private final AuditLogRepository auditLogRepository;
     private final DocumentMapper documentMapper;
+    private final PartnerAuditEventFactory partnerAuditEventFactory;
+    private final AuditEventPublisherPort auditEventPublisherPort;
 
     @Override
     public Partner saveCustomer(Partner partner) {
@@ -274,6 +279,16 @@ public class CustomerPersistanceAdapter implements CustomerRepositoryPort {
             }
             audit.setPartner(entity);
             audit.setEventDate(new Date());
+
+            AuditEvent auditEvent = partnerAuditEventFactory.clientStatusChanged(
+                    entity.getIdPartner(),
+                    String.valueOf(entity.getIdPartner()),
+                    statuts ?"Blocked":"Active",
+                    statuts ?"Active":"Blocked",
+                    null
+            );
+
+            auditEventPublisherPort.publish(auditEvent);
             auditLogRepository.save(audit);
 
         } catch (IllegalArgumentException ex) {

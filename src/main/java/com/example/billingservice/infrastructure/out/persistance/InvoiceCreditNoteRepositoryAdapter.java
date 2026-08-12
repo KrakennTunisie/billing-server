@@ -1,12 +1,14 @@
 package com.example.billingservice.infrastructure.out.persistance;
 
 import com.example.billingservice.application.ports.in.CreditNoteSynchronizationUseCase;
+import com.example.billingservice.application.ports.out.AuditEventPublisherPort;
 import com.example.billingservice.application.ports.out.ClientInvoicesRepositoryPort;
 import com.example.billingservice.application.ports.out.InvoiceCreditNoteRepositoryPort;
 import com.example.billingservice.domain.enums.InvoiceCreditNoteStatus;
 import com.example.billingservice.domain.exceptions.BillingException;
 import com.example.billingservice.domain.model.InvoiceCreditNote;
 import com.example.billingservice.domain.model.InvoiceCreditNoteItem;
+import com.example.billingservice.infrastructure.out.messaging.AuditEvent;
 import com.example.billingservice.infrastructure.out.persistance.dto.InvoiceCreditNoteDetailsDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.InvoiceCreditNotePageItemDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.InvoiceSummaryDTO;
@@ -17,6 +19,7 @@ import com.example.billingservice.infrastructure.out.persistance.mapper.InvoiceC
 import com.example.billingservice.infrastructure.out.persistance.repository.ClientInvoicesRepository;
 import com.example.billingservice.infrastructure.out.persistance.repository.InvoiceCreditNoteRepository;
 import com.example.billingservice.infrastructure.out.persistance.repository.SupplierInvoicesRepository;
+import com.example.billingservice.shared.CreditNoteAuditEventFactory;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
@@ -27,6 +30,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -37,6 +41,8 @@ public class InvoiceCreditNoteRepositoryAdapter implements InvoiceCreditNoteRepo
     private final InvoiceCreditNoteRepository invoiceCreditNoteRepository;
     private final InvoiceCreditNoteMapper invoiceCreditNoteMapper;
     private final CreditNoteSynchronizationUseCase creditNoteSynchronizationUseCase;
+    private final CreditNoteAuditEventFactory creditNoteAuditEventFactory;
+    private final AuditEventPublisherPort auditEventPublisherPort;
 
 
     @Override
@@ -110,6 +116,15 @@ public class InvoiceCreditNoteRepositoryAdapter implements InvoiceCreditNoteRepo
             System.out.println("executing delete");
             synchronizeInvoiceItems(invoiceCreditNote);
             invoiceCreditNoteRepository.delete(invoiceCreditNoteEntity);
+
+            AuditEvent auditEvent = creditNoteAuditEventFactory.creditNoteDeleted(
+                    invoiceCreditNote.getIdInvoiceCreditNote(),
+                    String.valueOf(invoiceCreditNote.getIdInvoiceCreditNote()),
+                    Map.of("credit note number", invoiceCreditNoteEntity.getInvoiceCreditNoteNumber()),
+                    null
+            );
+
+            auditEventPublisherPort.publish(auditEvent);
         }
         else if(invoiceCreditNote.getInvoiceCreditNoteStatus()==InvoiceCreditNoteStatus.IN_PROGRESS){
             invoiceCreditNoteEntity.setInvoiceCreditNoteStatus(InvoiceCreditNoteStatus.CANCELLED);

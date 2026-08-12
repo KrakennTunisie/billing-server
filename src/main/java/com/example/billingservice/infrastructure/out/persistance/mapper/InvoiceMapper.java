@@ -426,7 +426,7 @@ public class InvoiceMapper {
             invoice.setTotalExclTaxEUR(totals.totalExclTaxEUR());
             invoice.setTotalInclTaxEUR(totals.totalInclTaxEUR());
             invoice.setTotalExclTaxTND(totals.totalExclTaxTND());
-            invoice.setTotalInclTaxTND(totals.totalExclTaxTND());
+            invoice.setTotalInclTaxTND(totals.totalInclTaxTND());
             invoice.setTotalExclTaxUSD(totals.totalExclTaxUSD());
             invoice.setTotalInclTaxUSD(totals.totalInclTaxUSD());
 

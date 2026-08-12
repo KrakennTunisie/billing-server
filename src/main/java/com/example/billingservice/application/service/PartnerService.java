@@ -1,15 +1,18 @@
 package com.example.billingservice.application.service;
 
+import com.example.billingservice.application.ports.out.AuditEventPublisherPort;
 import com.example.billingservice.application.ports.out.CustomerRepositoryPort;
 import com.example.billingservice.application.ports.out.SupplierRepositoryPort;
 import com.example.billingservice.domain.enums.DocumentType;
 import com.example.billingservice.domain.enums.PartnerType;
 import com.example.billingservice.domain.exceptions.BillingException;
 import com.example.billingservice.domain.model.Document;
+import com.example.billingservice.infrastructure.out.messaging.AuditEvent;
 import com.example.billingservice.infrastructure.out.persistance.dto.*;
 import com.example.billingservice.application.ports.in.PartnerUseCase;
 import com.example.billingservice.domain.model.Partner;
 import com.example.billingservice.infrastructure.out.persistance.mapper.PartnerMapper;
+import com.example.billingservice.shared.PartnerAuditEventFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
@@ -28,6 +31,8 @@ public class PartnerService implements PartnerUseCase  {
     private final SupplierRepositoryPort supplierRepositoryPort;
     private final PartnerMapper partnerMapper;
     private final UploadDocumentService uploadDocumentService;
+    private final AuditEventPublisherPort auditEventPublisherPort;
+    private final PartnerAuditEventFactory partnerAuditEventFactory;
 
 
     /********* SUPPLIER ********/
@@ -67,6 +72,16 @@ public class PartnerService implements PartnerUseCase  {
                             partner.getIban());
         }*/
         Partner  partnerModel =partnerMapper.createPartnerFromDTO(partner);
+
+        AuditEvent auditEvent = partnerAuditEventFactory.supplierCreated(
+                partnerModel.getIdPartner(),
+                String.valueOf(partnerModel.getIdPartner()),
+                Map.of("partner", partnerModel.getCompanyName()),
+                null
+        );
+
+        auditEventPublisherPort.publish(auditEvent);
+
         return partnerMapper.toDetailsDTO(supplierRepositoryPort.saveSupplier(partnerModel));
     }
 
@@ -78,7 +93,19 @@ public class PartnerService implements PartnerUseCase  {
 
         Document document1 = uploadDocument(partner.getTaxRegistrationNumber(), document, documentType);
 
-        return supplierRepositoryPort.addDocumentToClient(idSupplier, document1);
+        PartnerDetailsDTO partnerDetailsDTO =  supplierRepositoryPort.addDocumentToClient(idSupplier, document1);
+
+        AuditEvent auditEvent = partnerAuditEventFactory.supplierDocumentAdded(
+                partnerDetailsDTO.getIdPartner(),
+                String.valueOf(partnerDetailsDTO.getIdPartner()),
+                String.valueOf(document1.getIdDocument()),
+                Map.of("add partner document", document1.getDocumentType().name()),
+                null
+        );
+
+        auditEventPublisherPort.publish(auditEvent);
+
+        return partnerDetailsDTO;
 
     }
 
@@ -230,7 +257,20 @@ public class PartnerService implements PartnerUseCase  {
 
         PartnerMapper.updatePartnerFromDTO(partnerDTO,updatedPartner);
 
-        return supplierRepositoryPort.updateSupplier(id,partnerDTO);
+        Partner partner =  supplierRepositoryPort.updateSupplier(id,partnerDTO);
+
+
+        AuditEvent auditEvent = partnerAuditEventFactory.supplierUpdated(
+                partner.getIdPartner(),
+                String.valueOf(partner.getIdPartner()),
+                Map.of("partner", updatedPartner ),
+                Map.of("partner", partner),
+                null
+        );
+
+        auditEventPublisherPort.publish(auditEvent);
+
+        return partner;
     }
 
     /************ CUSTOMER **********/
@@ -272,7 +312,19 @@ public class PartnerService implements PartnerUseCase  {
         }*/
         Partner  partnerModel = partnerMapper.createPartnerFromDTO(partner);
         Partner savedPartner = customerRepositoryPort.saveCustomer(partnerModel);
+
+        AuditEvent auditEvent = partnerAuditEventFactory.clientCreated(
+                partnerModel.getIdPartner(),
+                String.valueOf(partnerModel.getIdPartner()),
+                Map.of("partner", partnerModel.getCompanyName()),
+                null
+        );
+
+        auditEventPublisherPort.publish(auditEvent);
+
         return partnerMapper.toDetailsDTO(savedPartner);
+
+
     }
 
     @Override
@@ -282,7 +334,19 @@ public class PartnerService implements PartnerUseCase  {
 
         Document document1 = uploadDocument(partner.getCompanyName(), document, documentType);
 
-        return customerRepositoryPort.addDocumentToClient(idClient, document1);
+        PartnerDetailsDTO partnerDetailsDTO = customerRepositoryPort.addDocumentToClient(idClient, document1);
+
+        AuditEvent auditEvent = partnerAuditEventFactory.clientDocumentAdded(
+                partnerDetailsDTO.getIdPartner(),
+                String.valueOf(partnerDetailsDTO.getIdPartner()),
+                String.valueOf(document1.getIdDocument()),
+                Map.of("add partner document", document1.getDocumentType().name()),
+                null
+        );
+
+        auditEventPublisherPort.publish(auditEvent);
+
+        return partnerDetailsDTO;
     }
 
 
@@ -400,8 +464,20 @@ public class PartnerService implements PartnerUseCase  {
                     "Matricule fiscal",
                     partner.getTaxRegistrationNumber());
         }
-        return  customerRepositoryPort.updateCustomer(id,partner);
+        Partner partner1 =   customerRepositoryPort.updateCustomer(id,partner);
 
+
+        AuditEvent auditEvent = partnerAuditEventFactory.supplierUpdated(
+                partner1.getIdPartner(),
+                String.valueOf(partner1.getIdPartner()),
+                Map.of("partner", partner ),
+                Map.of("partner", partner1),
+                null
+        );
+
+        auditEventPublisherPort.publish(auditEvent);
+
+        return partner1;
     }
 
     @Override

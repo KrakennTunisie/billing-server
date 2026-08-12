@@ -1,16 +1,19 @@
 package com.example.billingservice.infrastructure.out.persistance;
 
+import com.example.billingservice.application.ports.out.AuditEventPublisherPort;
 import com.example.billingservice.application.ports.out.PaymentRepositoryPort;
 import com.example.billingservice.domain.enums.PaymentMethod;
 import com.example.billingservice.domain.enums.PaymentStatus;
 import com.example.billingservice.domain.exceptions.BillingException;
 import com.example.billingservice.domain.model.Payment;
+import com.example.billingservice.infrastructure.out.messaging.AuditEvent;
 import com.example.billingservice.infrastructure.out.persistance.dto.CreatePaymentDto;
 import com.example.billingservice.infrastructure.out.persistance.dto.PaymentPageListItemDto;
 import com.example.billingservice.infrastructure.out.persistance.dto.UpdatePaymentDTO;
 import com.example.billingservice.infrastructure.out.persistance.entity.PaymentEntity;
 import com.example.billingservice.infrastructure.out.persistance.mapper.PaymentMapper;
 import com.example.billingservice.infrastructure.out.persistance.repository.PaymentRepository;
+import com.example.billingservice.shared.PaymentAuditEventFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
@@ -20,6 +23,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -30,6 +34,8 @@ public class PaymentRepositoryAdapter implements PaymentRepositoryPort {
 
     private final PaymentRepository paymentRepository;
     private final PaymentMapper paymentMapper;
+    private final PaymentAuditEventFactory paymentAuditEventFactory;
+    private final AuditEventPublisherPort auditEventPublisherPort;
 
     @Override
     public Payment getPaymentById(UUID idPayment) {
@@ -112,7 +118,19 @@ public class PaymentRepositoryAdapter implements PaymentRepositoryPort {
     public void updatePaymentStatus(UUID idPayment, PaymentStatus paymentStatus) {
         PaymentEntity payment = paymentRepository.getReferenceById(idPayment);
         payment.setPaymentStatus(paymentStatus);
-        PaymentEntity updatedEntity = paymentRepository.save(payment);
+
+        paymentRepository.save(payment);
+
+        AuditEvent auditEvent = paymentAuditEventFactory .paymentStatusChanged(
+                idPayment,
+                String.valueOf(idPayment),
+                payment.getPaymentStatus().name(),
+                paymentStatus.name(),
+                null
+        );
+
+        auditEventPublisherPort.publish(auditEvent);
+
 
     }
 
