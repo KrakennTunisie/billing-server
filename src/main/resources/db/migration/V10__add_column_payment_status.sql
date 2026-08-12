@@ -1,2 +1,2 @@
 ALTER TABLE payment_entity
-    ADD payment_status VARCHAR(255);
+    ADD COLUMN IF NOT EXISTS payment_status VARCHAR(255);
