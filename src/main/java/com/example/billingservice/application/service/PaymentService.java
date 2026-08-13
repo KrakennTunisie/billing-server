@@ -4,6 +4,8 @@ import com.example.billingservice.application.ports.in.GenerateInvoiceNumberUseC
 import com.example.billingservice.application.ports.in.InvoicePaymentSnchronizeUseCase;
 import com.example.billingservice.application.ports.in.InvoiceUseCase;
 import com.example.billingservice.application.ports.in.PaymentUseCase;
+import com.example.billingservice.application.ports.out.AuditEventPublisherPort;
+import com.example.billingservice.application.ports.out.NotificationPublisherPort;
 import com.example.billingservice.application.ports.out.PaymentRepositoryPort;
 import com.example.billingservice.domain.enums.DocumentType;
 import com.example.billingservice.domain.enums.PaymentMethod;
@@ -12,15 +14,20 @@ import com.example.billingservice.domain.enums.SequenceNumberType;
 import com.example.billingservice.domain.exceptions.BillingException;
 import com.example.billingservice.domain.model.Document;
 import com.example.billingservice.domain.model.Payment;
+import com.example.billingservice.infrastructure.out.messaging.AuditEvent;
+import com.example.billingservice.infrastructure.out.messaging.NotificationEvent;
 import com.example.billingservice.infrastructure.out.persistance.dto.*;
 import com.example.billingservice.infrastructure.out.persistance.mapper.PaymentMapper;
+import com.example.billingservice.shared.NotificationEventFactory;
 import com.example.billingservice.shared.ParseEnum;
+import com.example.billingservice.shared.PaymentAuditEventFactory;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.Map;
 import java.util.UUID;
 
 @Component
@@ -33,6 +40,10 @@ public class PaymentService implements PaymentUseCase {
     private final UploadDocumentService uploadDocumentService;
     private final InvoiceUseCase invoiceUseCase;
     private final PaymentMapper paymentMapper;
+    private final NotificationPublisherPort notificationPublisherPort;
+    private final NotificationEventFactory notificationEventFactory;
+    private final AuditEventPublisherPort auditEventPublisherPort;
+    private final PaymentAuditEventFactory paymentAuditEventFactory;
 
     @Override
     public PaymentDTO getPaymentById(UUID idPayment) {
@@ -98,7 +109,27 @@ public class PaymentService implements PaymentUseCase {
 
         generateInvoiceNumberUseCase.validateNextSequence(SequenceNumberType.PAYMENT, paymentNumber);
 
-        return paymentMapper.modelToPaymentDTO(createdPayment);
+        PaymentDTO paymentDTO = paymentMapper.modelToPaymentDTO(createdPayment);
+
+        NotificationEvent notificationEvent = notificationEventFactory.createPaymentCreated(
+                paymentDTO.getIdPayment(),
+                paymentDTO.getInvoice().getIdInvoice(),
+                paymentDTO.getInvoice().getInvoiceNumber(),
+                paymentDTO.getAmount(),
+                paymentDTO.getCurrency()
+        );
+        notificationPublisherPort.publish(notificationEvent);
+
+        AuditEvent auditEvent = paymentAuditEventFactory.paymentCreated(
+                paymentDTO.getIdPayment(),
+                String.valueOf(paymentDTO.getIdPayment()),
+                Map.of("Payment number", paymentNumber),
+                null
+        );
+
+        auditEventPublisherPort.publish(auditEvent);
+
+        return paymentDTO;
     }
 
     @Override
@@ -138,12 +169,26 @@ public class PaymentService implements PaymentUseCase {
 
         Payment updatedPayment = paymentRepositoryPort.updatePayment(payment);
 
-        return paymentMapper.modelToPaymentDTO(updatedPayment);
+        PaymentDTO paymentDTO =  paymentMapper.modelToPaymentDTO(updatedPayment);
+
+        AuditEvent auditEvent = paymentAuditEventFactory.paymentUpdated(
+                paymentDTO.getIdPayment(),
+                String.valueOf(paymentDTO.getIdPayment()),
+                Map.of("amount", oldPayment.getAmount()),
+                Map.of("new amount", paymentDTO.getAmount()),
+                null
+        );
+
+        auditEventPublisherPort.publish(auditEvent);
+
+        return paymentDTO;
     }
 
     @Override
     public void updatePaymentStatus(UUID idPayment, PaymentStatus paymentStatus) {
         paymentRepositoryPort.updatePaymentStatus(idPayment, paymentStatus);
+
+
     }
 
     @Override
@@ -161,6 +206,15 @@ public class PaymentService implements PaymentUseCase {
         );
 
         paymentRepositoryPort.deletePayment(idPayment);
+
+        AuditEvent auditEvent = paymentAuditEventFactory.paymentDeleted(
+                idPayment,
+                String.valueOf(idPayment),
+                Map.of("payment", paymentDTO),
+                null
+        );
+
+        auditEventPublisherPort.publish(auditEvent);
 
     }
 

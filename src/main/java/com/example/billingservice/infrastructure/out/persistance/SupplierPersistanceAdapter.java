@@ -1,6 +1,7 @@
 package com.example.billingservice.infrastructure.out.persistance;
 
 
+import com.example.billingservice.application.ports.out.AuditEventPublisherPort;
 import com.example.billingservice.application.ports.out.SupplierRepositoryPort;
 import com.example.billingservice.domain.enums.AuditEventTrigger;
 import com.example.billingservice.domain.enums.AuditType;
@@ -9,6 +10,7 @@ import com.example.billingservice.domain.exceptions.BillingException;
 import com.example.billingservice.domain.model.Document;
 import com.example.billingservice.domain.model.Partner;
 
+import com.example.billingservice.infrastructure.out.messaging.AuditEvent;
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerDetailsDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerItemDTO;
 import com.example.billingservice.infrastructure.out.persistance.dto.PartnerSummaryDTO;
@@ -21,6 +23,7 @@ import com.example.billingservice.infrastructure.out.persistance.mapper.Document
 import com.example.billingservice.infrastructure.out.persistance.mapper.PartnerMapper;
 import com.example.billingservice.infrastructure.out.persistance.repository.AuditLogRepository;
 import com.example.billingservice.infrastructure.out.persistance.repository.SupplierRepository;
+import com.example.billingservice.shared.PartnerAuditEventFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -32,10 +35,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.function.SupplierUtils;
 
 import java.io.IOException;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -46,6 +46,8 @@ public class SupplierPersistanceAdapter implements SupplierRepositoryPort {
     private final PartnerMapper partnerMapper;
     private final AuditLogRepository auditLogRepository;
     private final DocumentMapper documentMapper;
+    private final PartnerAuditEventFactory partnerAuditEventFactory;
+    private final AuditEventPublisherPort auditEventPublisherPort;
 
     @Override
     public Partner saveSupplier(Partner partner) throws DataIntegrityViolationException{
@@ -267,6 +269,7 @@ public class SupplierPersistanceAdapter implements SupplierRepositoryPort {
             if (!supplierRepository.existsById(uuid)) {
                 throw BillingException.notFound("Supplier", id);
             }
+
             Optional<SupplierEntity> partnerToDelete = supplierRepository.findById(UUID.fromString(id));
             AuditLogEntity audit = new AuditLogEntity();
             audit.setAuditEventType(AuditType.DELETED);
@@ -277,6 +280,16 @@ public class SupplierPersistanceAdapter implements SupplierRepositoryPort {
             audit.setDescription("Suppression d'un partenaire");
             audit.setEventDate(new Date());
             auditLogRepository.save(audit);
+
+            AuditEvent auditEvent = partnerAuditEventFactory.supplierDeleted(
+                    partnerToDelete.get().getIdPartner(),
+                    String.valueOf(partnerToDelete.get().getIdPartner()),
+                    Map.of("add partner document", partnerToDelete.get().getCompanyName()),
+                    null
+            );
+
+            auditEventPublisherPort.publish(auditEvent);
+
             supplierRepository.deleteById(uuid);
 
         } catch (IllegalArgumentException ex) {
@@ -308,6 +321,16 @@ public class SupplierPersistanceAdapter implements SupplierRepositoryPort {
             }
             audit.setPartner(entity);
             audit.setEventDate(new Date());
+
+            AuditEvent auditEvent = partnerAuditEventFactory.supplierStatusChanged(
+                    entity.getIdPartner(),
+                    String.valueOf(entity.getIdPartner()),
+                    status ?"Blocked":"Active",
+                    status ?"Active":"Blocked",
+                    null
+            );
+
+            auditEventPublisherPort.publish(auditEvent);
             auditLogRepository.save(audit);
 
         } catch (IllegalArgumentException ex) {

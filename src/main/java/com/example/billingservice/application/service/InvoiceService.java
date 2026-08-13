@@ -2,13 +2,19 @@ package com.example.billingservice.application.service;
 
 import com.example.billingservice.application.Utils.InvoiceStatusPassagePolicy;
 import com.example.billingservice.application.ports.in.*;
+import com.example.billingservice.application.ports.out.AuditEventPublisherPort;
 import com.example.billingservice.application.ports.out.ClientInvoicesRepositoryPort;
+import com.example.billingservice.application.ports.out.NotificationPublisherPort;
 import com.example.billingservice.application.ports.out.SupplierInvoicesRepositoryPort;
 import com.example.billingservice.domain.enums.*;
 import com.example.billingservice.domain.exceptions.BillingException;
 import com.example.billingservice.domain.model.*;
+import com.example.billingservice.infrastructure.out.messaging.AuditEvent;
+import com.example.billingservice.infrastructure.out.messaging.NotificationEvent;
 import com.example.billingservice.infrastructure.out.persistance.dto.*;
 import com.example.billingservice.infrastructure.out.persistance.mapper.InvoiceMapper;
+import com.example.billingservice.shared.InvoiceAuditEventFactory;
+import com.example.billingservice.shared.NotificationEventFactory;
 import com.example.billingservice.shared.ParseEnum;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -16,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.*;
 
 
@@ -32,6 +39,14 @@ public class InvoiceService implements InvoiceUseCase, InvoiceStatsUseCase {
     private final InvoiceCreditNoteUseCase invoiceCreditNoteUseCase;
     private final PurchaseOrderSynchronizationService synchronizationService;
 
+    private final NotificationPublisherPort notificationPublisherPort;
+
+    private final NotificationEventFactory notificationEventFactory;
+
+    private final AuditEventPublisherPort auditEventPublisherPort;
+
+    private final InvoiceAuditEventFactory invoiceAuditEventFactory;
+
     @Override
     public InvoiceDTO createInvoice(InvoiceCreateDTO createDTO) throws IOException, BillingException {
         if (!createDTO.getInvoiceType().equals(InvoiceType.PURCHASE.name())) {
@@ -40,11 +55,20 @@ public class InvoiceService implements InvoiceUseCase, InvoiceStatsUseCase {
         if (!partnerUseCase.supplierExistsByIdPartner(UUID.fromString(createDTO.getPartner()))) {
             throw BillingException.notFound("Fournisseur", createDTO.getPartner());
         }
-        return createBaseInvoice(createDTO);
+        InvoiceDTO invoiceDTO =  createBaseInvoice(createDTO);
+
+        AuditEvent auditEvent = invoiceAuditEventFactory.invoiceCreated(invoiceDTO.getIdInvoice(), String.valueOf(invoiceDTO.getIdInvoice()),
+                Map.of("invoice", invoiceDTO.getInvoiceNumber()),
+                null
+        );
+        auditEventPublisherPort.publish(auditEvent);
+
+        return invoiceDTO;
     }
 
     @Override
     public InvoiceDTO createClientInvoice(InvoiceCreateDTO createDTO) throws IOException {
+
         if (!createDTO.getInvoiceType().equals(InvoiceType.SALE.name())) {
             throw BillingException.badRequest("il faut avoir un facture de vente.");
         }
@@ -53,7 +77,15 @@ public class InvoiceService implements InvoiceUseCase, InvoiceStatsUseCase {
             throw BillingException.notFound("Client", createDTO.getPartner());
         }
 
-        return createBaseInvoice(createDTO);
+        InvoiceDTO invoiceDTO =  createBaseInvoice(createDTO);
+
+        AuditEvent auditEvent = invoiceAuditEventFactory.invoiceCreated(invoiceDTO.getIdInvoice(), String.valueOf(invoiceDTO.getIdInvoice()),
+                Map.of("invoice", invoiceDTO.getInvoiceNumber()),
+                null
+        );
+        auditEventPublisherPort.publish(auditEvent);
+
+        return invoiceDTO;
 
     }
 
@@ -70,7 +102,17 @@ public class InvoiceService implements InvoiceUseCase, InvoiceStatsUseCase {
         InvoiceDTO invoiceDTO = getInvoiceById(invoiceUpdateDTO.getIdInvoice());
         Invoice invoice =  this.updateBaseInvoice(invoiceUpdateDTO, invoiceDTO);
 
-        return supplierInvoicesRepositoryPort.update(invoice);
+
+        InvoiceDTO updatedInvoice =  supplierInvoicesRepositoryPort.update(invoice);
+
+        AuditEvent auditEvent = invoiceAuditEventFactory.invoiceUpdated(invoiceDTO.getIdInvoice(), String.valueOf(invoiceDTO.getIdInvoice()),
+                Map.of("before", invoiceDTO.getTotalExclTaxTND()+" TND"),
+                Map.of("after", invoiceDTO.getTotalExclTaxTND()+" TND"),
+                null
+        );
+        auditEventPublisherPort.publish(auditEvent);
+
+        return updatedInvoice;
     }
 
     @Override
@@ -85,10 +127,18 @@ public class InvoiceService implements InvoiceUseCase, InvoiceStatsUseCase {
         }
 
         InvoiceDTO invoiceDTO = getClientInvoiceById(invoiceUpdateDTO.getIdInvoice());
-        System.out.println("Update base invoice....");
         Invoice invoice =  this.updateBaseInvoice(invoiceUpdateDTO, invoiceDTO);
-        System.out.println("post Update base invoice....");
-        return clientInvoicesRepositoryPort.update(invoice);
+
+        InvoiceDTO updatedInvoice =  clientInvoicesRepositoryPort.update(invoice);
+
+        AuditEvent auditEvent = invoiceAuditEventFactory.invoiceUpdated(invoiceDTO.getIdInvoice(), String.valueOf(invoiceDTO.getIdInvoice()),
+                Map.of("before", invoiceDTO.getTotalExclTaxTND()+" TND"),
+                Map.of("after", invoiceDTO.getTotalExclTaxTND()+" TND"),
+                null
+        );
+        auditEventPublisherPort.publish(auditEvent);
+
+        return updatedInvoice;
     }
 
     @Override
@@ -101,7 +151,24 @@ public class InvoiceService implements InvoiceUseCase, InvoiceStatsUseCase {
         InvoiceDTO invoiceDTO = supplierInvoicesRepositoryPort.getById(invoiceId);
 
         InvoiceStatusPassagePolicy.checkTransition(invoiceDTO.getInvoiceStatus(), invoiceStatus);
-        return supplierInvoicesRepositoryPort.updateStatus(invoiceId, invoiceStatus);
+
+        NotificationEvent notificationEvent = notificationEventFactory
+                .createInvoiceStatusUpdated(invoiceDTO.getIdInvoice(),
+                        invoiceDTO.getInvoiceNumber(),
+                        invoiceStatus);
+        notificationPublisherPort.publish(notificationEvent);
+
+
+        InvoiceDTO updatedInvoiceStatus =  supplierInvoicesRepositoryPort.updateStatus(invoiceId, invoiceStatus);
+
+        AuditEvent auditEvent = invoiceAuditEventFactory.invoiceStatusChanged(invoiceDTO.getIdInvoice(), String.valueOf(invoiceDTO.getIdInvoice()),
+                invoiceDTO.getInvoiceStatus().name(),
+                invoiceStatus.name(),
+                null
+        );
+        auditEventPublisherPort.publish(auditEvent);
+
+        return updatedInvoiceStatus;
     }
 
     @Override
@@ -118,12 +185,37 @@ public class InvoiceService implements InvoiceUseCase, InvoiceStatsUseCase {
         InvoiceDTO invoiceDTO = clientInvoicesRepositoryPort.getById(invoiceId);
 
         InvoiceStatusPassagePolicy.checkTransition(invoiceDTO.getInvoiceStatus(), invoiceStatus);
-        return clientInvoicesRepositoryPort.updateStatus(invoiceId, invoiceStatus);
+
+        NotificationEvent notificationEvent = notificationEventFactory
+                .createInvoiceStatusUpdated(invoiceDTO.getIdInvoice(),
+                        invoiceDTO.getInvoiceNumber(),
+                        invoiceStatus);
+        notificationPublisherPort.publish(notificationEvent);
+
+        InvoiceDTO updatedInvoiceStatus =  clientInvoicesRepositoryPort.updateStatus(invoiceId, invoiceStatus);
+
+        AuditEvent auditEvent = invoiceAuditEventFactory.invoiceStatusChanged(invoiceDTO.getIdInvoice(), String.valueOf(invoiceDTO.getIdInvoice()),
+                invoiceDTO.getInvoiceStatus().name(),
+                invoiceStatus.name(),
+                null
+        );
+        auditEventPublisherPort.publish(auditEvent);
+
+        return updatedInvoiceStatus;
     }
 
     @Override
     public InvoiceDTO updateClientInvoiceRemainingAmount(UUID invoiceId, double paidAmount) {
-        return clientInvoicesRepositoryPort.updateRemainingAmount(invoiceId, paidAmount);
+        InvoiceDTO updatedInvoice =  clientInvoicesRepositoryPort.updateRemainingAmount(invoiceId, paidAmount);
+
+        AuditEvent auditEvent = invoiceAuditEventFactory.invoiceUpdated(updatedInvoice.getIdInvoice(), String.valueOf(updatedInvoice.getIdInvoice()),
+                Map.of("before", updatedInvoice.getRemainingAmount()+" "+updatedInvoice.getInvoiceCurrency().name() ),
+                Map.of("after", paidAmount+" "+updatedInvoice.getInvoiceCurrency().name() ),
+                null
+        );
+        auditEventPublisherPort.publish(auditEvent);
+
+        return updatedInvoice;
     }
 
     @Override
@@ -195,12 +287,26 @@ public class InvoiceService implements InvoiceUseCase, InvoiceStatsUseCase {
         if(!supplierInvoicesRepositoryPort.existsByInvoiceId(invoiceId)){
             throw BillingException.notFound("Facture Fournisseur", String.valueOf(invoiceId));
         }
+        InvoiceDTO invoiceDTO = supplierInvoicesRepositoryPort.getById(invoiceId);
         if
-        (supplierInvoicesRepositoryPort.getById(invoiceId).getInvoiceStatus()!=InvoiceStatus.DRAFT){
+        (invoiceDTO.getInvoiceStatus()!=InvoiceStatus.DRAFT){
             supplierInvoicesRepositoryPort.updateStatus(invoiceId, InvoiceStatus.ARCHIVED);
+
+            AuditEvent auditEvent = invoiceAuditEventFactory.invoiceStatusChanged(invoiceDTO.getIdInvoice(), String.valueOf(invoiceDTO.getIdInvoice()),
+                    invoiceDTO.getInvoiceStatus().name(),
+                    InvoiceStatus.ARCHIVED.name(),
+                    null
+            );
+            auditEventPublisherPort.publish(auditEvent);
+
             return;
         }
-            supplierInvoicesRepositoryPort.delete(invoiceId);
+        supplierInvoicesRepositoryPort.delete(invoiceId);
+        AuditEvent auditEvent = invoiceAuditEventFactory.invoiceDeleted(invoiceDTO.getIdInvoice(), String.valueOf(invoiceDTO.getIdInvoice()),
+                Map.of("invoice Number", invoiceDTO.getInvoiceNumber()),
+                null
+        );
+        auditEventPublisherPort.publish(auditEvent);
 
     }
 
@@ -213,17 +319,27 @@ public class InvoiceService implements InvoiceUseCase, InvoiceStatsUseCase {
 
         if (invoice.getInvoiceStatus() != InvoiceStatus.DRAFT) {
             clientInvoicesRepositoryPort.updateStatus(invoiceId, InvoiceStatus.ARCHIVED);
+
+            AuditEvent auditEvent = invoiceAuditEventFactory.invoiceStatusChanged(invoice.getIdInvoice(), String.valueOf(invoice.getIdInvoice()),
+                    invoice.getInvoiceStatus().name(),
+                    InvoiceStatus.ARCHIVED.name(),
+                    null
+            );
+            auditEventPublisherPort.publish(auditEvent);
             return;
         }
 
-        if (invoice.getPurchaseOrder() != null && invoice.getInvoiceStatus() == InvoiceStatus.DRAFT) {
+        if (invoice.getPurchaseOrder() != null) {
             synchronizationService.deleteInvoiceRelatedToPurchaseOrder(invoice);
-            clientInvoicesRepositoryPort.delete(invoiceId);
-
         }
 
+        clientInvoicesRepositoryPort.delete(invoiceId);
 
-
+        AuditEvent auditEvent = invoiceAuditEventFactory.invoiceDeleted(invoice.getIdInvoice(), String.valueOf(invoice.getIdInvoice()),
+                Map.of("invoice Number", invoice.getReference()),
+                null
+        );
+        auditEventPublisherPort.publish(auditEvent);
     }
 
     @Override
@@ -350,6 +466,12 @@ public class InvoiceService implements InvoiceUseCase, InvoiceStatsUseCase {
 
         generateInvoiceNumberUseCase.validateNextSequence(SequenceNumberType.INVOICE, invoiceNumber);
 
+        NotificationEvent notificationEvent = notificationEventFactory
+                .createInvoiceCreated(savedInvoice.getIdInvoice(),
+                        invoiceNumber,
+                        BigDecimal.valueOf(savedInvoice.getRemainingAmount()),
+                        savedInvoice.getInvoiceCurrency().name());
+        notificationPublisherPort.publish(notificationEvent);
 
         return savedInvoice;
     }

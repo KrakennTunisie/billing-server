@@ -6,24 +6,24 @@ import com.example.billingservice.application.ports.in.GenerateInvoiceNumberUseC
 import com.example.billingservice.application.ports.in.InvoiceCreditNoteUseCase;
 import com.example.billingservice.application.ports.in.InvoiceUseCase;
 import com.example.billingservice.application.ports.in.PartnerUseCase;
+import com.example.billingservice.application.ports.out.AuditEventPublisherPort;
 import com.example.billingservice.application.ports.out.ClientInvoicesRepositoryPort;
 import com.example.billingservice.application.ports.out.InvoiceCreditNoteRepositoryPort;
 import com.example.billingservice.application.ports.out.SupplierInvoicesRepositoryPort;
 import com.example.billingservice.domain.enums.*;
 import com.example.billingservice.domain.exceptions.BillingException;
 import com.example.billingservice.domain.model.*;
+import com.example.billingservice.infrastructure.out.messaging.AuditEvent;
 import com.example.billingservice.infrastructure.out.persistance.dto.*;
 import com.example.billingservice.infrastructure.out.persistance.mapper.InvoiceCreditNoteMapper;
+import com.example.billingservice.shared.CreditNoteAuditEventFactory;
 import com.example.billingservice.shared.ParseEnum;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @AllArgsConstructor
@@ -34,7 +34,9 @@ public class InvoiceCreditNoteService implements InvoiceCreditNoteUseCase {
     private final ClientInvoicesRepositoryPort clientInvoicesRepositoryPort;
     private final UploadDocumentService uploadDocumentService;
     private final InvoiceCreditNoteMapper invoiceCreditNoteMapper;
-    private  final GenerateInvoiceNumberUseCase generateInvoiceNumberUseCase;
+    private final GenerateInvoiceNumberUseCase generateInvoiceNumberUseCase;
+    private final AuditEventPublisherPort auditEventPublisherPort;
+    private final CreditNoteAuditEventFactory creditNoteAuditEventFactory;
     private final PartnerUseCase partnerUseCase;
 
 
@@ -140,7 +142,18 @@ public class InvoiceCreditNoteService implements InvoiceCreditNoteUseCase {
         generateInvoiceNumberUseCase.validateNextSequence(SequenceNumberType.CREDIT_NOTE, invoiceNumber);
 
 
-        return invoiceCreditNoteMapper.toDTO(savedInvoiceCreditNote);
+        InvoiceCreditNoteDTO invoiceCreditNoteDTO=  invoiceCreditNoteMapper.toDTO(savedInvoiceCreditNote);
+
+        AuditEvent auditEvent = creditNoteAuditEventFactory.creditNoteCreated(
+                invoiceCreditNoteDTO.getIdInvoiceCreditNote(),
+                String.valueOf(invoiceCreditNoteDTO.getIdInvoiceCreditNote()),
+                Map.of("credit-note-number", invoiceCreditNoteDTO.getInvoiceCreditNoteNumber()),
+                null
+        );
+
+        auditEventPublisherPort.publish(auditEvent);
+
+        return invoiceCreditNoteDTO;
     }
 
     @Override
@@ -180,7 +193,19 @@ public class InvoiceCreditNoteService implements InvoiceCreditNoteUseCase {
 
 
 
-        return invoiceCreditNoteMapper.toDetailsDTO(updatedInvoiceCreditNote);
+        InvoiceCreditNoteDetailsDTO invoiceCreditNoteDetailsDTO =  invoiceCreditNoteMapper.toDetailsDTO(updatedInvoiceCreditNote);
+
+        AuditEvent auditEvent = creditNoteAuditEventFactory.creditNoteStatusChanged(
+                invoiceCreditNoteDetailsDTO.getIdInvoiceCreditNote(),
+                String.valueOf(invoiceCreditNoteDetailsDTO.getIdInvoiceCreditNote()),
+                invoiceCreditNote.getInvoiceCreditNoteStatus().name(),
+                invoiceCreditNoteStatus.name(),
+                null
+        );
+
+        auditEventPublisherPort.publish(auditEvent);
+
+        return invoiceCreditNoteDetailsDTO;
     }
 
     @Override
@@ -198,10 +223,21 @@ public class InvoiceCreditNoteService implements InvoiceCreditNoteUseCase {
                     invoiceCreditNote.getInvoiceCreditNoteNumber(),
                     InvoiceCreditNoteStatus.ARCHIVED
             );
+
+            AuditEvent auditEvent = creditNoteAuditEventFactory.creditNoteStatusChanged(
+                    invoiceCreditNote.getIdInvoiceCreditNote(),
+                    String.valueOf(invoiceCreditNote.getIdInvoiceCreditNote()),
+                    invoiceCreditNote.getInvoiceCreditNoteStatus().name(),
+                    InvoiceCreditNoteStatus.ARCHIVED.name(),
+                    null
+            );
+
+            auditEventPublisherPort.publish(auditEvent);
             return;
         }
 
         invoiceCreditNoteRepositoryPort.delete(invoiceCreditNoteId);
+
 
 
     }
