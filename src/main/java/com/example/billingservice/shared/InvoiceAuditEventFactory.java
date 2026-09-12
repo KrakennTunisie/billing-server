@@ -2,6 +2,7 @@ package com.example.billingservice.shared;
 
 import com.example.billingservice.infrastructure.out.messaging.AuditEvent;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -11,11 +12,12 @@ import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class InvoiceAuditEventFactory {
 
     private static final String SOURCE_SERVICE = "billing-service";
 
-    // private final AuditActorProvider auditActorProvider;
+     private final AuditAuthProvider auditActorProvider;
 
     public AuditEvent invoiceCreated(
             UUID correlationId,
@@ -149,17 +151,17 @@ public class InvoiceAuditEventFactory {
             Long enversRevision
     ) {
 
-        // AuditActor auditActor = auditActorProvider.getCurrentActor();
-
+        AuditActor auditActor = auditActorProvider.getCurrentActor();
+        log.info("current user: {}", auditActor);
         return new AuditEvent(
                 UUID.randomUUID(),
                 correlationId,
                 Instant.now(),
                 SOURCE_SERVICE,
-                /* auditActor.userId() */ "714165ba-4115-45f2-a5d4-6240d521c6f3",
-                /* auditActor.firstName() */ "Wassef",
-                /* auditActor.lastName() */ "Ammar",
-                /* auditActor.roles() */ List.of("Admin"),
+                auditActor.userId(),
+                auditActor.firstName(),
+                auditActor.lastName(),
+                auditActor.roles(),
                 action,
                 resourceType,
                 resourceId,
@@ -167,7 +169,7 @@ public class InvoiceAuditEventFactory {
                 after,
                 success ? "SUCCESS" : "FAILURE",
                 failureReason,
-                /*ipAddress*/ "xxx",
+                "",
                 enversRevision
         );
     }
