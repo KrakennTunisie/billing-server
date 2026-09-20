@@ -1,55 +1,35 @@
-/*package com.example.billingservice.infrastructure.in.web;
+package com.example.billingservice.infrastructure.in.web;
 
 import com.example.billingservice.application.ports.in.InvoiceStatsUseCase;
 import com.example.billingservice.application.ports.in.InvoiceUseCase;
 import com.example.billingservice.application.service.GenerateInvoiceNumberService;
 import com.example.billingservice.domain.enums.*;
 import com.example.billingservice.infrastructure.out.persistance.dto.*;
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.ws.rs.core.MediaType;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.http.HttpMethod;
 import org.springframework.mock.web.MockMultipartFile;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-// ✅ Les méthodes HTTP (get, post, delete, patch, multipart)
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
-
-// ✅ Les assertions (status, jsonPath)
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import org.mockito.ArgumentCaptor;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static reactor.retry.Repeat.times;
-
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Tests du InvoiceController")
@@ -100,7 +80,7 @@ class InvoiceControllerTest {
         when(invoiceUseCase.getClientInvoiceById(INVOICE_ID)).thenReturn(dto);
 
         // ACT & ASSERT
-        mockMvc.perform(get("/api/invoices/client-invoices/{id}", INVOICE_ID))
+        mockMvc.perform(get("/invoices/client-invoices/{id}", INVOICE_ID))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.invoiceNumber").value("FAC-2024-001"))
                 .andExpect(jsonPath("$.invoiceStatus").value("DRAFT"));
@@ -153,7 +133,7 @@ class InvoiceControllerTest {
                 .thenReturn(responseDTO);
 
         // ACT & ASSERT
-        mockMvc.perform(multipart("/api/invoices/client-invoices")
+        mockMvc.perform(multipart("/invoices/client-invoices")
                         // Champ fichier
                         .file(invoiceDocument)
                         // Dates obligatoires
@@ -191,7 +171,7 @@ class InvoiceControllerTest {
         doNothing().when(invoiceUseCase).deleteClientInvoice(INVOICE_ID);
 
         // ACT & ASSERT
-        mockMvc.perform(delete("/api/invoices/client-invoices/{id}", INVOICE_ID))
+        mockMvc.perform(delete("/invoices/client-invoices/{id}", INVOICE_ID))
                 .andExpect(status().isNoContent());
 
         // Vérification que le use case a bien été appelé avec le bon ID
@@ -201,7 +181,7 @@ class InvoiceControllerTest {
     @Test
     @DisplayName("Doit retourner 400 si l'ID n'est pas un UUID valide")
     void shouldReturn400WhenIdIsNotValidUUID() throws Exception {
-        mockMvc.perform(delete("/api/invoices/client-invoices/{id}", "invalid-uuid"))
+        mockMvc.perform(delete("/invoices/client-invoices/{id}", "invalid-uuid"))
                 .andExpect(status().isBadRequest());
     }
 
@@ -220,7 +200,7 @@ class InvoiceControllerTest {
                 .thenReturn(updatedInvoice);
 
         // ACT & ASSERT
-        mockMvc.perform(patch("/api/invoices/supplier-invoices/{invoiceId}/status", INVOICE_ID)
+        mockMvc.perform(patch("/invoices/supplier-invoices/{invoiceId}/status", INVOICE_ID)
                         .param("status", "PAID"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.idInvoice").value(INVOICE_ID.toString()))
@@ -261,7 +241,7 @@ class InvoiceControllerTest {
                 .thenReturn(mock(InvoiceDTO.class));
 
         // ACT & ASSERT
-        mockMvc.perform(multipart(HttpMethod.PATCH, "/api/invoices/supplier-invoices")
+        mockMvc.perform(multipart(HttpMethod.PATCH, "/invoices/supplier-invoices")
                         .file(invoiceDocument)
                         .param("idInvoice", INVOICE_ID.toString())
                         .param("invoiceNumber", "FAC-2024-001")
@@ -306,7 +286,7 @@ class InvoiceControllerTest {
         when(invoiceStatsUseCase.getALLSupplierInvoiceStats()).thenReturn(stats);
 
         // ACT & ASSERT
-        mockMvc.perform(get("/api/invoices/supplier-invoices/stats"))
+        mockMvc.perform(get("/invoices/supplier-invoices/stats"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalAmountTND").value(10000.00))
                 .andExpect(jsonPath("$.totalAmountEUR").value(3000.00))
@@ -324,4 +304,4 @@ class InvoiceControllerTest {
         // Vérification que le use case a bien été appelé
         verify(invoiceStatsUseCase).getALLSupplierInvoiceStats();
     }
-}*/
+}

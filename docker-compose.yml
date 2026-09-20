@@ -15,9 +15,9 @@ services:
       - ms-net
     environment:
       SPRING_PROFILES_ACTIVE: prod
-      EXCHANGERATE: ${EXCHANGERATE}
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
+      KEYCLOAK_URL: ${KEYCLOAK_URL}
   billing-db:
     image: postgres:18
     container_name: billing-db
